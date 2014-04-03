@@ -16,10 +16,7 @@ The MySQL version will use Boon JSON serialization and kryo.
 Boon is the fastest JSON serialization.
 Kryo is the fastest Java serialization.
 
-The plan is to use leveldbjni for the leveldb implementation.
-
-Rick Hightower works on JSR-107 and JSR-347 as well as Boon
-which has an in-memory query engine, and a fast JSON parser/serializer.
+The plan is to use leveldbjni for the leveldb implementation, and later Vertx for a storage replica set.
 
 
 
@@ -38,12 +35,35 @@ LevelDB gets used by Chrome.
 
 
 See Kryo at: https://github.com/EsotericSoftware/kryo
+
 See Boon at: https://github.com/RichardHightower/boon
+
 See LevelDBJNI at: https://github.com/fusesource/leveldbjni
+
 See LevelDB at: https://code.google.com/p/leveldb/
+
 See RocksDB at: http://rocksdb.org/
+
 See RocksDBJNI at: https://github.com/fusesource/rocksdbjni
+
 See LMDB: http://symas.com/mdb/
+
 See LMDBJNI: https://github.com/chirino/lmdbjni
 
-Special thanks to
+Special thanks to Hiram Chirino for writing leveldbjni, lmdbjni and rocksdbjni.
+Without Hiram, Apache Apollo bad-ass, none of this would be possible.
+
+https://github.com/chirino
+
+
+Special thanks to Tim Fox for writing Vertx. Tim is the author of Vertx which leads the charts for fast JVM based web servers.
+Vertx is so much more than a web server.
+
+https://github.com/purplefox
+
+http://www.infoq.com/news/2011/12/apollo-benchmarks
+
+
+Rick Hightower works on JSR-107 and JSR-347 as well as Boon
+which has an in-memory query engine, and a fast JSON parser/serializer.
+
