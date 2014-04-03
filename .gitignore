@@ -2,25 +2,13 @@
 .gradle/*
 gradle/*
 
-slumberdb.iml
-slumberdb.ipr
-
-
 
 out/*
-
 slumberdb-core/slumberdb-core.iml
-
-slumberdb-core/slumberdb-core.iml
-
 slumberdb-core/build/*
-
-
 slumberdb-leveldb/build/*
-
 target/test-data/*
-
-
 slumberdb-leveldb/slumberdb-leveldb.iml
-
+slumberdb.iml
+slumberdb.ipr
 slumberdb.iws
