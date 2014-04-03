@@ -4,3 +4,5 @@ gradle/*
 
 
 slumberdb.iml
+
+core/core.iml
