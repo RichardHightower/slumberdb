@@ -9,6 +9,7 @@ import java.io.Serializable;
  * @param <V> value
  */
 public class Entry <K, V> implements Serializable {
+
     /** Key of item. */
     private final K key;
 

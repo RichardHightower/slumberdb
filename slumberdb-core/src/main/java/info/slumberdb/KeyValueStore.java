@@ -35,11 +35,15 @@ public interface KeyValueStore <K, V> extends Closeable, Flushable{
     void removeAll(Iterable<K> keys);
 
 
-
     /**
-     * Search for range.
+     * Update values.
+     * Allows batching updates.
      */
-    KeyValueIterable<K, V> search(K startKey, K stopKey);
+    void updateAll(Iterable<CrudOperation> updates);
+
+    /** Remove a single key. */
+    void remove(K key);
+
 
 
     /**

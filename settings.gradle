@@ -1,4 +1,14 @@
 rootProject.name = 'slumberdb'
 
-include 'core'
+group = "info.slumberdb"
+version = "1.0-SNAPSHOT"
 
+
+include 'slumberdb-core'
+include 'slumberdb-leveldb'
+
+for (project in getRootProject().children) {
+    println project.name
+
+
+}
