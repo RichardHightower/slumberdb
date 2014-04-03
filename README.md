@@ -42,8 +42,6 @@ public interface KeyValueStore <K, V> extends Closeable, Flushable{
 
     void removeAll(Iterable<K> keys);
 
-    KeyValueIterable<K, V> search(K startKey, K stopKey);
-
     KeyValueIterable<K, V> search(K startKey);
 
     KeyValueIterable<K, V> loadAll();
