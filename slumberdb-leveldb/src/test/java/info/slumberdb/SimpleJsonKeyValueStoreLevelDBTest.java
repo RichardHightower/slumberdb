@@ -217,9 +217,16 @@ public class SimpleJsonKeyValueStoreLevelDBTest {
         }
 
         KeyValueIterable<String, Employee> entries = store.search("key.50");
+
+        int count = 0;
+
         for (Entry<String, Employee> entry : entries) {
             puts (entry.key(), entry.value());
+            count++;
         }
+
+
+        ok = ( count > 20 && count < 60  ) || die(count);
         entries.close();
     }
 
@@ -229,9 +236,14 @@ public class SimpleJsonKeyValueStoreLevelDBTest {
 
         KeyValueIterable<String, Employee> entries = store.loadAll();
 
+        int count = 0;
+
         for (Entry<String, Employee> entry : entries) {
             puts (entry.key(), entry.value());
+            count++;
         }
+
+        ok = ( count == 100  ) || die(count);
 
         entries.close();
 
