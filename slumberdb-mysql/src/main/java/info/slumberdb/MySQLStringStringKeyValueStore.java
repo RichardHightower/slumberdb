@@ -60,9 +60,9 @@ public class MySQLStringStringKeyValueStore implements KeyValueStore<String, Str
     }
 
     private void createSQL(String table) {
-        this.insertStatementSQL = "insert into `" + table + "` (kv_key, kv_value) values (?,?);";
+        this.insertStatementSQL = "replace into `" + table + "` (kv_key, kv_value) values (?,?);";
         this.selectStatementSQL = "select kv_value from `" + table + "` where kv_key = ?;";
-        this.searchStatementSQL = "select kv_key, kv_value from " + table + " where kv_key like ?;";
+        this.searchStatementSQL = "select kv_key, kv_value from `" + table + "` where kv_key >= ?;";
         this.loadAllSQL = "select kv_key, kv_value from `" + table +"`;";
 
         this.deleteStatementSQL = "delete  from `" + table + "` where kv_key = ?;";
@@ -75,7 +75,7 @@ public class MySQLStringStringKeyValueStore implements KeyValueStore<String, Str
                 "  `kv_key` varchar(80) DEFAULT NULL,\n" +
                 "  `kv_value` TEXT,\n" +
                 "  PRIMARY KEY (`id`),\n" +
-                "  KEY  `" + table + "_kv_key_idx` (`kv_key`)\n" +
+                "  UNIQUE KEY  `" + table + "_kv_key_idx` (`kv_key`)\n" +
                 ");\n";
     }
 
@@ -220,10 +220,11 @@ public class MySQLStringStringKeyValueStore implements KeyValueStore<String, Str
     }
 
     @Override
-    public KeyValueIterable<String, String> search(final String startKey) {
+    public KeyValueIterable<String, String> search( final String startKey) {
+
 
         try {
-            search.setString(1, startKey);
+            search.setString(1, startKey+"%");
             final ResultSet resultSet = search.executeQuery();
 
             return new KeyValueIterable<String, String> () {
@@ -276,7 +277,7 @@ public class MySQLStringStringKeyValueStore implements KeyValueStore<String, Str
 
 
         } catch (SQLException e) {
-            handle("Unable to load all records", e);
+            handle(sputs("Unable to search records search key", startKey, "\nquery=", this.searchStatementSQL) , e);
             return null;
         }
     }
@@ -345,12 +346,17 @@ public class MySQLStringStringKeyValueStore implements KeyValueStore<String, Str
     @Override
     public String get(String key) {
 
-        String value = null;
+        String value;
         try {
             select.setString(1, key);
             final ResultSet resultSet = select.executeQuery();
-            resultSet.next();
-            value = resultSet.getString(1);
+
+
+            if (resultSet.next()) {
+                value = resultSet.getString(1);
+            } else {
+                value = null;
+            }
 
         } catch (SQLException ex) {
             handle("Unable to load " + key, ex);
