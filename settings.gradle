@@ -6,9 +6,11 @@ version = "1.0-SNAPSHOT"
 include 'slumberdb-core'
 include 'slumberdb-leveldb'
 include 'slumberdb-mysql'
+//include 'slumberdb-rocksdb'
 
 for (project in getRootProject().children) {
     println project.name
 
 
 }
+

@@ -1,6 +1,5 @@
 package info.slumberdb;
 
-
 import org.boon.Exceptions;
 import org.boon.Logger;
 import org.iq80.leveldb.DB;
@@ -8,10 +7,6 @@ import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.WriteBatch;
 import org.iq80.leveldb.impl.Iq80DBFactory;
-
-import org.iq80.rocksdb.*;
-import static org.fusesource.rocksdbjni.JniDBFactory.*;
-import java.io.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,11 +16,12 @@ import java.util.Map;
 import static org.boon.Boon.configurableLogger;
 import static org.boon.Exceptions.die;
 
+import org.fusesource.rocksdbjni.JniDBFactory;
 
 /**
- * Stores key and values in LevelDB
+ * Created by Richard on 4/4/14.
  */
-public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
+public class RocksDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
 
     /**
@@ -49,14 +45,14 @@ public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
     /**
      * Logger.
      */
-    private Logger logger = configurableLogger(LevelDBKeyValueStore.class);
+    private Logger logger = configurableLogger(RocksDBKeyValueStore.class);
 
     /** Actual database implementation. */
     DB database;
 
 
     /** Creates a level db database with the default options. */
-    public LevelDBKeyValueStore( String fileName ) {
+    public RocksDBKeyValueStore( String fileName ) {
         this (fileName, null, false);
     }
 
@@ -67,7 +63,7 @@ public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
      * @param options options
      * @param log turn on logging
      */
-    public LevelDBKeyValueStore(String fileName, Options options, boolean log) {
+    public RocksDBKeyValueStore(String fileName, Options options, boolean log) {
         this.fileName = fileName;
         File file = new File(fileName);
 
@@ -339,3 +335,4 @@ public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
         openDB(new File(fileName), this.options);
     }
 }
+
