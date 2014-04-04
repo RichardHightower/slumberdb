@@ -189,35 +189,6 @@ public class SimpleJsonKeyValueStoreMySQLTest {
     }
 
 
-
-    @Test
-    public void testSearch() {
-        for (int index=0; index< 100; index++) {
-
-            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-        KeyValueIterable<String, Employee> entries = store.search("key.50");
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-        }
-        entries.close();
-    }
-
-
-    @Test
-    public void testIteration() {
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-        }
-
-        entries.close();
-
-    }
-
     @Test
     public void sillyTestForCodeCoverage() {
 
@@ -235,6 +206,49 @@ public class SimpleJsonKeyValueStoreMySQLTest {
         } catch (Exception ex) {
 
         }
+    }
+
+
+
+
+    @Test
+    public void testSearch() {
+        for (int index=0; index< 100; index++) {
+
+            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
+        }
+
+        KeyValueIterable<String, Employee> entries = store.search("key.50");
+
+        int count = 0;
+
+        for (Entry<String, Employee> entry : entries) {
+            puts (entry.key(), entry.value());
+            count++;
+        }
+
+
+        ok = ( count > 20 && count < 60  ) || die(count);
+        entries.close();
+    }
+
+
+    @Test
+    public void testIteration() {
+
+        KeyValueIterable<String, Employee> entries = store.loadAll();
+
+        int count = 0;
+
+        for (Entry<String, Employee> entry : entries) {
+            puts (entry.key(), entry.value());
+            count++;
+        }
+
+        ok = ( count == 100  ) || die(count);
+
+        entries.close();
+
     }
 
 
