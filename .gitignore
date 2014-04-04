@@ -12,3 +12,5 @@ slumberdb-leveldb/slumberdb-leveldb.iml
 slumberdb.iml
 slumberdb.ipr
 slumberdb.iws
+
+slumberdb-mysql/slumberdb-mysql.iml
