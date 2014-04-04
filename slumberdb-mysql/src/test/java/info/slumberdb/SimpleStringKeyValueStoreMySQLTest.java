@@ -13,8 +13,8 @@ import static org.boon.Exceptions.die;
 import static org.boon.Ok.okOrDie;
 
 
-public class MySQLStringStringKeyValueStoreTest {
-    private MySQLStringStringKeyValueStore store;
+public class SimpleStringKeyValueStoreMySQLTest {
+    private SimpleStringKeyValueStoreMySQL store;
     String url = "jdbc:mysql://localhost:3306/slumberdb";
     String userName = "slumber";
     String password = "slumber1234";
@@ -26,8 +26,15 @@ public class MySQLStringStringKeyValueStoreTest {
     @Before
     public void setup() {
 
-        store = new MySQLStringStringKeyValueStore(url, userName, password, table);
+        store = new SimpleStringKeyValueStoreMySQL(url, userName, password, table);
 
+    }
+
+    @After
+    public void close() {
+
+
+        store.close();
     }
 
 
@@ -145,10 +152,6 @@ public class MySQLStringStringKeyValueStoreTest {
     }
 
 
-    @After
-    public void close() {
-        store.close();
-    }
 
 
 }

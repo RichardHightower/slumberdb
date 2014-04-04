@@ -14,7 +14,7 @@ import static org.boon.Boon.configurableLogger;
 import static org.boon.Boon.puts;
 import static org.boon.Boon.sputs;
 
-public class MySQLStringStringKeyValueStore implements KeyValueStore<String, String>{
+public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
 
     private String url;
     private String userName;
@@ -37,10 +37,10 @@ public class MySQLStringStringKeyValueStore implements KeyValueStore<String, Str
     private PreparedStatement loadAll;
 
 
-    private Logger logger = configurableLogger(MySQLStringStringKeyValueStore.class);
+    private Logger logger = configurableLogger(SimpleStringKeyValueStoreMySQL.class);
     private String loadAllSQL;
 
-    public MySQLStringStringKeyValueStore(String url, String userName, String password, String table) {
+    public SimpleStringKeyValueStoreMySQL(String url, String userName, String password, String table) {
         this.url = url;
         this.userName = userName;
         this.password = password;
