@@ -3,11 +3,6 @@ package info.slumberdb;
 
 import org.iq80.leveldb.Options;
 
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-
-import static org.boon.Str.str;
-import static org.boon.primitive.Byt.bytes;
 
 
 public class SimpleStringKeyValueStoreLevelDB extends SimpleStringKeyValueStore {

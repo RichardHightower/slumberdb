@@ -3,9 +3,9 @@ rootProject.name = 'slumberdb'
 group = "info.slumberdb"
 version = "1.0-SNAPSHOT"
 
-
 include 'slumberdb-core'
 include 'slumberdb-leveldb'
+include 'slumberdb-mysql'
 
 for (project in getRootProject().children) {
     println project.name
