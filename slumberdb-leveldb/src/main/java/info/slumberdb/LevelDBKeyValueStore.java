@@ -3,15 +3,13 @@ package info.slumberdb;
 
 import org.boon.Exceptions;
 import org.boon.Logger;
+import org.fusesource.leveldbjni.JniDBFactory;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.WriteBatch;
 import org.iq80.leveldb.impl.Iq80DBFactory;
 
-import org.iq80.rocksdb.*;
-import static org.fusesource.rocksdbjni.JniDBFactory.*;
-import java.io.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +17,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static org.boon.Boon.configurableLogger;
-import static org.boon.Exceptions.die;
 
 
 /**
@@ -193,15 +190,6 @@ public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     }
 
-    /**
-     * Performs batch updates
-     * @param updates
-     */
-    @Override
-    public void updateAll(Iterable<CrudOperation> updates) {
-        die("Not implemented for binary array");
-
-    }
 
     /**
      * Remove items from list
@@ -328,14 +316,4 @@ public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
         }
     }
 
-    /**
-     * Close the database and reopen it.
-     * We should add a lock here or just drop this feature.
-     *
-     */
-    @Override
-    public void flush()  {
-        this.close();
-        openDB(new File(fileName), this.options);
-    }
 }

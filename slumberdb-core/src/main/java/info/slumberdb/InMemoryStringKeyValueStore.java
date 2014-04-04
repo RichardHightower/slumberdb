@@ -2,6 +2,10 @@ package info.slumberdb;
 
 import java.util.*;
 
+/**
+ * This is mostly for testing.
+ * It is an in-memory map.
+ */
 public class InMemoryStringKeyValueStore implements StringKeyValueStore {
 
 
@@ -23,11 +27,6 @@ public class InMemoryStringKeyValueStore implements StringKeyValueStore {
         for (String key : keys) {
             map.remove(key);
         }
-    }
-
-    @Override
-    public void updateAll(Iterable<CrudOperation> updates) {
-        throw new RuntimeException("Not implemented");
     }
 
 
@@ -114,8 +113,4 @@ public class InMemoryStringKeyValueStore implements StringKeyValueStore {
 
     }
 
-    @Override
-    public void flush() {
-
-    }
 }

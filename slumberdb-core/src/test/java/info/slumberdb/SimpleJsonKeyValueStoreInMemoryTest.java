@@ -6,23 +6,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
 
+import static org.boon.Boon.iterator;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
- * Created by Richard on 4/4/14.
+ * Created by Richard on 3/30/14.
  */
-public class SimpleJsonKeyValueStoreMySQLTest {
+public class SimpleJsonKeyValueStoreInMemoryTest {
 
-    private SimpleJsonKeyValueStoreMySQL<Employee> store;
-    String url = "jdbc:mysql://localhost:3306/info";
-    String userName = "slumber";
-    String password = "slumber1234";
-    String table = "json-test";
 
+    private JsonKeyValueStore<String, Employee> store;
+    private boolean ok;
 
 
     public static class Employee {
@@ -83,14 +82,15 @@ public class SimpleJsonKeyValueStoreMySQLTest {
         }
     }
 
-    boolean ok;
 
     @Before
     public void setup() {
 
-        store = new SimpleJsonKeyValueStoreMySQL(url, userName, password, table, Employee.class);
+
+        store = new SimpleJsonKeyValueStore(new InMemoryStringKeyValueStore(), Employee.class);
 
     }
+
 
     @After
     public void close() {
@@ -98,6 +98,21 @@ public class SimpleJsonKeyValueStoreMySQLTest {
 
         store.close();
     }
+
+
+
+    @Test
+    public void test() {
+        store.put("123",
+                new Employee("Rick", "Hightower")
+        );
+
+        Employee employee = store.get("123");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+
+        Str.equalsOrDie("Hightower", employee.getLastName());
+    }
+
 
 
     @Test
@@ -130,76 +145,6 @@ public class SimpleJsonKeyValueStoreMySQLTest {
         employee = store.get("123");
         Str.equalsOrDie("Rick", employee.getFirstName());
         Str.equalsOrDie("Hightower", employee.getLastName());
-
-    }
-
-
-
-
-    @Test
-    public void sillyTestForCodeCoverage() {
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        Iterator<Entry<String, Employee>> iterator = entries.iterator();
-
-
-        try {
-            while (iterator.hasNext()) {
-                iterator.remove();
-            }
-
-
-        } catch (Exception ex) {
-
-        }
-    }
-
-
-
-
-    @Test
-    public void testSearch() {
-        for (int index=0; index< 100; index++) {
-
-            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-        KeyValueIterable<String, Employee> entries = store.search("key.50");
-
-        int count = 0;
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-            count++;
-        }
-
-
-        ok = ( count > 20 && count < 60  ) || die(count);
-        entries.close();
-    }
-
-
-    @Test
-    public void testIteration() {
-
-        for (int index=0; index< 100; index++) {
-
-            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        int count = 0;
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-            count++;
-        }
-
-        ok = ( count == 100  ) || die(count);
-
-        entries.close();
 
     }
 
@@ -259,4 +204,69 @@ public class SimpleJsonKeyValueStoreMySQLTest {
     }
 
 
+
+    @Test
+    public void testSearch() {
+        for (int index=0; index< 100; index++) {
+
+            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
+        }
+
+        KeyValueIterable<String, Employee> entries = store.search("key.50");
+
+        int count = 0;
+
+        for (Entry<String, Employee> entry : entries) {
+            puts (entry.key(), entry.value());
+            count++;
+        }
+
+
+        ok = ( count > 20 && count < 60  ) || die(count);
+        entries.close();
+    }
+
+
+    @Test
+    public void testIteration() {
+
+        for (int index=0; index< 100; index++) {
+
+            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
+        }
+
+
+        KeyValueIterable<String, Employee> entries = store.loadAll();
+
+        int count = 0;
+
+        for (Entry<String, Employee> entry : entries) {
+            puts (entry.key(), entry.value());
+            count++;
+        }
+
+        ok = ( count == 100  ) || die(count);
+
+        entries.close();
+
+    }
+
+    @Test
+    public void sillyTestForCodeCoverage() {
+
+        KeyValueIterable<String, Employee> entries = store.loadAll();
+
+        Iterator<Entry<String, Employee>> iterator = entries.iterator();
+
+
+        try {
+            while (iterator.hasNext()) {
+                iterator.remove();
+            }
+
+
+        } catch (Exception ex) {
+
+        }
+    }
 }

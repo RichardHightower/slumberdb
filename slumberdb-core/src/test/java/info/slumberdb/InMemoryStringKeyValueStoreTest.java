@@ -1,11 +1,13 @@
 package info.slumberdb;
 
+
 import org.boon.Maps;
 import org.boon.Str;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Map;
 
 import static org.boon.Boon.puts;
@@ -13,12 +15,12 @@ import static org.boon.Exceptions.die;
 import static org.boon.Ok.okOrDie;
 
 
-public class SimpleStringKeyValueStoreMySQLTest {
-    private SimpleStringKeyValueStoreMySQL store;
-    String url = "jdbc:mysql://localhost:3306/info";
-    String userName = "slumber";
-    String password = "slumber1234";
-    String table = "string-test";
+/**
+ * Created by Richard on 3/30/14.
+ */
+public class InMemoryStringKeyValueStoreTest {
+
+    private InMemoryStringKeyValueStore store;
 
 
     boolean ok;
@@ -26,17 +28,16 @@ public class SimpleStringKeyValueStoreMySQLTest {
     @Before
     public void setup() {
 
-        store = new SimpleStringKeyValueStoreMySQL(url, userName, password, table);
+
+        store = new InMemoryStringKeyValueStore();
 
     }
+
 
     @After
     public void close() {
-
-
         store.close();
     }
-
 
 
     @Test
@@ -48,7 +49,9 @@ public class SimpleStringKeyValueStoreMySQLTest {
         String world = store.get("hello");
         Str.equalsOrDie("world", world);
 
+        store.close();
     }
+
 
 
     @Test
@@ -149,11 +152,14 @@ public class SimpleStringKeyValueStoreMySQLTest {
         }
 
         entries.close();
-        store.close();
     }
 
 
+    public void forceException() {
 
+        store.close();
+        store.put("key", "value");
+    }
 
 
 

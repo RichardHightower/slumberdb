@@ -53,7 +53,6 @@ public class StringKeyValueStoreTest {
         String world = store.get("hello");
         Str.equalsOrDie("world", world);
 
-        store.flush();
         store.close();
     }
 

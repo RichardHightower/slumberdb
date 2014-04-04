@@ -276,10 +276,6 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
         }
 
     }
-    @Override
-    public void updateAll(Iterable<CrudOperation> updates) {
-
-    }
 
     @Override
     public void remove(String key) {
@@ -447,17 +443,6 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
             logger.warn("Problem closing", e);
         }
     }
-
-    @Override
-    public void flush() {
-        try {
-            connection.commit();
-        } catch (SQLException e) {
-            handle("Unable to commit", e);
-        }
-
-    }
-
 
 
     private Connection connection()  {

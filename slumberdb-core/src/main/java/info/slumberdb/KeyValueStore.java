@@ -13,7 +13,7 @@ import java.util.Map;
  * </p>
  *
  */
-public interface KeyValueStore <K, V> extends Closeable, Flushable{
+public interface KeyValueStore <K, V> extends Closeable {
 
     /**
      * Put a key
@@ -35,11 +35,6 @@ public interface KeyValueStore <K, V> extends Closeable, Flushable{
     void removeAll(Iterable<K> keys);
 
 
-    /**
-     * Update values.
-     * Allows batching updates.
-     */
-    void updateAll(Iterable<CrudOperation> updates);
 
     /** Remove a single key. */
     void remove(K key);
@@ -71,9 +66,5 @@ public interface KeyValueStore <K, V> extends Closeable, Flushable{
     void close();
 
 
-    /*
-     * Flush any outstanding requests.
-     */
-    void flush();
 
 }

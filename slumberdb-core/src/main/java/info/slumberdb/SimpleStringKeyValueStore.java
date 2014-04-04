@@ -8,7 +8,11 @@ import java.util.*;
 import static org.boon.Str.str;
 import static org.boon.primitive.Byt.bytes;
 
-
+/**
+ * This represents a simple key / value store for strings.
+ * You can combine this with any key value binary store (KeyValueStore<byte[], byte[]>).
+ * It will encode the strings using UTF-8 encoding.
+ */
 public class SimpleStringKeyValueStore implements StringKeyValueStore {
 
     protected KeyValueStore<byte[], byte[]> store;
@@ -46,10 +50,6 @@ public class SimpleStringKeyValueStore implements StringKeyValueStore {
         store.removeAll(keyBytes);
     }
 
-    @Override
-    public void updateAll(Iterable<CrudOperation> updates) {
-
-    }
 
     @Override
     public void remove(String key) {
@@ -176,9 +176,5 @@ public class SimpleStringKeyValueStore implements StringKeyValueStore {
         store.close();
     }
 
-    @Override
-    public void flush() {
-        store.flush();
-    }
 }
 
