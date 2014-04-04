@@ -4,7 +4,7 @@ CREATE USER 'slumber'@'localhost' IDENTIFIED BY 'slumber1234';
 
 drop database  if exists slumberdb;
 create database slumberdb;
-use slumber;
+use slumberdb;
 
 GRANT ALL ON slumberdb.* TO 'slumber'@'%';
 

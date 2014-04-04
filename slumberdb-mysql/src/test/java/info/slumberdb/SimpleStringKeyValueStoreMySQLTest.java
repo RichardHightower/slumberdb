@@ -149,6 +149,7 @@ public class SimpleStringKeyValueStoreMySQLTest {
         }
 
         entries.close();
+        store.close();
     }
 
 

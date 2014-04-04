@@ -221,6 +221,32 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
 
     @Override
     public void removeAll(Iterable<String> keys) {
+           if (useBatch) {
+               removeAllUseBatch(keys);
+           }else {
+               removeAllUseTransaction(keys);
+           }
+    }
+
+    public void removeAllUseBatch(Iterable<String> keys) {
+
+        try {
+
+            for (String key : keys) {
+                delete.setString(1, key);
+                delete.addBatch();
+            }
+
+            delete.executeBatch();
+
+        } catch (SQLException e) {
+            handle("Unable to removeAll values", e);
+        }
+
+    }
+
+
+    public void removeAllUseTransaction(Iterable<String> keys) {
 
         try {
             connection.setAutoCommit(false);
@@ -250,7 +276,6 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
         }
 
     }
-
     @Override
     public void updateAll(Iterable<CrudOperation> updates) {
 
@@ -442,7 +467,7 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
             dataSource.setPassword(password);
             dataSource.setUser(userName);
             Connection connection = dataSource.getConnection();
-            connection.setAutoCommit(false);
+            connection.setAutoCommit(true);
             return connection;
         } catch (SQLException sqlException) {
             handle("Unable to connect", sqlException);
