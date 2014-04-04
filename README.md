@@ -16,14 +16,24 @@ The MySQL version, for example, will use Boon JSON serialization and kryo.
 Boon is the fastest JSON serialization.
 Kryo is the fastest Java serialization.
 
-The plan is to use leveldbjni for the leveldb implementation, and later Vertx for a storage replica set.
+The plan is to use **leveldbjni** for the leveldb implementation, and later Vertx for server and replication support.
 
 Goals
 =========
 
 Provide a simple key/value store.
 
-Allow store by key. Read by key. Store many values. Read many values.
+Allow store by key.
+Read by key.
+Store many key/value pairs.
+Read many key/value pairs.
+Delete a key.
+Delete a batch of keys.
+Search by key.
+Batch update operations for JSON and Java objects (not implemented yet).
+
+We have an implementation in LevelDB for Strings, JSON and binary.
+
 
 
 Interface
@@ -42,6 +52,8 @@ public interface KeyValueStore <K, V> extends Closeable, Flushable{
 
     void removeAll(Iterable<K> keys);
 
+    void remove(K key);
+
     KeyValueIterable<K, V> search(K startKey);
 
     KeyValueIterable<K, V> loadAll();
@@ -57,7 +69,8 @@ public interface KeyValueStore <K, V> extends Closeable, Flushable{
 
 ```
 
-The focus is on being a store. There is some rudimentary read operations for faulting in-memory cache operations.
+The focus is on being a store.
+There is some rudimentary read operations for faulting in-memory cache operations.
 
 
 
@@ -72,9 +85,9 @@ Related projects
 **LevelDB** is a lightweight database by **Google** modeled after BigTable tablet store.
 LevelDB gets used by Chrome.
 
-**RocksDB** is a server-side version of LevelDB by **Facebook** that reportedly is more scalable.
+**RocksDB** is a server-side version of LevelDB by **Facebook** that reportedly is more scalable than LevelDB.
 
-**MySQL** is well MySQL.
+**MySQL** is well MySQL. We are using it as a table with two columns. One column is indexed.
 
 **LMDB** is an fast, compact key/value store which gets used by the OpenLDAP Project.
 
@@ -103,9 +116,10 @@ See LMDBJNI: https://github.com/chirino/lmdbjni
 Thanks
 =========
 
-Special thanks to Hiram Chirino for writing leveldbjni, lmdbjni and rocksdbjni.
-Without Hiram, Apache Apollo bad-ass, none of this would be possible.
+Special thanks to Hiram Chirino for writing **leveldbjni**, **lmdbjni** and **rocksdbjni**.
+Without Hiram, Apache Apollo hero, none of this would be possible.
 
+See Mr. Chirino at:
 https://github.com/chirino
 
 
@@ -113,6 +127,8 @@ Special thanks to Tim Fox for writing Vertx. Tim is the author of Vertx which le
 Vertx is so much more than a web server.
 
 https://github.com/purplefox
+
+We plan on using Vertx for replication and client/server networking support.
 
 http://www.infoq.com/news/2011/12/apollo-benchmarks
 
