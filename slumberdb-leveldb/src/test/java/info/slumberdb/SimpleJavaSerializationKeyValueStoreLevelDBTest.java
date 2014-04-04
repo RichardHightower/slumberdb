@@ -7,24 +7,25 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.boon.Boon.iterator;
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
- * Created by Richard on 3/30/14.
+ * Created by Richard on 4/4/14.
  */
-public class SimpleJsonKeyValueStoreLevelDBTest {
+public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
 
 
-    private JsonKeyValueStore<String, Employee> store;
+
+    private SimpleJavaSerializationStore<Employee> store;
     private boolean ok;
 
 
-    public static class Employee {
+    public static class Employee implements Serializable {
         String firstName;
         String lastName;
         String id;
@@ -90,8 +91,8 @@ public class SimpleJsonKeyValueStoreLevelDBTest {
         File file = new File("target/test-data");
         file = file.getAbsoluteFile();
         file.mkdirs();
-        file = new File(file, "employee-json.dat");
-        store = new SimpleJsonKeyValueStoreLevelDB(file.toString(), Employee.class);
+        file = new File(file, "employee.dat");
+        store = new SimpleJavaSerializationKeyValueStoreLevelDB(file.toString());
 
     }
 
@@ -234,11 +235,11 @@ public class SimpleJsonKeyValueStoreLevelDBTest {
     @Test
     public void testIteration() {
 
-
         for (int index=0; index< 100; index++) {
 
             store.put("iter." + index, new Employee("Rick"+index, "Hightower"));
         }
+
 
         KeyValueIterable<String, Employee> entries = store.loadAll();
 
@@ -273,4 +274,5 @@ public class SimpleJsonKeyValueStoreLevelDBTest {
 
         }
     }
+
 }
