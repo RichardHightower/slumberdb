@@ -39,6 +39,9 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
 
     private Logger logger = configurableLogger(SimpleStringKeyValueStoreMySQL.class);
     private String loadAllSQL;
+    private boolean useBatch = true;
+
+    private int batchSize = 100;
 
     public SimpleStringKeyValueStoreMySQL(String url, String userName, String password, String table) {
         this.url = url;
@@ -137,8 +140,39 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
 
     }
 
-    @Override
-    public void putAll(Map<String, String> values) {
+
+    public void putAllUseBatch(Map<String, String> values) {
+
+        int count = 0;
+        try {
+
+            Set<Map.Entry<String, String>> entries = values.entrySet();
+
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                insert.setString(1, key);
+                insert.setString(2, value);
+                insert.addBatch();
+
+                if (count == batchSize) {
+                    count = 0;
+                    insert.executeBatch();
+                } else {
+                    count++;
+                }
+            }
+
+            insert.executeBatch();
+
+        } catch (SQLException e) {
+            handle("Unable to putALl values", e);
+            connection = connection();
+
+        }
+    }
+
+    public void putAllUseTransaction(Map<String, String> values) {
 
         try {
             connection.setAutoCommit(false);
@@ -146,7 +180,11 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
             Set<Map.Entry<String, String>> entries = values.entrySet();
 
             for (Map.Entry<String, String> entry : entries) {
-                this.put(entry.getKey(), entry.getValue());
+                String key = entry.getKey();
+                String value = entry.getValue();
+                insert.setString(1, key);
+                insert.setString(2, value);
+                insert.executeUpdate();
             }
 
             connection.commit();
@@ -168,6 +206,17 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
 
         }
 
+    }
+
+    @Override
+    public void putAll(Map<String, String> values) {
+
+
+        if (useBatch) {
+            putAllUseBatch(values);
+        } else {
+            putAllUseTransaction(values);
+        }
     }
 
     @Override
