@@ -3,9 +3,9 @@ rootProject.name = 'info'
 group = "info.info"
 version = "1.0-SNAPSHOT"
 
-include 'info-core'
-include 'info-leveldb'
-include 'info-mysql'
+include 'slumberdb-core'
+include 'slumberdb-leveldb'
+include 'slumberdb-mysql'
 //include 'info-rocksdb'
 
 for (project in getRootProject().children) {

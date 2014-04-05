@@ -14,7 +14,9 @@ repositories {
     mavenLocal()
 }
 
+
 dependencies {
+    compile group: 'com.esotericsoftware.kryo', name: 'kryo', version: '2.23.0'
     compile group: 'io.fastjson', name: 'boon', version: '0.14-SNAPSHOT'
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
