@@ -15,7 +15,7 @@ import static org.boon.Ok.okOrDie;
 
 public class SimpleStringKeyValueStoreMySQLTest {
     private SimpleStringKeyValueStoreMySQL store;
-    String url = "jdbc:mysql://localhost:3306/info";
+    String url = "jdbc:mysql://localhost:3306/slumberdb";
     String userName = "slumber";
     String password = "slumber1234";
     String table = "string-test";

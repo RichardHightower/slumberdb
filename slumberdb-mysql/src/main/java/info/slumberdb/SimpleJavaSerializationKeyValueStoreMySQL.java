@@ -7,16 +7,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * This is done mostly to benchmark it against Kyro to show how awesome Kyro is.
+ * Created by Richard on 4/4/14.
  */
-public class SimpleJavaSerializationStore <V extends Serializable> implements SerializedJavaKeyValueStore<String,V> {
+public class SimpleJavaSerializationKeyValueStoreMySQL <V extends Serializable>  implements SerializedJavaKeyValueStore<String,V> {
 
-    private KeyValueStore <byte[], byte[]> store;
+    private KeyValueStore <String, byte[]> store;
 
-    public SimpleJavaSerializationStore(KeyValueStore <byte[], byte[]> store) {
-        this.store = store;
-
+    public SimpleJavaSerializationKeyValueStoreMySQL(String url, String userName, String password, String table, Class<V> cls) {
+        store = new SimpleStringBinaryKeyValueStoreMySQL(url, userName, password, table);
     }
+
 
 
     protected static String toString(byte [] key) {
@@ -59,16 +59,16 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
 
     @Override
     public void put(String key, V value) {
-        store.put(toBytes(key), toBytes(value));
+        store.put(key, toBytes(value));
     }
 
     @Override
     public void putAll(Map<String, V> values) {
         Set<Map.Entry<String, V>> entries = values.entrySet();
-        Map<byte[], byte[]> map = new HashMap<>(values.size());
+        Map<String, byte[]> map = new HashMap<>(values.size());
 
         for (Map.Entry<String, V> entry : entries) {
-            map.put(toBytes(entry.getKey()), toBytes(entry.getValue()));
+            map.put(entry.getKey(), toBytes(entry.getValue()));
         }
 
         store.putAll(map);
@@ -76,25 +76,19 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
 
     @Override
     public void removeAll(Iterable<String> keys) {
-        List<byte[]> list = new ArrayList<>();
-
-        for (String key : keys) {
-            list.add(toBytes(key));
-        }
-
-        store.removeAll(list);
+        store.removeAll( keys );
     }
 
     @Override
     public void remove(String key) {
 
-        store.remove(toBytes(key));
+        store.remove( key );
     }
 
     @Override
     public KeyValueIterable<String, V> search(String startKey) {
-        final KeyValueIterable<byte[], byte[]> search = store.search(toBytes(startKey));
-        final Iterator<Entry<byte[], byte[]>> iterator = search.iterator();
+        final KeyValueIterable<String, byte[]> search = store.search(startKey);
+        final Iterator<Entry<String, byte[]>> iterator = search.iterator();
         return new KeyValueIterable<String, V>() {
             @Override
             public void close() {
@@ -111,10 +105,10 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
 
                     @Override
                     public Entry<String, V> next() {
-                        final Entry<byte[], byte[]> next = iterator.next();
+                        final Entry<String, byte[]> next = iterator.next();
 
-                        return new Entry<>(SimpleJavaSerializationStore.toString(next.key()),
-                                SimpleJavaSerializationStore.this.toObject(next.value()));
+                        return new Entry<>(next.key(),
+                                toObject(next.value()));
                     }
 
                     @Override
@@ -129,8 +123,8 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
 
     @Override
     public KeyValueIterable<String, V> loadAll() {
-        final KeyValueIterable<byte[], byte[]> search = store.loadAll();
-        final Iterator<Entry<byte[], byte[]>> iterator = search.iterator();
+        final KeyValueIterable<String, byte[]> search = store.loadAll();
+        final Iterator<Entry<String, byte[]>> iterator = search.iterator();
         return new KeyValueIterable<String, V>() {
             @Override
             public void close() {
@@ -147,10 +141,10 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
 
                     @Override
                     public Entry<String, V> next() {
-                        final Entry<byte[], byte[]> next = iterator.next();
+                        final Entry<String, byte[]> next = iterator.next();
 
-                        return new Entry<>(SimpleJavaSerializationStore.toString(next.key()),
-                                SimpleJavaSerializationStore.this.toObject(next.value()));
+                        return new Entry<>(next.key(),
+                                toObject(next.value()));
                     }
 
                     @Override
@@ -164,7 +158,7 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
 
     @Override
     public V get(String key) {
-        final byte[] bytes = store.get(toBytes(key));
+        final byte[] bytes = store.get( key );
         if (bytes != null) {
             return toObject(bytes);
         }else {
@@ -177,4 +171,5 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
         store.close();
 
     }
+
 }
