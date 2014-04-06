@@ -11,6 +11,8 @@ This project marries Boon/Kyro with LevelDB, MySQL, RocksDB, and LMDB to provide
 
 The focus is not on data grid usage, but just as a data safe reliable key/value store for Java.
 
+We are at 95% plus code coverage. We care about providing a quality, simple fast storage mechnsim with an easy to use interface for Java.
+
 
 Features
 =========
