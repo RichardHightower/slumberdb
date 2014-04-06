@@ -1,12 +1,16 @@
 package info.slumberdb;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import org.boon.Maps;
 import org.boon.Str;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,20 +19,26 @@ import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
- * Created by Richard on 4/4/14.
+ * Created by Richard on 4/5/14.
  */
-public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
+public class SimpleKyroMySQLStoreTest {
 
-
-
-    private SimpleJavaSerializationStore<Employee> store;
-    private boolean ok;
+    private SimpleKyroKeyValueStoreMySQL<Employee> store;
+    String url = "jdbc:mysql://localhost:3306/slumberdb";
+    String userName = "slumber";
+    String password = "slumber1234";
+    String table = "kyro-emp-test";
 
 
     public static class Employee implements Serializable {
         String firstName;
         String lastName;
         String id;
+
+
+        public Employee() {
+
+        }
 
         public Employee(String firstName, String lastName) {
             this.firstName = firstName;
@@ -83,19 +93,46 @@ public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
         }
     }
 
+    boolean ok;
+
+
+
+
+    @Test
+    public void testKyro() {
+
+        Employee employee = new Employee("Rick", "Hightower");
+        Kryo kryo = new Kryo();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Output output = new Output(outputStream);
+
+        kryo.writeClassAndObject(output, employee);
+
+        output.close();
+
+        final byte[] bytes = outputStream.toByteArray();
+
+
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+
+        Input input = new Input(inputStream);
+
+        Object object = kryo.readClassAndObject(input);
+
+        puts(object);
+
+
+
+    }
 
     @Before
     public void setup() {
 
-
-        File file = new File("target/test-data");
-        file = file.getAbsoluteFile();
-        file.mkdirs();
-        file = new File(file, "employee-java.dat");
-        store = new SimpleJavaSerializationKeyValueStoreLevelDB(file.toString());
+        store = new SimpleKyroKeyValueStoreMySQL(url, userName, password, table, Employee.class);
 
     }
-
 
     @After
     public void close() {
@@ -103,21 +140,6 @@ public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
 
         store.close();
     }
-
-
-
-    @Test
-    public void test() {
-        store.put("123",
-                new Employee("Rick", "Hightower")
-        );
-
-        Employee employee = store.get("123");
-        Str.equalsOrDie("Rick", employee.getFirstName());
-
-        Str.equalsOrDie("Hightower", employee.getLastName());
-    }
-
 
 
     @Test
@@ -153,6 +175,71 @@ public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
 
     }
 
+
+    @Test
+    public void sillyTestForCodeCoverage() {
+
+        KeyValueIterable<String, Employee> entries = store.loadAll();
+
+        Iterator<Entry<String, Employee>> iterator = entries.iterator();
+
+
+        try {
+            while (iterator.hasNext()) {
+                iterator.remove();
+            }
+
+
+        } catch (Exception ex) {
+
+        }
+    }
+
+
+    @Test
+    public void testSearch() {
+        for (int index = 0; index < 100; index++) {
+
+            store.put("key." + index, new Employee("Rick" + index, "Hightower"));
+        }
+
+        KeyValueIterable<String, Employee> entries = store.search("key.50");
+
+        int count = 0;
+
+        for (Entry<String, Employee> entry : entries) {
+            puts(entry.key(), entry.value());
+            count++;
+        }
+
+
+        ok = (count > 20 && count < 60) || die(count);
+        entries.close();
+    }
+
+
+    @Test
+    public void testIteration() {
+
+        for (int index = 0; index < 100; index++) {
+
+            store.put("key." + index, new Employee("Rick" + index, "Hightower"));
+        }
+
+        KeyValueIterable<String, Employee> entries = store.loadAll();
+
+        int count = 0;
+
+        for (Entry<String, Employee> entry : entries) {
+            puts(entry.key(), entry.value());
+            count++;
+        }
+
+        ok = (count == 100) || die(count);
+
+        entries.close();
+
+    }
 
 
     @Test
@@ -191,88 +278,17 @@ public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
         store.removeAll(map.keySet());
 
 
-
-        employee =        store.get("123");
-
-        ok = employee == null || die();
-
-        employee =        store.get("456");
-
+        employee = store.get("123");
 
         ok = employee == null || die();
 
+        employee = store.get("456");
 
 
+        ok = employee == null || die();
 
 
-
-    }
-
-
-
-    @Test
-    public void testSearch() {
-        for (int index=0; index< 100; index++) {
-
-            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-        KeyValueIterable<String, Employee> entries = store.search("key.50");
-
-        int count = 0;
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-            count++;
-        }
-
-
-        ok = ( count > 20 && count < 60  ) || die(count);
-        entries.close();
-    }
-
-
-    @Test
-    public void testIteration() {
-
-        for (int index=0; index< 100; index++) {
-
-            store.put("iter." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        int count = 0;
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-            count++;
-        }
-
-        ok = ( count >= 100  ) || die(count);
-
-        entries.close();
-
-    }
-
-    @Test
-    public void sillyTestForCodeCoverage() {
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        Iterator<Entry<String, Employee>> iterator = entries.iterator();
-
-
-        try {
-            while (iterator.hasNext()) {
-                iterator.remove();
-            }
-
-
-        } catch (Exception ex) {
-
-        }
     }
 
 }
+

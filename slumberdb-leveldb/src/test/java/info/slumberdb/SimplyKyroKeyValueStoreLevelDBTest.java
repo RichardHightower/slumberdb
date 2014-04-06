@@ -15,13 +15,11 @@ import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
- * Created by Richard on 4/4/14.
+ * Created by Richard on 4/5/14.
  */
-public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
+public class SimplyKyroKeyValueStoreLevelDBTest {
 
-
-
-    private SimpleJavaSerializationStore<Employee> store;
+    private SimpleKyroKeyValueStoreLevelDB<Employee> store;
     private boolean ok;
 
 
@@ -29,6 +27,9 @@ public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
         String firstName;
         String lastName;
         String id;
+
+        public Employee() {
+        }
 
         public Employee(String firstName, String lastName) {
             this.firstName = firstName;
@@ -91,8 +92,8 @@ public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
         File file = new File("target/test-data");
         file = file.getAbsoluteFile();
         file.mkdirs();
-        file = new File(file, "employee-java.dat");
-        store = new SimpleJavaSerializationKeyValueStoreLevelDB(file.toString());
+        file = new File(file, "employee-kyro.dat");
+        store = new SimpleKyroKeyValueStoreLevelDB(file.toString(), Employee.class);
 
     }
 
@@ -275,4 +276,7 @@ public class SimpleJavaSerializationKeyValueStoreLevelDBTest {
         }
     }
 
+    {
+        new Entry<>();
+    }
 }

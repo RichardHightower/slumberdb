@@ -1,36 +1,76 @@
 package info.slumberdb;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import org.boon.Exceptions;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+
 /**
- * Created by Richard on 4/5/14.
+ * This marries a key value store with Kyro for serializer and deserializer support.
+ * It is a decorator. The real storage is done by the KeyValueStore <byte[], byte[]> store.
+ * You specify the object type.
+ *
+ * This class is not thread safe, but the KeyValueStore <byte[], byte[]> likely is.
+ * You need a SimpleKyroKeyValueStore per thread.
+ * This is needed to optimize buffer reuse of Kyro.
+ *
+ * You can combine this Kyro store with any KeyValueStore <byte[], byte[]> store.
+ *
+ * It expects the key to be a simple string and the value to be an object that will be serialized using Kyro.
+ *
+ * @see info.slumberdb.KeyValueStore
+ * @param <V> type of value we are storing.
  */
 public class SimpleKyroKeyValueStore <V extends Serializable> implements SerializedJavaKeyValueStore<String,V> {
 
-    private KeyValueStore <byte[], byte[]> store;
-    private Kryo kryo = new Kryo(); //TODO left off here.
+    /** Store that does the actual writing to DB (likely). */
+    private final KeyValueStore <byte[], byte[]> store;
 
-    public SimpleKyroKeyValueStore(KeyValueStore <byte[], byte[]> store) {
+    /** Kyro serializer/deserializer */
+    private final Kryo kryo = new Kryo();
+
+    /** Type of class you are reading/writing. */
+    private final Class<V> type;
+
+    /**
+     *
+     * @param store store
+     * @param type type
+     */
+    public SimpleKyroKeyValueStore(final KeyValueStore <byte[], byte[]> store,
+                                   final Class<V> type) {
         this.store = store;
-
+        this.type = type;
     }
 
 
+    /**
+     * Convert a binary array to a String.
+     * @param key key
+     * @return
+     */
     protected static String toString(byte [] key) {
         return new String(key, StandardCharsets.UTF_8);
     }
 
-    private  V toObject(byte[] value) {
+    /**
+     * Use Kyro to read this byte array as an object.
+     * @param value value read
+     * @return new object read from key/value store
+     */
+    private  V  toObject(byte[] value) {
+        if (value == null || value.length == 0) {return null;}
         V v = null;
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(value);
         try {
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            v = (V)objectInputStream.readObject();
+            Input input = new Input(inputStream);
+            v = kryo.readObject(input, type);
+            input.close();
         } catch (Exception e) {
             Exceptions.handle(e);
         }
@@ -38,32 +78,45 @@ public class SimpleKyroKeyValueStore <V extends Serializable> implements Seriali
     }
 
 
+    /**
+     * Converts an object to a byte array.
+     * @param v object to convert
+     * @return byte array representation of object.
+     */
     byte[] toBytes(V v) {
-
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            ObjectOutputStream streamOut = new ObjectOutputStream(baos);
-            streamOut.writeObject(v);
-        } catch (IOException e) {
-            Exceptions.handle(e);
-        }
-
+        Output streamOut = new Output(baos);
+        this.kryo.writeObject(streamOut, v);
+        streamOut.close();
         return baos.toByteArray();
     }
 
 
+    /**
+     * Convert a String key to bytes.
+     * @param key key to convert
+     * @return value
+     */
     byte[] toBytes(String key) {
 
         return key.getBytes(StandardCharsets.UTF_8);
     }
 
 
+    /**
+     * Put a value in the key/value store.
+     * @param key  key
+     * @param value value
+     */
     @Override
     public void put(String key, V value) {
         store.put(toBytes(key), toBytes(value));
     }
 
+    /**
+     * Put all of these values in the key value store.
+     * @param values values
+     */
     @Override
     public void putAll(Map<String, V> values) {
         Set<Map.Entry<String, V>> entries = values.entrySet();
@@ -76,6 +129,10 @@ public class SimpleKyroKeyValueStore <V extends Serializable> implements Seriali
         store.putAll(map);
     }
 
+    /**
+     * Remove all of these values from the key value store.
+     * @param keys
+     */
     @Override
     public void removeAll(Iterable<String> keys) {
         List<byte[]> list = new ArrayList<>();
@@ -87,12 +144,21 @@ public class SimpleKyroKeyValueStore <V extends Serializable> implements Seriali
         store.removeAll(list);
     }
 
+    /**
+     * Remove a key from the store.
+     * @param key
+     */
     @Override
     public void remove(String key) {
 
         store.remove(toBytes(key));
     }
 
+    /**
+     * Search for a key in the key / value store.
+     * @param startKey
+     * @return
+     */
     @Override
     public KeyValueIterable<String, V> search(String startKey) {
         final KeyValueIterable<byte[], byte[]> search = store.search(toBytes(startKey));
@@ -129,6 +195,10 @@ public class SimpleKyroKeyValueStore <V extends Serializable> implements Seriali
     }
 
 
+    /**
+     * Load all of the key / values from the store.
+     * @return
+     */
     @Override
     public KeyValueIterable<String, V> loadAll() {
         final KeyValueIterable<byte[], byte[]> search = store.loadAll();
@@ -164,6 +234,11 @@ public class SimpleKyroKeyValueStore <V extends Serializable> implements Seriali
         };
     }
 
+    /**
+     * Get a value from the key value store.
+     * @param key key
+     * @return
+     */
     @Override
     public V get(String key) {
         final byte[] bytes = store.get(toBytes(key));
@@ -174,6 +249,7 @@ public class SimpleKyroKeyValueStore <V extends Serializable> implements Seriali
         }
     }
 
+    /** Close the store. */
     @Override
     public void close() {
         store.close();

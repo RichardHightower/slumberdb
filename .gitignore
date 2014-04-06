@@ -14,3 +14,14 @@ slumberdb.ipr
 slumberdb.iws
 
 slumberdb-mysql/slumberdb-mysql.iml
+slumberdb-leveldb/target/*
+
+slumberdb-mysql/build/classes/*
+
+slumberdb-mysql/build/reports/*
+
+slumberdb-mysql/build/test-results/TEST-info.slumberdb.SimpleSerializationMySQLStoreTest.xml
+
+slumberdb-mysql/build/tmp/*
+
+slumberdb-mysql/build/test-results/*

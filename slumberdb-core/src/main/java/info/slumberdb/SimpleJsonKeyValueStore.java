@@ -9,7 +9,7 @@ import java.util.*;
 
 
 /**
- * This marries a store to the Boon JSON parser.
+ * This marries a store to the Boon JSON parser and the Boon JSON serializer.
  * It is a decorator. The real storage is done by the StringKeyValueStore store.
  * You specify the object type.
  *
