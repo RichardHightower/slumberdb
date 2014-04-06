@@ -6,12 +6,12 @@ The JSON/Java database for REST and Websocket storage.
 Boon is the fastest JSON serialization for the JVM.
 Kryo is the fastest Java serialization for the JVM.
 
-This project marries Boon/Kyro with LevelDB, MySQL, RocksDB, and LMDB to provide simple key/value storage.
+This project marries Boon/Kryo with LevelDB, MySQL, RocksDB, and LMDB to provide simple key/value storage.
 
 
 The focus is not on data grid usage, but just as a data safe reliable key/value store for Java.
 
-We are at 95% plus code coverage. We care about providing a quality, simple fast storage mechnsim with an easy to use interface for Java.
+We are at 95% plus code coverage. We care about providing a quality, simple fast storage mechanism with an easy to use interface for Java.
 
 
 Features
@@ -38,7 +38,7 @@ The main interface(s) for SlumberDB are as follows:
 
 ```java
 
-public interface KeyValueStore <K, V> extends Closeable, Flushable{
+public interface KeyValueStore <K, V> extends Closeable{
 
     void put(K key, V value);
 
@@ -145,9 +145,9 @@ Iterating through every key in the key/value store
 
 ```
 
-Now to do the same as above but use Kyro instead of JSON.
+Now to do the same as above but use Kryo instead of JSON.
 
-#### Kyro version
+#### Kryo version
 
 ```java
 
@@ -158,8 +158,8 @@ store = new SimpleKyroKeyValueStoreLevelDB(file.toString(), Employee.class);
 
 ```
 
-Kyro is the fastest Java binary serialization mechansim for the JVM and it works with iOS and Java.
-Boon is the fastest JSON serializaiton mechansim for the JVM, and JSON works everywhere.
+Kyro is the fastest Java binary serialization mechanism for the JVM and it works with iOS and Java.
+Boon is the fastest JSON serialization mechanism for the JVM, and JSON works everywhere.
 
 Now to do the above again but use MySQL instead of LevelDB.
 
@@ -179,7 +179,7 @@ Now to do the above again but use MySQL instead of LevelDB.
 ```
 
 
-#### MySQL and Kyro 
+#### MySQL and Kryo 
 ```java
 
     private SimpleKyroKeyValueStoreMySQL<Employee> store;
@@ -199,23 +199,23 @@ So far we have the following concrete classes:
 
 LevelDB:
 
-* LevelDBKeyValueStore  key value store that writes binary data (key and data are binary)
-* SimpleJavaSerializationKeyValueStoreLevelDB Simple store that has a String key and uses plain Java serialization
-* SimpleJsonKeyValueStoreLevelDB Simple store that uses Boon JSON serialization and LevelDB
-* SimpleKyroKeyValueStoreLevelDB Simple store that uses Kyro Serialization and LevelDB
-* SimpleStringKeyValueStoreLevelDB String keys and String values using LevelDB
+* **LevelDBKeyValueStore**  key value store that writes binary data (key and data are binary)
+* **SimpleJavaSerializationKeyValueStoreLevelDB** Simple store that has a String key and uses plain Java serialization
+* **SimpleJsonKeyValueStoreLevelDB** Simple store that uses Boon JSON serialization and LevelDB
+* **SimpleKyroKeyValueStoreLevelDB** Simple store that uses Kyro Serialization and LevelDB
+* **SimpleStringKeyValueStoreLevelDB** String keys and String values using LevelDB
 
 I am considering an equal number of Simple stores that use Long as keys. Then beyond that you have to roll your own on top of these.
 
 MySQL:
 
-* SimpleJavaSerializationKeyValueStoreMySQL Simple store that has a String key and uses plain Java serialization
-* SimpleJsonKeyValueStoreMySQL Simple store that uses Boon JSON serialization and MySQL
-* SimpleKyroKeyValueStoreMySQL Simple store that uses Kyro Serialization and MySQL
-* SimpleStringKeyValueStoreMySQL String keys and String values using MySQL
+* **SimpleJavaSerializationKeyValueStoreMySQL** Simple store that has a String key and uses plain Java serialization
+* **SimpleJsonKeyValueStoreMySQL** Simple store that uses Boon JSON serialization and MySQL
+* **SimpleKyroKeyValueStoreMySQL** Simple store that uses Kyro Serialization and MySQL
+* **SimpleStringKeyValueStoreMySQL** String keys and String values using MySQL
 
 SlumberDB fits into the BerkerlyDB sort of use case. It is currently meant for embedded sorts of access.
-SlumberDB will likely support LMDB and RocksDB. Early RocksDB support was started but not complete.
+SlumberDB will likely support LMDB and RocksDB in short order. Early RocksDB support was started but not complete.
 I am also considering a wire protocol on top of JSON and Kyro using Vertx, and some replication using Vertx.
 
 
@@ -238,7 +238,7 @@ LevelDB gets used by Chrome.
 
 See Kryo at: https://github.com/EsotericSoftware/kryo
 
-See Boon at: https://github.com/RichardHightower/boon
+See _**Boon**_ at: https://github.com/RichardHightower/boon
 
 See LevelDBJNI at: https://github.com/fusesource/leveldbjni
 
@@ -299,4 +299,3 @@ Currently we support MySQL and LevelDB.
 We plan on using Vertx to provide a network interface using Kyro and Boon JSON as well as replication.
 
 The focus is not on data grid usage, but just as a data safe reliable key/value store for Java.
-
