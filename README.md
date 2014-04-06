@@ -79,6 +79,151 @@ License
 
 SlumberDB is Apache 2.0 license.
 
+
+Getting Started
+===============
+
+#### Creating a JSON Key/Value store that uses LevelDB
+
+```java
+
+
+    private JsonKeyValueStore<String, Employee> store;
+    
+    store = new SimpleJsonKeyValueStoreLevelDB(file.toString(), Employee.class);
+
+```
+
+Writing employees out to LevelDB
+
+```java
+     store.put("123", new Employee("Rick", "Hightower"));
+```
+
+Writing out many employees to LevelDB (using JSON).
+
+```java
+        Map<String, Employee> map = Maps.map(
+
+                "123", new Employee("Rick", "Hightower"),
+                "456", new Employee("Paul", "Tiger"),
+                "789", new Employee("Jason", "Donner")
+
+        );
+
+
+        store.putAll(map);
+
+```
+
+Reading an employee from leveldb
+```java
+
+        employee = store.get("123");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+        Str.equalsOrDie("Hightower", employee.getLastName());
+
+```
+
+Deleting a bunch of employees
+```java
+
+        store.removeAll(map.keySet());
+```
+
+Searching for employees with id "key.50"
+```java
+        KeyValueIterable<String, Employee> entries = store.search("key.50");
+
+```
+
+Iterating through every key in the key/value store
+
+```java
+
+        KeyValueIterable<String, Employee> entries = store.loadAll();
+
+
+        for (Entry<String, Employee> entry : entries) {
+            puts (entry.key(), entry.value());
+        }
+
+```
+
+Now to do the same as above but use Kyro instead of JSON.
+
+#### Kyro version
+
+```java
+
+private SimpleKyroKeyValueStoreLevelDB<Employee> store;
+store = new SimpleKyroKeyValueStoreLevelDB(file.toString(), Employee.class);
+
+//The rest of the CRUD code is the same except for Employee has to implement serializable
+
+```
+
+Kyro is the fastest Java binary serialization mechansim for the JVM and it works with iOS and Java.
+Boon is the fastest JSON serializaiton mechansim for the JVM, and JSON works everywhere.
+
+Now to do the above again but use MySQL instead of LevelDB.
+
+#### MySQL and JSON 
+```java
+
+    private SimpleJsonKeyValueStoreMySQL<Employee> store;
+    String url = "jdbc:mysql://localhost:3306/slumberdb";
+    String userName = "slumber";
+    String password = "slumber7890";
+    String table = "json-employee-test";
+
+    ...
+    store = new SimpleJsonKeyValueStoreMySQL(url, userName, password, table, Employee.class);
+    //The rest of the CRUD code is the same except
+
+```
+
+
+#### MySQL and Kyro 
+```java
+
+    private SimpleKyroKeyValueStoreMySQL<Employee> store;
+    String url = "jdbc:mysql://localhost:3306/slumberdb";
+    String userName = "slumber";
+    String password = "slumber789";
+    String table = "kyro-emp-test";
+    
+    ...
+    ...
+    store = new SimpleKyroKeyValueStoreMySQL(url, userName, password, table, Employee.class);
+
+```
+
+
+So far we have the following concrete classes:
+
+LevelDB:
+
+* LevelDBKeyValueStore  key value store that writes binary data (key and data are binary)
+* SimpleJavaSerializationKeyValueStoreLevelDB Simple store that has a String key and uses plain Java serialization
+* SimpleJsonKeyValueStoreLevelDB Simple store that uses Boon JSON serialization and LevelDB
+* SimpleKyroKeyValueStoreLevelDB Simple store that uses Kyro Serialization and LevelDB
+* SimpleStringKeyValueStoreLevelDB String keys and String values using LevelDB
+
+I am considering an equal number of Simple stores that use Long as keys. Then beyond that you have to roll your own on top of these.
+
+MySQL:
+
+* SimpleJavaSerializationKeyValueStoreMySQL Simple store that has a String key and uses plain Java serialization
+* SimpleJsonKeyValueStoreMySQL Simple store that uses Boon JSON serialization and MySQL
+* SimpleKyroKeyValueStoreMySQL Simple store that uses Kyro Serialization and MySQL
+* SimpleStringKeyValueStoreMySQL String keys and String values using MySQL
+
+SlumberDB fits into the BerkerlyDB sort of use case. It is currently meant for embedded sorts of access.
+SlumberDB will likely support LMDB and RocksDB. Early RocksDB support was started but not complete.
+I am also considering a wire protocol on top of JSON and Kyro using Vertx, and some replication using Vertx.
+
+
 Related projects
 =========
 
