@@ -1,38 +1,31 @@
 Slumber DB - Key Value Store for JSON / REST
 =========
 
-The JSON database for REST and Websocket storage.
+The JSON/Java database for REST and Websocket storage.
+
+Boon is the fastest JSON serialization for the JVM.
+Kryo is the fastest Java serialization for the JVM.
+
+This project marries Boon/Kyro with LevelDB, MySQL, RocksDB, and LMDB to provide simple key/value storage.
 
 
-This is an effort to write key / value stores for JSR-107 RI
-and one for HazelCast MapStore.
-
-The goals are simple. Write a MySQL, LevelDB, LMDB, and RocksDB key / value store
-for Java serialization and JSON for HazelCast MapStore and JSR-107 RI Cache Stores.
-
-The MySQL version, for example, will use Boon JSON serialization and kryo.
+The focus is not on data grid usage, but just as a data safe reliable key/value store for Java.
 
 
-Boon is the fastest JSON serialization.
-Kryo is the fastest Java serialization.
-
-The plan is to use **leveldbjni** for the leveldb implementation, and later Vertx for server and replication support.
-
-Goals
+Features
 =========
 
 Provide a simple key/value store.
 
-Allow store by key.
-Read by key.
-Store many key/value pairs.
-Read many key/value pairs.
-Delete a key.
-Delete a batch of keys.
-Search by key.
-Batch update operations for JSON and Java objects (not implemented yet).
+* Store by key.
+* Read by key.
+* Store many key/value pairs.
+* Read many key/value pairs.
+* Delete a key.
+* Delete a batch of keys.
+* Search by key.
 
-We have an implementation in LevelDB for Strings, JSON and binary.
+We have an implementation in LevelDB and MySQL for Strings, JSON, serialized Java and binary.
 
 
 
@@ -283,4 +276,25 @@ Primary Author
 
 Rick Hightower works on JSR-107 and JSR-347 as well as Boon
 which has an in-memory query engine, and a fast JSON parser/serializer.
+
+
+Other goals
+=====
+
+
+This is an effort to write key / value stores for JSR-107 RI
+and one for HazelCast MapStore.
+
+The goals are simple. Write a MySQL, LevelDB, LMDB, and RocksDB key / value store
+for Java serialization and JSON for HazelCast MapStore and JSR-107 RI Cache Stores.
+
+The MySQL version, for example, will use Boon JSON serialization and kryo.
+
+The plan is to use **rocksdbjni** and **lmdbjni** for the LevelDB implementation, and later Vertx for server and replication support.
+
+Currently we support MySQL and LevelDB.
+
+We plan on using Vertx to provide a network interface using Kyro and Boon JSON as well as replication.
+
+The focus is not on data grid usage, but just as a data safe reliable key/value store for Java.
 
