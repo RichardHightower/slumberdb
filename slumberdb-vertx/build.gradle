@@ -1,0 +1,28 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+
+sourceCompatibility = 1.7
+
+group = "info.slumberdb"
+version = "1.0-SNAPSHOT"
+
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+
+
+    compile group: 'io.vertx', name: 'vertx-core', version: '2.1M1', scope: 'provided'
+    compile group: 'io.vertx', name: 'vertx-platform', version: '2.1M1', scope: 'provided'
+    compile group: 'io.vertx', name: 'vertx-hazelcast', version: '2.1M1', scope: 'provided'
+    compile project(':slumberdb-core')
+    compile project(':slumberdb-leveldb')
+    compile project(':slumberdb-mysql')
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'io.vertx', name: 'testtools', version: '2.0.2-final'
+
+}

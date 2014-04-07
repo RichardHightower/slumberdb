@@ -1,0 +1,10 @@
+{
+
+    "META" : {
+        "namespace" : "bootstrap"
+    },
+
+    "namespace" : "default.rest",
+    "configPath" : "/etc/slumberdb/conf"
+
+}

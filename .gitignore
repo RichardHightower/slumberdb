@@ -25,3 +25,20 @@ slumberdb-mysql/build/test-results/TEST-info.slumberdb.SimpleSerializationMySQLS
 slumberdb-mysql/build/tmp/*
 
 slumberdb-mysql/build/test-results/*
+
+settings.gradle~
+
+info.iml
+
+slumberdb-lmdb/slumberdb-lmdb.iml
+
+slumberdb-mysql/build/libs/slumberdb-mysql-1.0-SNAPSHOT.jar
+
+slumberdb-vertx/build/*
+
+
+info.iml
+
+slumberdb-vertx/slumberdb-vertx.iml
+
+info.iml

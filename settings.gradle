@@ -1,16 +1,20 @@
-rootProject.name = 'info'
+rootProject.name = 'slumberdb'
 
-group = "info.info"
+group = "slumberdb.info"
 version = "1.0-SNAPSHOT"
 
 include 'slumberdb-core'
 include 'slumberdb-leveldb'
 include 'slumberdb-mysql'
-//include 'info-rocksdb'
+include 'slumberdb-vertx'
+
+//include 'slumberdb-rocksdb'
+//include 'slumberdb-lmdb'
 
 for (project in getRootProject().children) {
     println project.name
 
 
 }
+
 
