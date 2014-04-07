@@ -1,9 +1,11 @@
 package info.slumberdb.vertx;
 
 import info.slumberdb.mailbox.MailBox;
+import info.slumberdb.rest.BasicRestRequestHandler;
 import info.slumberdb.rest.Response;
 import info.slumberdb.rest.RestHandler;
 import org.boon.Logger;
+import org.boon.core.reflection.BeanUtils;
 import org.boon.core.reflection.Reflection;
 import org.boon.di.Context;
 import org.boon.di.Inject;
@@ -271,20 +273,19 @@ public class RestVerticle  extends Verticle {
         logger.info("endpoints", endpoints);
 
         for (Map<String, Object> endpoint : endpoints) {
+
+            logger.info("endpoint", endpoint);
+
+
             Number number = (Number)endpoint.get("port");
             int port = number.intValue();
-            CharSequence charSequence = (CharSequence)endpoint.get("name");
-            String name = charSequence.toString();
-            charSequence = (CharSequence)endpoint.get("className");
-            String className = charSequence.toString();
 
 
-            logger.info(port, name, className);
+            final BasicRestRequestHandler restHandler = new BasicRestRequestHandler();
 
-
-            final RestHandler restHandler = (RestHandler) Reflection.newInstance(className);
-
+            BeanUtils.copyProperties(restHandler, endpoint);
             context.resolveProperties(restHandler);
+
             if (vertx!=null) {
                 initializeREST(restHandler, port);
             }

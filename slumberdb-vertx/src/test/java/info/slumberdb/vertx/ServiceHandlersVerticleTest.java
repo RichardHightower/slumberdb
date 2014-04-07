@@ -11,14 +11,13 @@ import java.util.Map;
 /**
  * Created by Richard on 4/6/14.
  */
-public class RestVerticleTest {
-
-    RestVerticle verticle;
+public class ServiceHandlersVerticleTest {
+    ServiceHandlersVerticle verticle;
 
     @Before
     public void init() {
 
-        verticle = new RestVerticle();
+        verticle = new ServiceHandlersVerticle();
         verticle.init(new MailBox() {
             @Override
             public void registerHandler(String address, Handler<Message> handler) {
@@ -55,7 +54,6 @@ public class RestVerticleTest {
 
             }
         });
-
 
 
     }

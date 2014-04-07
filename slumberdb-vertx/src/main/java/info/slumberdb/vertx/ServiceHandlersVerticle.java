@@ -1,10 +1,17 @@
 package info.slumberdb.vertx;
 
 import info.slumberdb.mailbox.MailBox;
+import info.slumberdb.mailbox.MailboxDispatch;
+import info.slumberdb.rest.BasicRestRequestHandler;
 import org.boon.Logger;
+import org.boon.core.reflection.BeanUtils;
+import org.boon.core.reflection.Reflection;
 import org.boon.di.Context;
 import org.boon.di.Inject;
 import org.vertx.java.platform.Verticle;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.boon.Boon.configurableLogger;
 import static org.boon.Boon.readConfig;
@@ -25,9 +32,9 @@ public class ServiceHandlersVerticle extends Verticle {
 
     private Logger logger = configurableLogger( serviceMessagingVerticle );
     @Inject
-    private String serviceNameSpace;
+    private String namespace;
     @Inject
-    private String serviceConfigPath;
+    private String configPath;
 
 
     /**
@@ -39,10 +46,6 @@ public class ServiceHandlersVerticle extends Verticle {
 
         init(mailBox);
 
-//        long timerID = vertx.setPeriodic(1000 * 60, new Handler<Long>() {
-//            public void handle(Long timerID) {
-//            }
-//        });
 
     }
 
@@ -59,14 +62,7 @@ public class ServiceHandlersVerticle extends Verticle {
 
             logger.info("Initializing ", serviceMessagingVerticle.getName(), "mailbox");
 
-            Context context = bootstrap();
-
-
-//            context.add(objects(mailBox,
-//                    //add objects here
-//            );
-
-//            context.resolveProperties(this);
+            Context context = bootstrap(mailBox);
 
 
         }
@@ -82,14 +78,46 @@ public class ServiceHandlersVerticle extends Verticle {
      * Bootstrap config.
      * @return
      */
-    private Context bootstrap() {
+    private Context bootstrap(MailBox mailBox) {
 
 
         logger.info("Starting Service Message STACK bootstrap");
 
-        Context bootStrap = readConfig("bootstrap", "/opt/slumberdb/conf");
+        Context bootStrap = readConfig("bootstrap", "/etc/slumberdb/conf");
         bootStrap.resolvePropertiesIgnoreRequired(this);
-        Context context = readConfig(this.serviceNameSpace, this.serviceConfigPath);
+        Context context = readConfig(this.namespace, this.configPath);
+
+
+
+        List<Map<String, Object>> endpoints = context.get(List.class, "endpoints");
+
+        logger.info("endpoints", endpoints);
+
+        for (Map<String, Object> endpoint : endpoints) {
+
+            logger.info("endpoint", endpoint);
+
+
+
+
+            final MailboxDispatch mailboxDispatch = new MailboxDispatch(mailBox);
+
+
+            String type = (String)endpoint.get("type");
+
+            Object object = Reflection.newInstance(type);
+
+            BeanUtils.injectIntoProperty(mailboxDispatch, "service", object);
+
+
+            context.resolvePropertiesIgnoreRequired(mailboxDispatch);
+
+
+            if (vertx!=null) {
+
+            }
+        }
+
         return context;
     }
 

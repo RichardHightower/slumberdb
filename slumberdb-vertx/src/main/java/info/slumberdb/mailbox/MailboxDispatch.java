@@ -10,6 +10,7 @@ import org.boon.core.Handler;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MethodAccess;
 import org.boon.di.Inject;
+import org.boon.di.PostConstruct;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.serializers.impl.JsonSimpleSerializerImpl;
@@ -41,7 +42,12 @@ public class MailboxDispatch {
     private final JsonSimpleSerializerImpl jsonSerializer = new JsonSimpleSerializerImpl();
     private final JsonParserAndMapper jsonParser = new JsonParserFactory().create ();
 
+    private Object service;
 
+    @PostConstruct
+    private void init() {
+        registerServiceCalls(service.getClass(), service);
+    }
 
     /**
      * Used for performance critical debugging to avoid debug lookup for the logger.
@@ -49,11 +55,12 @@ public class MailboxDispatch {
      */
     private final boolean debug;
 
-    @Inject
     private MailBox mailBox;
 
 
-    public MailboxDispatch() {
+    public MailboxDispatch(MailBox mailBox) {
+
+        this.mailBox = mailBox;
         debug = Boon.debugOn();
 
     }
@@ -72,7 +79,6 @@ public class MailboxDispatch {
     public void registerServiceCalls(final Class<?> serviceInterface, final Object service ) {
         requireNonNulls("Service interface and service cannot be null", serviceInterface, service);
 
-        okOrDie( serviceInterface.isInterface() );
 
         final String serviceName =  camelCaseLower(underBarCase(serviceInterface.getSimpleName()));
 

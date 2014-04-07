@@ -8,9 +8,10 @@
     "configPath" : "/etc/slumberdb/conf",
     "endpoints" : [
         {
-            "name" : "client",
+            "serviceName" : "client",
             "port" : 8082,
-            "className" : "info.slumberdb.Client"
+            "type" : "info.slumberdb.Client",
+            "baseUri" : "/slumberdb/"
         }
     ]
 
