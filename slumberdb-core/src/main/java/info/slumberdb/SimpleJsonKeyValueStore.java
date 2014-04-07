@@ -274,6 +274,11 @@ public class SimpleJsonKeyValueStore<V> implements JsonKeyValueStore<String, V> 
 
     }
 
+    @Override
+    public Collection<String> loadAllKeys() {
+
+        return store.loadAllKeys();
+    }
 
     /**
      * Get the value from the store.

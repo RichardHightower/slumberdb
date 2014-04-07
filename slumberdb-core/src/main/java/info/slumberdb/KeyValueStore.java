@@ -2,7 +2,9 @@ package info.slumberdb;
 
 import java.io.Closeable;
 import java.io.Flushable;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A map like interface that represents a key value store.
@@ -53,6 +55,12 @@ public interface KeyValueStore <K, V> extends Closeable {
      * are persistent.
      */
     KeyValueIterable<K, V> loadAll();
+
+
+    /**
+     * Load All keys.
+     */
+    Collection<K> loadAllKeys();
 
     /*
      * Get a value from the store.

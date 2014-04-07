@@ -5,9 +5,7 @@ import org.boon.Exceptions;
 import org.boon.Logger;
 
 import java.sql.*;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.boon.Boon.configurableLogger;
 import static org.boon.Boon.puts;
@@ -29,6 +27,8 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
     private String createStatementSQL;
     private  String deleteStatementSQL;
 
+    private String selectKeysSQL;
+
     private  String tableExistsSQL;
 
     private PreparedStatement insert;
@@ -44,6 +44,7 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
     private boolean useBatch = true;
 
     private int batchSize = 100;
+    private PreparedStatement allKeys;
 
     public SimpleStringBinaryKeyValueStoreMySQL(String url, String userName, String password, String table) {
         this.url = url;
@@ -69,6 +70,8 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
         this.selectStatementSQL = "select kv_value from `" + table + "` where kv_key = ?;";
         this.searchStatementSQL = "select kv_key, kv_value from `" + table + "` where kv_key >= ?;";
         this.loadAllSQL = "select kv_key, kv_value from `" + table +"`;";
+        this.selectKeysSQL = "select kv_key from `" + table +"`;";
+
 
         this.deleteStatementSQL = "delete  from `" + table + "` where kv_key = ?;";
 
@@ -96,6 +99,8 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
             search = connection.prepareStatement(searchStatementSQL);
 
             loadAll = connection.prepareStatement(loadAllSQL);
+
+            allKeys = connection.prepareStatement(selectKeysSQL);
 
         } catch (SQLException e) {
             handle("Unable to create prepared statements", e);
@@ -416,6 +421,40 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
     }
 
     @Override
+    public Collection<String> loadAllKeys() {
+
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+        ResultSet resultSet = null;
+
+        try {
+
+            resultSet = allKeys.executeQuery();
+
+            while (resultSet.next()) {
+                String key = resultSet.getString(1);
+                set.add(key);
+            }
+        }
+        catch (SQLException e) {
+                handle("Unable to call next() for result set for loadAllKeys query", e);
+        }finally {
+            closeResultSet(resultSet);
+        }
+
+        return set;
+    }
+
+    private void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                Exceptions.handle(e);
+            }
+        }
+    }
+
+    @Override
     public byte[] get(String key) {
 
         byte[] value;
@@ -472,6 +511,8 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
         }
 
         Exceptions.handle(message, sqlException);
+        connection = connection();
+
     }
 
 }

@@ -157,6 +157,11 @@ public class SimpleJavaSerializationKeyValueStoreMySQL <V extends Serializable> 
     }
 
     @Override
+    public Collection<String> loadAllKeys() {
+        return store.loadAllKeys();
+    }
+
+    @Override
     public V get(String key) {
         final byte[] bytes = store.get( key );
         if (bytes != null) {

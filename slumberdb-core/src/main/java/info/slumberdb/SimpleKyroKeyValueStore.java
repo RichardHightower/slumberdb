@@ -234,6 +234,21 @@ public class SimpleKyroKeyValueStore <V extends Serializable> implements Seriali
         };
     }
 
+
+
+    @Override
+    public Collection<String> loadAllKeys() {
+        final Collection<byte[]> keys = store.loadAllKeys();
+
+        final Set<String> set = new HashSet<>();
+
+        for (byte[] key : keys) {
+            set.add(SimpleJavaSerializationStore.toString(key));
+        }
+
+        return set;
+    }
+    
     /**
      * Get a value from the key value store.
      * @param key key

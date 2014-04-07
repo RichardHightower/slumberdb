@@ -13,10 +13,10 @@ import org.iq80.leveldb.impl.Iq80DBFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import static org.boon.Boon.configurableLogger;
+import static org.boon.Boon.iterator;
 
 
 /**
@@ -291,6 +291,21 @@ public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
                 };
             }
         };
+    }
+
+    @Override
+    public Collection<byte[]> loadAllKeys() {
+
+        List<byte[]> keys = new ArrayList<>();
+        try (DBIterator iterator = database.iterator()){
+            while (iterator.hasNext()) {
+                final Map.Entry<byte[], byte[]> next = iterator.next();
+                keys.add(next.getKey());
+            }
+        } catch (IOException e) {
+            Exceptions.handle(e);
+        }
+        return keys;
     }
 
     /**

@@ -42,3 +42,8 @@ info.iml
 slumberdb-vertx/slumberdb-vertx.iml
 
 info.iml
+
+slumberdb-hazelcast/build/*
+slumberdb-mysql/build/*
+
+slumberdb-hazelcast/slumberdb-hazelcast.iml

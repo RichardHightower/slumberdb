@@ -1,9 +1,7 @@
 package info.slumberdb;
 
 import java.sql.*;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
@@ -27,6 +25,7 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
     private String createStatementSQL;
     private  String deleteStatementSQL;
 
+
     private  String tableExistsSQL;
 
     private PreparedStatement insert;
@@ -36,12 +35,16 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
     private PreparedStatement search;
     private PreparedStatement loadAll;
 
+    private PreparedStatement allKeys;
+
 
     private Logger logger = configurableLogger(SimpleStringKeyValueStoreMySQL.class);
     private String loadAllSQL;
     private boolean useBatch = true;
 
     private int batchSize = 100;
+    private String selectKeysSQL;
+
 
     public SimpleStringKeyValueStoreMySQL(String url, String userName, String password, String table) {
         this.url = url;
@@ -67,6 +70,7 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
         this.selectStatementSQL = "select kv_value from `" + table + "` where kv_key = ?;";
         this.searchStatementSQL = "select kv_key, kv_value from `" + table + "` where kv_key >= ?;";
         this.loadAllSQL = "select kv_key, kv_value from `" + table +"`;";
+        this.selectKeysSQL = "select kv_key from `" + table +"`;";
 
         this.deleteStatementSQL = "delete  from `" + table + "` where kv_key = ?;";
 
@@ -94,6 +98,8 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
             search = connection.prepareStatement(searchStatementSQL);
 
             loadAll = connection.prepareStatement(loadAllSQL);
+
+            allKeys = connection.prepareStatement(selectKeysSQL);
 
         } catch (SQLException e) {
             handle("Unable to create prepared statements", e);
@@ -414,6 +420,31 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
     }
 
     @Override
+    public Collection<String> loadAllKeys() {
+
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+        ResultSet resultSet = null;
+
+        try {
+
+            resultSet = allKeys.executeQuery();
+
+            while (resultSet.next()) {
+                String key = resultSet.getString(1);
+                set.add(key);
+            }
+        }
+        catch (SQLException e) {
+            handle("Unable to call next() for result set for loadAllKeys query", e);
+        }finally {
+            closeResultSet(resultSet);
+        }
+
+        return set;
+
+    }
+
+    @Override
     public String get(String key) {
 
         String value;
@@ -470,6 +501,19 @@ public class SimpleStringKeyValueStoreMySQL implements StringKeyValueStore{
         }
 
         Exceptions.handle(message, sqlException);
+
+        connection = connection();
     }
 
+
+
+    private void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                Exceptions.handle(e);
+            }
+        }
+    }
 }

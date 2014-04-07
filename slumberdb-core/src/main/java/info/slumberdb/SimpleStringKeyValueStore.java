@@ -153,6 +153,19 @@ public class SimpleStringKeyValueStore implements StringKeyValueStore {
     }
 
     @Override
+    public Collection<String> loadAllKeys() {
+        final Collection<byte[]> keys = store.loadAllKeys();
+
+        final Set<String> set = new HashSet<>();
+
+        for (byte[] key : keys) {
+            set.add(SimpleJavaSerializationStore.toString(key));
+        }
+
+        return set;
+    }
+
+    @Override
     public String get(String key) {
         byte[] bytes = store.get( keyToBytes(key) );
         if (bytes==null) {

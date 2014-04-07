@@ -6,10 +6,7 @@ import com.esotericsoftware.kryo.io.Output;
 import org.boon.Exceptions;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Richard on 4/5/14.
@@ -152,6 +149,11 @@ public class SimpleKyroKeyValueStoreMySQL <V extends Serializable>  implements S
                 };
             }
         };
+    }
+
+    @Override
+    public Collection<String> loadAllKeys() {
+        return store.loadAllKeys();
     }
 
     @Override

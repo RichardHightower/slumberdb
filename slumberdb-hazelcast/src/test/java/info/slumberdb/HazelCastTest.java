@@ -1,11 +1,17 @@
 package info.slumberdb;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.boon.Maps;
 import org.boon.Str;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -14,19 +20,38 @@ import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
- * Created by Richard on 4/4/14.
+ * Created by Richard on 4/7/14.
  */
-public class SimpleJsonKeyValueStoreMySQLTest {
+public class HazelCastTest {
 
-    private SimpleJsonKeyValueStoreMySQL<Employee> store;
+
+    private Map<String, Employee> store;
+
     String url = "jdbc:mysql://localhost:3306/slumberdb";
     String userName = "slumber";
     String password = "slumber1234";
-    String table = "json-test";
+    String table = "json-employee-hazel";
 
 
+    Config cfg = new Config();
 
-    public static class Employee {
+    {
+
+        MapConfig mapCfg = new MapConfig();
+        mapCfg.setName("employees");
+        mapCfg.setAsyncBackupCount(0);
+        MapStoreConfig mapStoreCfg = new MapStoreConfig();
+        mapStoreCfg.setImplementation(new HazelCastMySQLJSONMapStore(url, userName,
+                password, table, Employee.class));
+        mapStoreCfg.setEnabled(true);
+        mapCfg.setMapStoreConfig(mapStoreCfg);
+
+
+        cfg.addMapConfig(mapCfg);
+    }
+
+
+    public static class Employee implements Serializable {
         String firstName;
         String lastName;
         String id;
@@ -89,7 +114,12 @@ public class SimpleJsonKeyValueStoreMySQLTest {
     @Before
     public void setup() {
 
-        store = new SimpleJsonKeyValueStoreMySQL(url, userName, password, table, Employee.class);
+
+        HazelcastInstance instance = Hazelcast.newHazelcastInstance(cfg);
+
+
+
+        store = instance.getMap("employees");
 
     }
 
@@ -97,7 +127,6 @@ public class SimpleJsonKeyValueStoreMySQLTest {
     public void close() {
 
 
-        store.close();
     }
 
 
@@ -136,73 +165,52 @@ public class SimpleJsonKeyValueStoreMySQLTest {
 
 
 
-
-    @Test
-    public void sillyTestForCodeCoverage() {
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        Iterator<Entry<String, Employee>> iterator = entries.iterator();
-
-
-        try {
-            while (iterator.hasNext()) {
-                iterator.remove();
-            }
-
-
-        } catch (Exception ex) {
-
-        }
-    }
-
-
-
-
-    @Test
-    public void testSearch() {
-        for (int index=0; index< 100; index++) {
-
-            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-        KeyValueIterable<String, Employee> entries = store.search("key.50");
-
-        int count = 0;
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-            count++;
-        }
-
-
-        ok = ( count > 20 && count < 60  ) || die(count);
-        entries.close();
-    }
-
-
-    @Test
-    public void testIteration() {
-
-        for (int index=0; index< 100; index++) {
-
-            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        int count = 0;
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-            count++;
-        }
-
-        ok = ( count == 100  ) || die(count);
-
-        entries.close();
-
-    }
+//
+//
+//    @Test
+//    public void testSearch() {
+//        for (int index=0; index< 100; index++) {
+//
+//            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
+//        }
+//
+//        KeyValueIterable<String, Employee> entries = store.search("key.50");
+//
+//        int count = 0;
+//
+//        for (Entry<String, Employee> entry : entries) {
+//            puts (entry.key(), entry.value());
+//            count++;
+//        }
+//
+//
+//        ok = ( count > 20 && count < 60  ) || die(count);
+//        entries.close();
+//    }
+//
+//
+//    @Test
+//    public void testIteration() {
+//
+//        for (int index=0; index< 100; index++) {
+//
+//            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
+//        }
+//
+//        KeyValueIterable<String, Employee> entries = store.loadAll();
+//
+//        int count = 0;
+//
+//        for (Entry<String, Employee> entry : entries) {
+//            puts (entry.key(), entry.value());
+//            count++;
+//        }
+//
+//        ok = ( count == 100  ) || die(count);
+//
+//        entries.close();
+//
+//    }
 
 
 
@@ -239,8 +247,9 @@ public class SimpleJsonKeyValueStoreMySQLTest {
         Str.equalsOrDie("Hightower", employee.getLastName());
 
 
-        store.removeAll(map.keySet());
-
+        for (String key : map.keySet()) {
+            store.remove(key);
+        }
 
 
         employee =        store.get("123");
@@ -276,7 +285,7 @@ public class SimpleJsonKeyValueStoreMySQLTest {
 
         store.putAll(map);
 
-        final Collection<String> strings = store.loadAllKeys();
+        final Collection<String> strings = store.keySet();
 
         ok = strings.size() > 3 || die();
 

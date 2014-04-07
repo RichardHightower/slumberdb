@@ -104,6 +104,11 @@ public class InMemoryStringKeyValueStore implements StringKeyValueStore {
     }
 
     @Override
+    public Collection<String> loadAllKeys() {
+        return this.map.keySet();
+    }
+
+    @Override
     public String get(String key) {
         return map.get(key);
     }

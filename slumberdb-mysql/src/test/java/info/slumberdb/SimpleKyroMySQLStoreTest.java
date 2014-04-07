@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -286,6 +287,29 @@ public class SimpleKyroMySQLStoreTest {
 
 
         ok = employee == null || die();
+
+
+    }
+
+
+    @Test
+    public void testKeys() {
+
+
+        Map<String, Employee> map = Maps.map(
+
+                "123", new Employee("Rick", "Hightower"),
+                "456", new Employee("Paul", "Tabor"),
+                "789", new Employee("Jason", "Daniel")
+
+        );
+
+
+        store.putAll(map);
+
+        final Collection<String> strings = store.loadAllKeys();
+
+        ok = strings.size() > 3 || die();
 
 
     }

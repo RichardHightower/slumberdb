@@ -163,6 +163,19 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
     }
 
     @Override
+    public Collection<String> loadAllKeys() {
+        final Collection<byte[]> keys = store.loadAllKeys();
+
+        final Set<String> set = new HashSet<>();
+
+        for (byte[] key : keys) {
+            set.add(SimpleJavaSerializationStore.toString(key));
+        }
+
+        return set;
+    }
+
+    @Override
     public V get(String key) {
         final byte[] bytes = store.get(toBytes(key));
         if (bytes != null) {
