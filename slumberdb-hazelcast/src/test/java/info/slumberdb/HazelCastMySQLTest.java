@@ -25,15 +25,17 @@ public class HazelCastMySQLTest {
 
     private Map<String, Employee> store;
 
-    String url = "jdbc:mysql://localhost:3306/slumberdb";
-    String userName = "slumber";
-    String password = "slumber1234";
-    String table = "json-employee-hazel";
+    static String url = "jdbc:mysql://localhost:3306/slumberdb";
+    static String userName = "slumber";
+    static String password = "slumber1234";
+    static String table = "json-employee-hazel";
 
 
-    Config cfg = new Config();
+    static Config cfg = new Config();
 
-    {
+    static HazelcastInstance instance ;
+
+    static {
 
         MapConfig mapCfg = new MapConfig();
         mapCfg.setName("employees");
@@ -46,6 +48,8 @@ public class HazelCastMySQLTest {
 
 
         cfg.addMapConfig(mapCfg);
+        instance = Hazelcast.newHazelcastInstance(cfg);
+
     }
 
 
@@ -113,7 +117,6 @@ public class HazelCastMySQLTest {
     public void setup() {
 
 
-        HazelcastInstance instance = Hazelcast.newHazelcastInstance(cfg);
 
 
 
@@ -262,30 +265,6 @@ public class HazelCastMySQLTest {
 
 
 
-
-
-    }
-
-
-
-    @Test
-    public void testKeys() {
-
-
-        Map<String, Employee> map = Maps.map(
-
-                "123", new Employee("Rick", "Hightower"),
-                "456", new Employee("Paul", "Tabor"),
-                "789", new Employee("Jason", "Daniel")
-
-        );
-
-
-        store.putAll(map);
-
-        final Collection<String> strings = store.keySet();
-
-        ok = strings.size() > 3 || die();
 
 
     }
