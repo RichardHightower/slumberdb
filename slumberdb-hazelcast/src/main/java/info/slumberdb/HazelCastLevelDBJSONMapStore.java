@@ -7,23 +7,16 @@ import java.util.*;
 /**
  * Created by Richard on 4/7/14.
  */
-public class HazelCastMySQLJSONMapStore<V> implements MapStore<String, V>{
+public  class HazelCastLevelDBJSONMapStore <V> implements MapStore<String, V> {
 
-    private String url;
-    private String userName;
-    private String password;
-    private String table;
-    private Class<V> type;
+    SimpleJsonKeyValueStoreLevelDB<V> store;
 
-    private SimpleJsonKeyValueStoreMySQL<V> store;
+    public HazelCastLevelDBJSONMapStore(String keyPrefix, String fileName, Class<V> cls) {
+        store = new SimpleJsonKeyValueStoreLevelDB(keyPrefix, fileName, cls);
+    }
 
-    public HazelCastMySQLJSONMapStore(String url, String userName, String password, String table, Class<V> type) {
-        this.url = url;
-        this.userName = userName;
-        this.password = password;
-        this.table = table;
-        this.type = type;
-        this.store = new SimpleJsonKeyValueStoreMySQL<>(url, userName, password, table, type);
+    public HazelCastLevelDBJSONMapStore(String fileName, Class<V> cls) {
+        store = new SimpleJsonKeyValueStoreLevelDB(null, fileName, cls);
     }
 
     @Override
@@ -34,11 +27,13 @@ public class HazelCastMySQLJSONMapStore<V> implements MapStore<String, V>{
     @Override
     public void storeAll(Map<String, V> map) {
         store.putAll(map);
+
     }
 
     @Override
     public void delete(String key) {
         store.remove(key);
+
     }
 
     @Override
@@ -54,6 +49,7 @@ public class HazelCastMySQLJSONMapStore<V> implements MapStore<String, V>{
     @Override
     public Map<String, V> loadAll(Collection<String> keys) {
 
+
         Map<String, V> map = new HashMap<>();
 
         for (String key : keys) {
@@ -62,6 +58,7 @@ public class HazelCastMySQLJSONMapStore<V> implements MapStore<String, V>{
 
         return map;
     }
+
 
     @Override
     public Set<String> loadAllKeys() {

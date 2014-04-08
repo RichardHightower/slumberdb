@@ -47,3 +47,5 @@ slumberdb-hazelcast/build/*
 slumberdb-mysql/build/*
 
 slumberdb-hazelcast/slumberdb-hazelcast.iml
+
+target

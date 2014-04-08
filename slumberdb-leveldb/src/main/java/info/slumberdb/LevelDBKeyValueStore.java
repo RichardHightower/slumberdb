@@ -297,13 +297,25 @@ public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
     public Collection<byte[]> loadAllKeys() {
 
         List<byte[]> keys = new ArrayList<>();
-        try (DBIterator iterator = database.iterator()){
+        DBIterator iterator = null;
+
+        try {
+            iterator = database.iterator();
+
+            iterator.seekToFirst();
+
             while (iterator.hasNext()) {
                 final Map.Entry<byte[], byte[]> next = iterator.next();
                 keys.add(next.getKey());
             }
-        } catch (IOException e) {
-            Exceptions.handle(e);
+        } finally {
+            try {
+                if (iterator!=null) {
+                    iterator.close();
+                }
+            } catch (IOException e) {
+                Exceptions.handle(e);
+            }
         }
         return keys;
     }
