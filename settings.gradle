@@ -8,8 +8,8 @@ include 'slumberdb-leveldb'
 include 'slumberdb-mysql'
 include 'slumberdb-vertx'
 include 'slumberdb-hazelcast'
+include 'slumberdb-rocksdb'
 
-//include 'slumberdb-rocksdb'
 //include 'slumberdb-lmdb'
 
 for (project in getRootProject().children) {

@@ -14,10 +14,9 @@ import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
 
 /**
- * Created by Richard on 3/30/14.
+ * Created by Richard on 4/8/14.
  */
-public class SimpleJsonKeyValueStoreLevelDBTest {
-
+public class SimpleJsonKeyValueStoreRocksDBTest {
 
     private JsonKeyValueStore<String, Employee> store;
     private boolean ok;
@@ -89,8 +88,8 @@ public class SimpleJsonKeyValueStoreLevelDBTest {
         File file = new File("target/test-data");
         file = file.getAbsoluteFile();
         file.mkdirs();
-        file = new File(file, "employee-json.dat");
-        store = new SimpleJsonKeyValueStoreLevelDB(file.toString(), Employee.class);
+        file = new File(file, "employee-rocksdb-json.dat");
+        store = new SimpleJsonKeyValueStoreRocksDB<>(file.toString(), Employee.class);
 
     }
 
@@ -254,22 +253,4 @@ public class SimpleJsonKeyValueStoreLevelDBTest {
 
     }
 
-    @Test
-    public void sillyTestForCodeCoverage() {
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        Iterator<Entry<String, Employee>> iterator = entries.iterator();
-
-
-        try {
-            while (iterator.hasNext()) {
-                iterator.remove();
-            }
-
-
-        } catch (Exception ex) {
-
-        }
-    }
 }

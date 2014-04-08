@@ -49,3 +49,4 @@ slumberdb-mysql/build/*
 slumberdb-hazelcast/slumberdb-hazelcast.iml
 
 target
+slumberdb-rocksdb/build.gradle~

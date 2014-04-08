@@ -10,11 +10,11 @@ import org.iq80.leveldb.impl.Iq80DBFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
 import static org.boon.Boon.configurableLogger;
-import static org.boon.Exceptions.die;
 
 import org.fusesource.rocksdbjni.JniDBFactory;
 
@@ -112,7 +112,7 @@ public class RocksDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
         try {
             database = JniDBFactory.factory.open(file, options);
-            logger.info("Using JNI Level DB");
+            logger.info("Using JNI Rocks DB");
             return  true;
         } catch (IOException ex1) {
             try {
@@ -189,15 +189,6 @@ public class RocksDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     }
 
-    /**
-     * Performs batch updates
-     * @param updates
-     */
-    @Override
-    public void updateAll(Iterable<CrudOperation> updates) {
-        die("Not implemented for binary array");
-
-    }
 
     /**
      * Remove items from list
@@ -301,6 +292,11 @@ public class RocksDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
         };
     }
 
+    @Override
+    public Collection<byte[]> loadAllKeys() {
+        return null;
+    }
+
     /**
      * Get the key from the store
      * @param key key
@@ -324,15 +320,5 @@ public class RocksDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
         }
     }
 
-    /**
-     * Close the database and reopen it.
-     * We should add a lock here or just drop this feature.
-     *
-     */
-    @Override
-    public void flush()  {
-        this.close();
-        openDB(new File(fileName), this.options);
-    }
 }
 
