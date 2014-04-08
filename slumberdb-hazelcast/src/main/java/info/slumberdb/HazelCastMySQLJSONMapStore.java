@@ -9,20 +9,11 @@ import java.util.*;
  */
 public class HazelCastMySQLJSONMapStore<V> implements MapStore<String, V>{
 
-    private String url;
-    private String userName;
-    private String password;
-    private String table;
-    private Class<V> type;
 
     private SimpleJsonKeyValueStoreMySQL<V> store;
 
     public HazelCastMySQLJSONMapStore(String url, String userName, String password, String table, Class<V> type) {
-        this.url = url;
-        this.userName = userName;
-        this.password = password;
-        this.table = table;
-        this.type = type;
+
         this.store = new SimpleJsonKeyValueStoreMySQL<>(url, userName, password, table, type);
     }
 
