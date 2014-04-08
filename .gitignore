@@ -50,3 +50,5 @@ slumberdb-hazelcast/slumberdb-hazelcast.iml
 
 target
 slumberdb-rocksdb/build.gradle~
+
+slumberdb-rocksdb/slumberdb-rocksdb.iml

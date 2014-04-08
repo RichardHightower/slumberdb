@@ -21,11 +21,11 @@ public class StringKeyValueStoreRocksDBTest {
 
     static {
 
-//        String libPath = System.getProperty("library.rocksdbjni.path");
-//        if (libPath==null) {
-//            System.setProperty("library.rocksdbjni.path",
-//                    "/Users/Richard/github/rocksdbjni/rocksdbjni-osx/target/native-build/target/lib/");
-//        }
+        String libPath = System.getProperty("library.rocksdbjni.path");
+        if (libPath==null) {
+            System.setProperty("library.rocksdbjni.path",
+                    "/Users/Richard/github/rocksdbjni/rocksdbjni-osx/target/native-build/target/lib/");
+        }
     }
 
     private SimpleStringKeyValueStoreRocksDB store;

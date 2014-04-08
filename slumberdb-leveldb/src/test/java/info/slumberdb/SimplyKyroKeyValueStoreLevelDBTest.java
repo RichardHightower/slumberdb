@@ -92,7 +92,7 @@ public class SimplyKyroKeyValueStoreLevelDBTest {
         File file = new File("target/test-data");
         file = file.getAbsoluteFile();
         file.mkdirs();
-        file = new File(file, "employee-kyro.dat");
+        file = new File(file, "employee-leveldb-rocksdb.dat");
         store = new SimpleKyroKeyValueStoreLevelDB(file.toString(), Employee.class);
 
     }

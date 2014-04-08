@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ import static org.boon.Exceptions.die;
 /**
  * Created by Richard on 4/8/14.
  */
-public class SimpleJsonKeyValueStoreRocksDBTest {
+public class SimpleKryoKeyValueStoreRocksDBTest {
 
 
     static {
@@ -27,14 +28,18 @@ public class SimpleJsonKeyValueStoreRocksDBTest {
         }
     }
 
-    private JsonKeyValueStore<String, Employee> store;
+
+    private SimpleKryoKeyValueStoreRocksDB<Employee> store;
     private boolean ok;
 
 
-    public static class Employee {
+    public static class Employee implements Serializable {
         String firstName;
         String lastName;
         String id;
+
+        public Employee() {
+        }
 
         public Employee(String firstName, String lastName) {
             this.firstName = firstName;
@@ -97,8 +102,8 @@ public class SimpleJsonKeyValueStoreRocksDBTest {
         File file = new File("target/test-data");
         file = file.getAbsoluteFile();
         file.mkdirs();
-        file = new File(file, "employee-rocksdb-json.dat");
-        store = new SimpleJsonKeyValueStoreRocksDB<>(file.toString(), Employee.class);
+        file = new File(file, "employee-kyro-rocksdb-2.dat");
+        store = new SimpleKryoKeyValueStoreRocksDB(file.toString(), Employee.class);
 
     }
 
@@ -241,11 +246,11 @@ public class SimpleJsonKeyValueStoreRocksDBTest {
     @Test
     public void testIteration() {
 
-
         for (int index=0; index< 100; index++) {
 
             store.put("iter." + index, new Employee("Rick"+index, "Hightower"));
         }
+
 
         KeyValueIterable<String, Employee> entries = store.loadAll();
 
@@ -262,4 +267,7 @@ public class SimpleJsonKeyValueStoreRocksDBTest {
 
     }
 
+    {
+        new Entry<>();
+    }
 }
