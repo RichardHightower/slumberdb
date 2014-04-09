@@ -81,7 +81,7 @@ public class RestVerticle  extends Verticle {
 
 
         bootStrap(); //reads bootstrap (where do I find my config, who am I)
-        readConfigContext(); //reads basic configuration for ports.
+        readConfigContext( mailBox); //reads basic configuration for ports.
 
         /** Initializes dependency Injection container.*/
         context = context(
@@ -100,7 +100,7 @@ public class RestVerticle  extends Verticle {
      */
     private void initServiceMessaging() {
         logger.trace("initServiceMessaging", "entering");
-        container.deployVerticle("info.slumberdb.ServiceMessagingVerticle",
+        container.deployVerticle("info.slumberdb.vertx.ServiceHandlersVerticle",
                 new Handler<AsyncResult<String>>() {
                     @Override
                     public void handle(AsyncResult<String> event) {
@@ -262,7 +262,7 @@ public class RestVerticle  extends Verticle {
      *
      * @see RestVerticle#bootStrap()
      */
-    private void readConfigContext() {
+    private void readConfigContext(MailBox mailBox) {
 
         logger.info(this.namespace, this.configPath);
         context = readConfig(this.namespace, this.configPath);
@@ -284,7 +284,12 @@ public class RestVerticle  extends Verticle {
             final BasicRestRequestHandler restHandler = new BasicRestRequestHandler();
 
             BeanUtils.copyProperties(restHandler, endpoint);
+
+            BeanUtils.injectIntoProperty(restHandler, "mailBox", mailBox);
+
             context.resolveProperties(restHandler);
+
+
 
             if (vertx!=null) {
                 initializeREST(restHandler, port);

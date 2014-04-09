@@ -52,3 +52,5 @@ target
 slumberdb-rocksdb/build.gradle~
 
 slumberdb-rocksdb/slumberdb-rocksdb.iml
+
+slumberdb-rocksdb/build/classes/main/info/slumberdb/RocksDBKeyValueStore$1.class

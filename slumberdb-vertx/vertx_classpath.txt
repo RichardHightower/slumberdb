@@ -1,0 +1,5 @@
+src/main/resources
+bin
+out/production/slumberdb-vertx
+out/test/slumberdb-vertx
+build/deps

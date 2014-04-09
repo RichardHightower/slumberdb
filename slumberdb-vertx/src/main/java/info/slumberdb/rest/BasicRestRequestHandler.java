@@ -32,7 +32,6 @@ public class BasicRestRequestHandler implements RestHandler {
 
 
 
-    @Inject
     protected MailBox mailBox;
 
     private String baseUri;

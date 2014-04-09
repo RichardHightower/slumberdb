@@ -113,9 +113,6 @@ public class ServiceHandlersVerticle extends Verticle {
             context.resolvePropertiesIgnoreRequired(mailboxDispatch);
 
 
-            if (vertx!=null) {
-
-            }
         }
 
         return context;

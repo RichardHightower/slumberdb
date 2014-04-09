@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import java.util.Map;
 
+import static org.boon.Boon.puts;
+
 /**
  * Created by Richard on 4/6/14.
  */
@@ -21,16 +23,18 @@ public class ServiceHandlersVerticleTest {
         verticle.init(new MailBox() {
             @Override
             public void registerHandler(String address, Handler<Message> handler) {
-
+                puts("registerHandler", address, handler);
             }
 
             @Override
             public void publish(String address, String message) {
+                puts("publish", address, message);
 
             }
 
             @Override
             public void publish(String address, Map<String, Object> map, String message) {
+                puts("publish", address, map, message);
 
             }
 

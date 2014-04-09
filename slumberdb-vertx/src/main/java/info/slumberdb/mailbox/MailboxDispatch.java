@@ -308,8 +308,7 @@ public class MailboxDispatch {
                                        final Object service, final String... methods) {
 
 
-
-        if (logger.debugOn()) logger.debug("ServiceName", serviceName, methods);
+        logger.info("ServiceName", serviceName, methods);
 
         /** Preconditions. */
 
