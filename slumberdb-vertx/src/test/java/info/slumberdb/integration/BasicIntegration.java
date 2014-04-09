@@ -58,7 +58,7 @@ public class BasicIntegration extends TestVerticle {
 
 
     public boolean GET ( final String message, final String uri,  String params ) {
-        return _GET (message, "slumberdb", uri,  8082, params);
+        return _GET(message, "slumberdb", uri, 8082, params);
     }
 
 
@@ -99,7 +99,7 @@ public class BasicIntegration extends TestVerticle {
 
     public boolean POST ( final String message, final String uri,
                           String params, String body) {
-        return _POST (message, "slumberdb", uri,  8082, params, body);
+        return _POST(message, "slumberdb", uri, 8082, params, body);
     }
 
 
@@ -162,7 +162,7 @@ public class BasicIntegration extends TestVerticle {
         String body = "\"bob\"";
 
 
-        ok = POST("post put", "client/get", "test=1", body) || die(lastResponse);
+        ok = POST("post put", "client/load", "test=1", body) || die(lastResponse);
 
         puts("last response", lastResponse);
     }

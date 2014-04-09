@@ -37,7 +37,7 @@ public class RestRouter {
         }
 
 
-        /** If we found, get happy and store the results in
+        /** If we found, load happy and store the results in
          * the cache so we don't have to do this again.
          */
         if (dispatchId!=null) {

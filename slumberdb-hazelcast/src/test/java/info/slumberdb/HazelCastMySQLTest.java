@@ -198,7 +198,7 @@ public class HazelCastMySQLTest {
 //            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
 //        }
 //
-//        KeyValueIterable<String, Employee> entries = store.loadAll();
+//        KeyValueIterable<String, Employee> entries = store.loadAllByKeys();
 //
 //        int count = 0;
 //

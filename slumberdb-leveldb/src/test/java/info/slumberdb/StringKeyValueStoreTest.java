@@ -50,7 +50,7 @@ public class StringKeyValueStoreTest {
                 "world"
         );
 
-        String world = store.get("hello");
+        String world = store.load("hello");
         Str.equalsOrDie("world", world);
 
         store.close();
@@ -70,16 +70,16 @@ public class StringKeyValueStoreTest {
 
         String value ;
 
-        value =        store.get("hello1");
+        value =        store.load("hello1");
         Str.equalsOrDie("hello1", value);
 
 
-        value =        store.get("hello2");
+        value =        store.load("hello2");
         Str.equalsOrDie("hello2", value);
 
 
         store.remove("hello2");
-        value =        store.get("hello2");
+        value =        store.load("hello2");
         okOrDie(value == null);
     }
 
@@ -98,11 +98,11 @@ public class StringKeyValueStoreTest {
 
         String value ;
 
-        value =        store.get("hello1");
+        value =        store.load("hello1");
         Str.equalsOrDie("hello1", value);
 
 
-        value =        store.get("hello2");
+        value =        store.load("hello2");
         Str.equalsOrDie("hello2", value);
 
 
@@ -110,17 +110,17 @@ public class StringKeyValueStoreTest {
 
 
 
-        value =        store.get("hello1");
+        value =        store.load("hello1");
 
         ok = value == null || die();
 
-        value =        store.get("hello2");
+        value =        store.load("hello2");
 
 
         ok = value == null || die();
 
 
-        Str.equalsOrDie("1", store.get("somethingElse"));
+        Str.equalsOrDie("1", store.load("somethingElse"));
 
 
 

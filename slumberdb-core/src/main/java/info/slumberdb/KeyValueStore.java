@@ -65,8 +65,13 @@ public interface KeyValueStore <K, V> extends Closeable {
     /*
      * Get a value from the store.
      */
-    V get(K key);
+    V load(K key);
 
+
+    /*
+     * Get key/values from the store based on keys.
+     */
+    Map<K, V> loadAllByKeys(Collection<K> keys);
 
     /*
      * Close the connection to the database.

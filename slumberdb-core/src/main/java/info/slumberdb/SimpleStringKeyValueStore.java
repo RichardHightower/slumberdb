@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.boon.Str.str;
+import static org.boon.Str.toString;
 import static org.boon.primitive.Byt.bytes;
 
 /**
@@ -166,12 +167,36 @@ public class SimpleStringKeyValueStore implements StringKeyValueStore {
     }
 
     @Override
-    public String get(String key) {
-        byte[] bytes = store.get( keyToBytes(key) );
+    public String load(String key) {
+        byte[] bytes = store.load(keyToBytes(key));
         if (bytes==null) {
             return null;
         }
+        return toString(bytes);
+    }
+
+    public String toString(byte[] bytes) {
         return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public Map<String, String> loadAllByKeys(Collection<String> keys) {
+
+        Set<String> keySet = new TreeSet<>(keys);
+
+        List<byte[]> byteKeys = new ArrayList<>();
+
+        for (String key : keySet) {
+            byte[] bKey = bytes(key);
+            byteKeys.add(bKey);
+        }
+        final Map<byte[], byte[]> map = store.loadAllByKeys(byteKeys);
+        final Map<String, String> results= new LinkedHashMap<>();
+        for (Map.Entry<byte[], byte[]> entry : map.entrySet()) {
+            results.put(toString(entry.getKey()), toString(entry.getValue()));
+        }
+
+        return results;
     }
 
     private byte[] keyToBytes(String key) {

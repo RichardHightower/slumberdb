@@ -176,13 +176,33 @@ public class SimpleJavaSerializationStore <V extends Serializable> implements Se
     }
 
     @Override
-    public V get(String key) {
-        final byte[] bytes = store.get(toBytes(key));
+    public V load(String key) {
+        final byte[] bytes = store.load(toBytes(key));
         if (bytes != null) {
             return toObject(bytes);
         }else {
             return null;
         }
+    }
+
+    @Override
+    public Map<String, V> loadAllByKeys(Collection<String> keys) {
+
+        Set<String> keySet = new TreeSet<>(keys);
+
+        List<byte[]> byteKeys = new ArrayList<>();
+
+        for (String key : keySet) {
+            byte[] bKey = toBytes(key);
+            byteKeys.add(bKey);
+        }
+        final Map<byte[], byte[]> map = store.loadAllByKeys(byteKeys);
+        final Map<String, V> results= new LinkedHashMap<>();
+        for (Map.Entry<byte[], byte[]> entry : map.entrySet()) {
+            results.put(toString(entry.getKey()), toObject(entry.getValue()));
+        }
+
+        return results;
     }
 
     @Override

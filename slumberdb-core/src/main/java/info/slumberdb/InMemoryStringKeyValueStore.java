@@ -109,8 +109,13 @@ public class InMemoryStringKeyValueStore implements StringKeyValueStore {
     }
 
     @Override
-    public String get(String key) {
+    public String load(String key) {
         return map.get(key);
+    }
+
+    @Override
+    public Map<String, String> loadAllByKeys(Collection<String> key) {
+        return new LinkedHashMap<>(map);
     }
 
     @Override

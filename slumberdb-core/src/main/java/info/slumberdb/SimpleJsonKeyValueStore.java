@@ -200,7 +200,7 @@ public class SimpleJsonKeyValueStore<V> implements JsonKeyValueStore<String, V> 
                         current = iterator.next();
                         String key = current.key();
                         String json = current.value();
-                        V value = deserializer.parse(type, json);
+                        V value = toObject(json);
 
                         Entry<String, V> entry = new Entry<>(key, value);
 
@@ -256,7 +256,7 @@ public class SimpleJsonKeyValueStore<V> implements JsonKeyValueStore<String, V> 
                         current = iterator.next();
                         String key = current.key();
                         String json = current.value();
-                        V value = deserializer.parse(type, json);
+                        V value = toObject( json );
 
                         Entry<String, V> entry = new Entry<>(key, value);
 
@@ -285,12 +285,30 @@ public class SimpleJsonKeyValueStore<V> implements JsonKeyValueStore<String, V> 
      * @return the value
      */
     @Override
-    public V get(String key) {
-        String value = store.get(prepareKey(key));
+    public V load(String key) {
+        String value = store.load(prepareKey(key));
         if (value==null) {
             return null;
         }
         return deserializer.parse(type, value);
+    }
+
+    @Override
+    public Map<String, V> loadAllByKeys(Collection<String> keys) {
+
+        Set<String> keySet = new TreeSet<>(keys);
+
+        final Map<String, String> map = store.loadAllByKeys(keySet);
+        final Map<String, V> results= new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            results.put(entry.getKey(), toObject(entry.getValue()));
+        }
+
+        return results;
+    }
+
+    private V toObject(String json) {
+        return deserializer.parse(type, json);
     }
 
     /**

@@ -326,8 +326,46 @@ public class LevelDBKeyValueStore implements KeyValueStore<byte[], byte[]>{
      * @return value from store at location key
      */
     @Override
-    public byte[] get(byte[] key) {
+    public byte[] load(byte[] key) {
         return database.get(key);
+    }
+
+    /**
+     * Keys are expected to be sorted
+     * @param keys
+     * @return
+     */
+    @Override
+    public Map<byte[], byte[]> loadAllByKeys(Collection<byte[]> keys) {
+
+        if (keys == null || keys.size() == 0) {
+            return Collections.EMPTY_MAP;
+        }
+
+        Map<byte[], byte[]> results = new LinkedHashMap<>(keys.size());
+
+        DBIterator iterator = null;
+
+        try {
+            iterator = database.iterator();
+
+            iterator.seek(keys.iterator().next());
+
+            while (iterator.hasNext()) {
+                final Map.Entry<byte[], byte[]> next = iterator.next();
+                results.put(next.getKey(), next.getValue());
+            }
+        } finally {
+            try {
+                if (iterator!=null) {
+                    iterator.close();
+                }
+            } catch (IOException e) {
+                Exceptions.handle(e);
+            }
+        }
+        return results;
+
     }
 
 

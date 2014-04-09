@@ -118,16 +118,16 @@ public class SimpleSerializationMySQLStoreTest {
         Employee employee;
 
 
-        employee = store.get("789");
+        employee = store.load("789");
         Str.equalsOrDie("Jason", employee.getFirstName());
         Str.equalsOrDie("Daniel", employee.getLastName());
 
 
-        employee = store.get("456");
+        employee = store.load("456");
         Str.equalsOrDie("Paul", employee.getFirstName());
         Str.equalsOrDie("Tabor", employee.getLastName());
 
-        employee = store.get("123");
+        employee = store.load("123");
         Str.equalsOrDie("Rick", employee.getFirstName());
         Str.equalsOrDie("Hightower", employee.getLastName());
 
@@ -219,16 +219,16 @@ public class SimpleSerializationMySQLStoreTest {
         Employee employee;
 
 
-        employee = store.get("789");
+        employee = store.load("789");
         Str.equalsOrDie("Jason", employee.getFirstName());
         Str.equalsOrDie("Daniel", employee.getLastName());
 
 
-        employee = store.get("456");
+        employee = store.load("456");
         Str.equalsOrDie("Paul", employee.getFirstName());
         Str.equalsOrDie("Tabor", employee.getLastName());
 
-        employee = store.get("123");
+        employee = store.load("123");
         Str.equalsOrDie("Rick", employee.getFirstName());
         Str.equalsOrDie("Hightower", employee.getLastName());
 
@@ -236,11 +236,11 @@ public class SimpleSerializationMySQLStoreTest {
         store.removeAll(map.keySet());
 
 
-        employee = store.get("123");
+        employee = store.load("123");
 
         ok = employee == null || die();
 
-        employee = store.get("456");
+        employee = store.load("456");
 
 
         ok = employee == null || die();

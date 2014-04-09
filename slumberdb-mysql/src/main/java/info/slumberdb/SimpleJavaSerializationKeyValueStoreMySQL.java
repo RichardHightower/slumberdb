@@ -51,10 +51,6 @@ public class SimpleJavaSerializationKeyValueStoreMySQL <V extends Serializable> 
     }
 
 
-    byte[] toBytes(String key) {
-
-        return key.getBytes(StandardCharsets.UTF_8);
-    }
 
 
     @Override
@@ -162,14 +158,29 @@ public class SimpleJavaSerializationKeyValueStoreMySQL <V extends Serializable> 
     }
 
     @Override
-    public V get(String key) {
-        final byte[] bytes = store.get( key );
+    public V load(String key) {
+        final byte[] bytes = store.load(key);
         if (bytes != null) {
             return toObject(bytes);
         }else {
             return null;
         }
     }
+
+    @Override
+    public Map<String, V> loadAllByKeys(Collection<String> keys) {
+
+        Set<String> keySet = new TreeSet<>(keys);
+
+        final Map<String, byte[]> map = store.loadAllByKeys(keySet);
+        final Map<String, V> results= new LinkedHashMap<>();
+        for (Map.Entry<String, byte[]> entry : map.entrySet()) {
+            results.put(entry.getKey(), toObject(entry.getValue()));
+        }
+
+        return results;
+    }
+
 
     @Override
     public void close() {

@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.Map;
 
 import static org.boon.Boon.puts;
@@ -118,7 +117,7 @@ public class SimpleJsonKeyValueStoreRocksDBTest {
                 new Employee("Rick", "Hightower")
         );
 
-        Employee employee = store.get("123");
+        Employee employee = store.load("123");
         Str.equalsOrDie("Rick", employee.getFirstName());
 
         Str.equalsOrDie("Hightower", employee.getLastName());
@@ -144,16 +143,16 @@ public class SimpleJsonKeyValueStoreRocksDBTest {
         Employee employee;
 
 
-        employee = store.get("789");
+        employee = store.load("789");
         Str.equalsOrDie("Jason", employee.getFirstName());
         Str.equalsOrDie("Daniel", employee.getLastName());
 
 
-        employee = store.get("456");
+        employee = store.load("456");
         Str.equalsOrDie("Paul", employee.getFirstName());
         Str.equalsOrDie("Tabor", employee.getLastName());
 
-        employee = store.get("123");
+        employee = store.load("123");
         Str.equalsOrDie("Rick", employee.getFirstName());
         Str.equalsOrDie("Hightower", employee.getLastName());
 
@@ -180,16 +179,16 @@ public class SimpleJsonKeyValueStoreRocksDBTest {
         Employee employee;
 
 
-        employee = store.get("789");
+        employee = store.load("789");
         Str.equalsOrDie("Jason", employee.getFirstName());
         Str.equalsOrDie("Daniel", employee.getLastName());
 
 
-        employee = store.get("456");
+        employee = store.load("456");
         Str.equalsOrDie("Paul", employee.getFirstName());
         Str.equalsOrDie("Tabor", employee.getLastName());
 
-        employee = store.get("123");
+        employee = store.load("123");
         Str.equalsOrDie("Rick", employee.getFirstName());
         Str.equalsOrDie("Hightower", employee.getLastName());
 
@@ -198,11 +197,11 @@ public class SimpleJsonKeyValueStoreRocksDBTest {
 
 
 
-        employee =        store.get("123");
+        employee =        store.load("123");
 
         ok = employee == null || die();
 
-        employee =        store.get("456");
+        employee =        store.load("456");
 
 
         ok = employee == null || die();

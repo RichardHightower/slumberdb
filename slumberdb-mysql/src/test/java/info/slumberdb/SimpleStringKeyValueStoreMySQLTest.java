@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.boon.Boon.puts;
@@ -45,7 +47,7 @@ public class SimpleStringKeyValueStoreMySQLTest {
                 "world"
         );
 
-        String world = store.get("hello");
+        String world = store.load("hello");
         Str.equalsOrDie("world", world);
 
     }
@@ -63,16 +65,16 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
         String value ;
 
-        value =        store.get("hello1");
+        value =        store.load("hello1");
         Str.equalsOrDie("hello1", value);
 
 
-        value =        store.get("hello2");
+        value =        store.load("hello2");
         Str.equalsOrDie("hello2", value);
 
 
         store.remove("hello2");
-        value =        store.get("hello2");
+        value =        store.load("hello2");
         okOrDie(value == null);
     }
 
@@ -91,11 +93,11 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
         String value ;
 
-        value =        store.get("hello1");
+        value =        store.load("hello1");
         Str.equalsOrDie("hello1", value);
 
 
-        value =        store.get("hello2");
+        value =        store.load("hello2");
         Str.equalsOrDie("hello2", value);
 
 
@@ -103,17 +105,17 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
 
 
-        value =        store.get("hello1");
+        value =        store.load("hello1");
 
         ok = value == null || die();
 
-        value =        store.get("hello2");
+        value =        store.load("hello2");
 
 
         ok = value == null || die();
 
 
-        Str.equalsOrDie("1", store.get("somethingElse"));
+        Str.equalsOrDie("1", store.load("somethingElse"));
 
 
 
@@ -154,6 +156,77 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
 
 
+
+    @Test
+    public void testLoadAllKeys() {
+
+        List<String> keys38 = new ArrayList<>();
+        List<String> keys41 = new ArrayList<>();
+        List<String> keys77 = new ArrayList<>();
+        List<String> keys83 = new ArrayList<>();
+
+        for (int index=0; index< 100; index++) {
+
+            String key = "key.load.all" + index;
+            if (keys38.size() < 38+1) {
+                keys38.add(key);
+            }
+
+            if (keys41.size() < 41+1) {
+                keys41.add(key);
+            }
+
+            if (keys77.size() < 77+1) {
+                keys77.add(key);
+            }
+
+
+            if (keys83.size() < 83+1) {
+                keys83.add(key);
+            }
+
+            store.put(key, key);
+        }
+
+        Map<String, String> results = store.loadAllByKeys(keys38);
+
+        puts (results);
+
+        ok = results.containsKey("key.load.all38") || die();
+
+        ok = !results.containsKey("key.load.all39") || die();
+
+
+        results = store.loadAllByKeys(keys41);
+
+        puts (results);
+
+        ok = results.containsKey("key.load.all39") || die();
+        ok = results.containsKey("key.load.all40") || die();
+        ok = results.containsKey("key.load.all41") || die();
+        ok = !results.containsKey("key.load.all42") || die();
+
+
+
+        results = store.loadAllByKeys(keys77);
+
+        puts (results);
+
+        ok = results.containsKey("key.load.all70") || die();
+        ok = results.containsKey("key.load.all75") || die();
+        ok = results.containsKey("key.load.all77") || die();
+        ok = !results.containsKey("key.load.all78") || die();
+
+
+        results = store.loadAllByKeys(keys83);
+
+        puts (results);
+
+        ok = results.containsKey("key.load.all80") || die();
+        ok = results.containsKey("key.load.all81") || die();
+        ok = results.containsKey("key.load.all83") || die();
+        ok = !results.containsKey("key.load.all84") || die();
+    }
 
 
 

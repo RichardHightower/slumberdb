@@ -12,9 +12,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import static org.boon.Boon.puts;
 import static org.boon.Exceptions.die;
@@ -161,16 +159,16 @@ public class SimpleKyroMySQLStoreTest {
         Employee employee;
 
 
-        employee = store.get("789");
+        employee = store.load("789");
         Str.equalsOrDie("Jason", employee.getFirstName());
         Str.equalsOrDie("Daniel", employee.getLastName());
 
 
-        employee = store.get("456");
+        employee = store.load("456");
         Str.equalsOrDie("Paul", employee.getFirstName());
         Str.equalsOrDie("Tabor", employee.getLastName());
 
-        employee = store.get("123");
+        employee = store.load("123");
         Str.equalsOrDie("Rick", employee.getFirstName());
         Str.equalsOrDie("Hightower", employee.getLastName());
 
@@ -262,16 +260,16 @@ public class SimpleKyroMySQLStoreTest {
         Employee employee;
 
 
-        employee = store.get("789");
+        employee = store.load("789");
         Str.equalsOrDie("Jason", employee.getFirstName());
         Str.equalsOrDie("Daniel", employee.getLastName());
 
 
-        employee = store.get("456");
+        employee = store.load("456");
         Str.equalsOrDie("Paul", employee.getFirstName());
         Str.equalsOrDie("Tabor", employee.getLastName());
 
-        employee = store.get("123");
+        employee = store.load("123");
         Str.equalsOrDie("Rick", employee.getFirstName());
         Str.equalsOrDie("Hightower", employee.getLastName());
 
@@ -279,11 +277,11 @@ public class SimpleKyroMySQLStoreTest {
         store.removeAll(map.keySet());
 
 
-        employee = store.get("123");
+        employee = store.load("123");
 
         ok = employee == null || die();
 
-        employee = store.get("456");
+        employee = store.load("456");
 
 
         ok = employee == null || die();
@@ -313,6 +311,85 @@ public class SimpleKyroMySQLStoreTest {
 
 
     }
+
+
+    @Test
+    public void testLoadAllKeys() {
+
+        List<String> keys38 = new ArrayList<>();
+        List<String> keys41 = new ArrayList<>();
+        List<String> keys77 = new ArrayList<>();
+        List<String> keys83 = new ArrayList<>();
+        List<String> all = new ArrayList<>();
+
+        for (int index=0; index< 100; index++) {
+
+            String key = "key.load.all" + index;
+            all.add(key);
+
+            if (keys38.size() < 38+1) {
+                keys38.add(key);
+            }
+
+            if (keys41.size() < 41+1) {
+                keys41.add(key);
+            }
+
+            if (keys77.size() < 77+1) {
+                keys77.add(key);
+            }
+
+
+            if (keys83.size() < 83+1) {
+                keys83.add(key);
+            }
+
+            store.put(key, new Employee(key, key));
+        }
+
+        Map<String, ?> results = store.loadAllByKeys(keys38);
+
+        puts (results);
+
+        ok = results.containsKey("key.load.all38") || die();
+
+        ok = !results.containsKey("key.load.all39") || die();
+
+
+        results = store.loadAllByKeys(keys41);
+
+        puts (results);
+
+        ok = results.containsKey("key.load.all39") || die();
+        ok = results.containsKey("key.load.all40") || die();
+        ok = results.containsKey("key.load.all41") || die();
+        ok = !results.containsKey("key.load.all42") || die();
+
+
+
+        results = store.loadAllByKeys(keys77);
+
+        puts (results);
+
+        ok = results.containsKey("key.load.all70") || die();
+        ok = results.containsKey("key.load.all75") || die();
+        ok = results.containsKey("key.load.all77") || die();
+        ok = !results.containsKey("key.load.all78") || die();
+
+
+        results = store.loadAllByKeys(keys83);
+
+        puts (results);
+
+        ok = results.containsKey("key.load.all80") || die();
+        ok = results.containsKey("key.load.all81") || die();
+        ok = results.containsKey("key.load.all83") || die();
+        ok = !results.containsKey("key.load.all84") || die();
+
+
+        store.removeAll(all);
+    }
+
 
 }
 

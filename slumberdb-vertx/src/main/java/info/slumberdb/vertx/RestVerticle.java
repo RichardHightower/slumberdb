@@ -195,7 +195,7 @@ public class RestVerticle  extends Verticle {
         final Buffer body = new Buffer();
 
 
-        /* Register a callback to get notified when we get the next block of gak from the POST. */
+        /* Register a callback to load notified when we load the next block of gak from the POST. */
         request.dataHandler(new Handler<Buffer>() {
             public void handle(Buffer buffer) {
                 body.appendBuffer(buffer);

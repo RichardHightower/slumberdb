@@ -96,13 +96,13 @@ public class BasicRestRequestHandler implements RestHandler {
 
 
     /**
-     * Holds the http get request handlers. Maps GET URIs to service calls.
+     * Holds the http load request handlers. Maps GET URIs to service calls.
      */
     protected Map<String, RequestBinding> getHandlers = null;
 
 
     /**
-     * Holds the http get request handlers. Maps POST URIs to service calls.
+     * Holds the http load request handlers. Maps POST URIs to service calls.
      */
     protected Map<String, RequestBinding> postHandlers = null;
 
@@ -227,7 +227,7 @@ public class BasicRestRequestHandler implements RestHandler {
 
 
         return map(
-                "rest/get/", showRequestMappings,
+                "rest/load/", showRequestMappings,
                 "rest/post/", showPostMappings
 
         );

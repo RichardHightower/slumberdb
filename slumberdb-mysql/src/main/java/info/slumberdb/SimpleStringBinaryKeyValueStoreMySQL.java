@@ -3,6 +3,7 @@ package info.slumberdb;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.boon.Exceptions;
 import org.boon.Logger;
+import org.boon.primitive.CharBuf;
 
 import java.sql.*;
 import java.util.*;
@@ -38,6 +39,10 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
     private PreparedStatement search;
     private PreparedStatement loadAll;
 
+    private PreparedStatement loadAllKeys;
+
+    final int loadKeyCount = 40;
+
 
     private Logger logger = configurableLogger(SimpleStringKeyValueStoreMySQL.class);
     private String loadAllSQL;
@@ -45,6 +50,7 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
 
     private int batchSize = 100;
     private PreparedStatement allKeys;
+    private String loadAllKeysSQL;
 
     public SimpleStringBinaryKeyValueStoreMySQL(String url, String userName, String password, String table) {
         this.url = url;
@@ -72,8 +78,21 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
         this.loadAllSQL = "select kv_key, kv_value from `" + table +"`;";
         this.selectKeysSQL = "select kv_key from `" + table +"`;";
 
+        CharBuf buf = CharBuf.create(100);
+        buf.add("select kv_key, kv_value from `");
+        buf.add(table);
+        buf.add("` where kv_key in (");
+        buf.multiply("?,", this.loadKeyCount);
+        buf.removeLastChar();
+        buf.add(");");
+
+        this.loadAllKeysSQL = buf.toString();
+
+        puts (this.loadAllKeysSQL);
+
 
         this.deleteStatementSQL = "delete  from `" + table + "` where kv_key = ?;";
+
 
         this.tableExistsSQL = "select * from `" + table + "` where 1!=1;";
 
@@ -101,6 +120,8 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
             loadAll = connection.prepareStatement(loadAllSQL);
 
             allKeys = connection.prepareStatement(selectKeysSQL);
+
+            loadAllKeys = connection.prepareStatement(loadAllKeysSQL);
 
         } catch (SQLException e) {
             handle("Unable to create prepared statements", e);
@@ -372,7 +393,7 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
                     try {
                         resultSet.close();
                     } catch (SQLException e) {
-                        handle("Unable to close result set for loadAll query", e);
+                        handle("Unable to close result set for loadAllByKeys query", e);
                     }
                 }
 
@@ -385,7 +406,7 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
                             try {
                                 return resultSet.next();
                             } catch (SQLException e) {
-                                handle("Unable to call next() for result set for loadAll query", e);
+                                handle("Unable to call next() for result set for loadAllByKeys query", e);
                                 return false;
                             }
                         }
@@ -398,7 +419,7 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
                                 byte[] value = resultSet.getBytes(2);
                                 return new Entry<>(key, value);
                             } catch (SQLException e) {
-                                handle("Unable to extract values for loadAll query", e);
+                                handle("Unable to extract values for loadAllByKeys query", e);
                                 return null;
                             }
 
@@ -455,7 +476,7 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
     }
 
     @Override
-    public byte[] get(String key) {
+    public byte[] load(String key) {
 
         byte[] value;
         try {
@@ -474,6 +495,60 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
             return null;
         }
         return value;
+    }
+
+    @Override
+    public Map<String, byte[]> loadAllByKeys(Collection<String> keys) {
+
+        Map<String, byte[]> results = new LinkedHashMap<>(keys.size());
+        List<String> keyLoadList = new ArrayList<>(this.loadKeyCount);
+
+
+        for (String key : keys) {
+            keyLoadList.add(key);
+
+            if (keyLoadList.size()==loadKeyCount) {
+                keyBatch(results, keyLoadList);
+                keyLoadList.clear();
+            }
+        }
+
+        keyBatch(results, keyLoadList);
+        return results;
+    }
+
+    private void keyBatch(Map<String, byte[]> results, List<String> keyLoadList) {
+        String keyResult;
+        byte[] valueResult;
+
+
+        while (keyLoadList.size()<this.loadKeyCount) {
+            keyLoadList.add(null);
+        }
+
+        try {
+            int indexToLoad = 1;
+            for (String keyToLoad : keyLoadList) {
+                loadAllKeys.setString(indexToLoad, keyToLoad);
+                indexToLoad++;
+            }
+
+
+            final ResultSet resultSet = loadAllKeys.executeQuery();
+
+
+
+            while (resultSet.next()) {
+
+                keyResult = resultSet.getString( 1 );
+                valueResult = resultSet.getBytes( 2 );
+                results.put(keyResult, valueResult);
+            }
+            resultSet.close();
+
+        } catch (SQLException ex) {
+            handle("Unable to load " + keyLoadList, ex);
+        }
     }
 
     @Override
@@ -510,8 +585,11 @@ public class SimpleStringBinaryKeyValueStoreMySQL implements KeyValueStore<Strin
             logger.error(message, sqlException);
         }
 
-        Exceptions.handle(message, sqlException);
+        /* Cleanup connection. */
+        close();
         connection = connection();
+
+        Exceptions.handle(message, sqlException);
 
     }
 

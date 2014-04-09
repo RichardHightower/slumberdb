@@ -10,7 +10,7 @@ public class Client  {
     }
 
 
-    public String get(String key) {
+    public String load(String key) {
         return key + ".mommy";
     }
 

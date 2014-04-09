@@ -29,7 +29,7 @@ public class LevelDBKeyValueStoreTest {
                 "world".getBytes(StandardCharsets.UTF_8)
         );
 
-        byte[] world = store.get("hello".getBytes(StandardCharsets.UTF_8));
+        byte[] world = store.load("hello".getBytes(StandardCharsets.UTF_8));
         Str.equalsOrDie("world", new String(world, StandardCharsets.UTF_8));
     }
 

@@ -43,20 +43,14 @@ public  class HazelCastLevelDBJSONMapStore <V> implements MapStore<String, V> {
 
     @Override
     public V load(String key) {
-        return store.get(key);
+        return store.load(key);
     }
 
     @Override
     public Map<String, V> loadAll(Collection<String> keys) {
 
 
-        Map<String, V> map = new HashMap<>();
-
-        for (String key : keys) {
-            map.put(key, store.get(key));
-        }
-
-        return map;
+       return store.loadAllByKeys(keys);
     }
 
 
