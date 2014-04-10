@@ -1,6 +1,6 @@
 package info.slumberdb.config;
 
-public class FileBasedConfig extends KeyValueStoreConfig{
+public class FileBasedConfig extends KeyValueStoreConfig {
     private String fileName;
     private String directory;
 

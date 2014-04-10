@@ -5,18 +5,25 @@ import java.io.Serializable;
 
 /**
  * Represents an entry in the database.
+ *
  * @param <K> key
  * @param <V> value
  */
-public class Entry <K, V> implements Serializable {
+public class Entry<K, V> implements Serializable {
 
-    /** Key of item. */
+    /**
+     * Key of item.
+     */
     private final K key;
 
-    /** Value of item.*/
+    /**
+     * Value of item.
+     */
     private final V value;
 
-    /** Create an entry. */
+    /**
+     * Create an entry.
+     */
     public Entry(K key, V value) {
         this.key = key;
         this.value = value;
@@ -32,12 +39,16 @@ public class Entry <K, V> implements Serializable {
 
     }
 
-    /** Get the key. */
+    /**
+     * Get the key.
+     */
     public K key() {
         return key;
     }
 
-    /** Get the value. */
+    /**
+     * Get the value.
+     */
     public V value() {
         return value;
     }

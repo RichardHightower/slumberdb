@@ -6,7 +6,6 @@ import info.slumberdb.rest.Response;
 import info.slumberdb.rest.RestHandler;
 import org.boon.Logger;
 import org.boon.core.reflection.BeanUtils;
-import org.boon.core.reflection.Reflection;
 import org.boon.di.Context;
 import org.boon.di.Inject;
 import org.boon.json.serializers.impl.JsonSimpleSerializerImpl;
@@ -25,29 +24,20 @@ import java.util.Map;
 import static info.slumberdb.rest.ResponseUtils.handleException;
 import static info.slumberdb.vertx.VertxUtils.encodeResponse;
 import static org.boon.Boon.*;
-import static org.boon.Boon.readConfig;
 import static org.boon.di.DependencyInjection.context;
 import static org.boon.di.DependencyInjection.objects;
 
 /**
- *
  * Vertx networking stack for HTTP/REST verticles
  * Created by Richard on 4/6/14.
  *
  * @author Rick Hightower
  */
-public class RestVerticle  extends Verticle {
-
-
-    private Logger logger = configurableLogger(RestVerticle.class);
+public class RestVerticle extends Verticle {
 
 
     private final JsonSimpleSerializerImpl jsonSerializer = new JsonSimpleSerializerImpl();
-
-
-
-
-
+    private Logger logger = configurableLogger(RestVerticle.class);
     @Inject
     private String namespace;
 
@@ -66,7 +56,6 @@ public class RestVerticle  extends Verticle {
         init(mailBox);
 
 
-
         initServiceMessaging();
     }
 
@@ -77,18 +66,17 @@ public class RestVerticle  extends Verticle {
      *
      * @param mailBox
      */
-    public void init( MailBox mailBox ) {
+    public void init(MailBox mailBox) {
 
 
         bootStrap(); //reads bootstrap (where do I find my config, who am I)
-        readConfigContext( mailBox); //reads basic configuration for ports.
+        readConfigContext(mailBox); //reads basic configuration for ports.
 
         /** Initializes dependency Injection container.*/
         context = context(
                 objects(mailBox)
         );
         context.resolveProperties(this);
-
 
 
     }
@@ -109,7 +97,8 @@ public class RestVerticle  extends Verticle {
                             event.cause().printStackTrace();
                         }
                     }
-                });
+                }
+        );
         logger.trace("initServiceMessaging", "leaving");
 
     }
@@ -277,7 +266,7 @@ public class RestVerticle  extends Verticle {
             logger.info("endpoint", endpoint);
 
 
-            Number number = (Number)endpoint.get("port");
+            Number number = (Number) endpoint.get("port");
             int port = number.intValue();
 
 
@@ -290,8 +279,7 @@ public class RestVerticle  extends Verticle {
             context.resolveProperties(restHandler);
 
 
-
-            if (vertx!=null) {
+            if (vertx != null) {
                 initializeREST(restHandler, port);
             }
         }

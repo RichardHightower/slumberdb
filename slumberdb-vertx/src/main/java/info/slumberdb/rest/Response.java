@@ -4,7 +4,6 @@ package info.slumberdb.rest;
  * Created by Richard on 4/6/14.
  * Response object represents an HTTP response.
  * It packages the JSON body and the HTTP code that needs to be written out.
- *
  */
 public class Response {
 
@@ -24,29 +23,12 @@ public class Response {
      * Constructor for creating responses.
      *
      * @param response body of the response usually JSON
-     * @param code HTTP status code
+     * @param code     HTTP status code
      */
-    private Response( String response, int code ) {
+    private Response(String response, int code) {
         this.response = response;
         this.code = code;
     }
-
-    /**
-     * access JSON response
-     * @return the response
-     */
-    public String response() {
-        return response;
-    }
-
-    /**
-     * Access code
-     * @return the code
-     */
-    public int code() {
-        return code;
-    }
-
 
     /**
      * <p>
@@ -58,16 +40,15 @@ public class Response {
      * @param response the body of the response
      * @return a response
      */
-    public static Response response( String response ) {
+    public static Response response(String response) {
 
         //http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
         if (response.startsWith(ResponseUtils.ERROR_MARKER)) {
-            return new Response( response, 500 );
+            return new Response(response, 500);
         } else {
-            return new Response( response, 200 );
+            return new Response(response, 200);
         }
     }
-
 
     /**
      * <p>
@@ -75,11 +56,29 @@ public class Response {
      * </p>
      *
      * @param response response
-     * @param code the code
+     * @param code     the code
      * @return the response
      */
-    public static Response response( String response, int code ) {
-        return new Response( response, code );
+    public static Response response(String response, int code) {
+        return new Response(response, code);
+    }
+
+    /**
+     * access JSON response
+     *
+     * @return the response
+     */
+    public String response() {
+        return response;
+    }
+
+    /**
+     * Access code
+     *
+     * @return the code
+     */
+    public int code() {
+        return code;
     }
 
 }

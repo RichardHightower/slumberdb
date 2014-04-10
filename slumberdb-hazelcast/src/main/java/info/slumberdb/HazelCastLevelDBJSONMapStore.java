@@ -2,21 +2,20 @@ package info.slumberdb;
 
 import com.hazelcast.core.MapStore;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Richard on 4/7/14.
  */
-public  class HazelCastLevelDBJSONMapStore <V> implements MapStore<String, V> {
+public class HazelCastLevelDBJSONMapStore<V> implements MapStore<String, V> {
 
     SimpleJsonKeyValueStoreLevelDB<V> store;
 
-    public HazelCastLevelDBJSONMapStore(String keyPrefix, String fileName, Class<V> cls) {
-        store = new SimpleJsonKeyValueStoreLevelDB(keyPrefix, fileName, cls);
-    }
-
     public HazelCastLevelDBJSONMapStore(String fileName, Class<V> cls) {
-        store = new SimpleJsonKeyValueStoreLevelDB(null, fileName, cls);
+        store = new SimpleJsonKeyValueStoreLevelDB(fileName, cls);
     }
 
     @Override
@@ -50,7 +49,7 @@ public  class HazelCastLevelDBJSONMapStore <V> implements MapStore<String, V> {
     public Map<String, V> loadAll(Collection<String> keys) {
 
 
-       return store.loadAllByKeys(keys);
+        return store.loadAllByKeys(keys);
     }
 
 

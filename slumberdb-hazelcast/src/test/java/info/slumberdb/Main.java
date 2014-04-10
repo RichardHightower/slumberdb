@@ -1,13 +1,15 @@
 package info.slumberdb;
 
-import com.hazelcast.core.*;
-import com.hazelcast.config.*;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 
 import java.io.Serializable;
 import java.util.Map;
 
 public class Main {
-
 
 
     public static void main(String[] args) {
@@ -31,8 +33,6 @@ public class Main {
         cfg.addMapConfig(mapCfg);
 
         HazelcastInstance instance = Hazelcast.newHazelcastInstance(cfg);
-
-
 
 
         Map<String, Employee> mapCustomers = instance.getMap("employees");

@@ -18,7 +18,7 @@ import static org.boon.Boon.configurableLogger;
 /**
  * Created by Richard on 4/6/14.
  */
-public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
+public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]> {
 
 
     /**
@@ -38,37 +38,39 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
      * and then reopens it.
      */
     private final Options options;
-
+    /**
+     * Actual database implementation.
+     */
+    DB database;
     /**
      * Logger.
      */
     private Logger logger = configurableLogger(LmdbKeyValueStore.class);
 
-    /** Actual database implementation. */
-    DB database;
 
-
-    /** Creates a level db database with the default options. */
-    public LmdbKeyValueStore( String fileName ) {
-        this (fileName, null, false);
+    /**
+     * Creates a level db database with the default options.
+     */
+    public LmdbKeyValueStore(String fileName) {
+        this(fileName, null, false);
     }
 
-    /** Creates a level db database with the options passed
+    /**
+     * Creates a level db database with the options passed
      * Also allows setting up logging or not.
      *
      * @param fileName fileName
-     * @param options options
-     * @param log turn on logging
+     * @param options  options
+     * @param log      turn on logging
      */
     public LmdbKeyValueStore(String fileName, Options options, boolean log) {
         this.fileName = fileName;
         File file = new File(fileName);
 
 
-
-        if (options==null) {
+        if (options == null) {
             logger.info("Using default options");
-            options =defaultOptions();
+            options = defaultOptions();
         }
 
         this.options = options;
@@ -83,11 +85,12 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
         }
 
 
-        usingJNI = openDB(file,  options);
+        usingJNI = openDB(file, options);
     }
 
     /**
      * Configures default options.
+     *
      * @return
      */
     private Options defaultOptions() {
@@ -101,7 +104,8 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     /**
      * Opens the database
-     * @param file filename to open
+     *
+     * @param file    filename to open
      * @param options options
      * @return
      */
@@ -110,7 +114,7 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
         try {
             database = LMDBFactory.factory.open(file, options);
             logger.info("Using JNI Level DB");
-            return  true;
+            return true;
         } catch (IOException ex1) {
             try {
                 database = Iq80DBFactory.factory.open(file, options);
@@ -125,7 +129,8 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     /**
      * Puts an item in the key value store.
-     * @param key  key
+     *
+     * @param key   key
      * @param value value
      */
     @Override
@@ -135,6 +140,7 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     /**
      * Puts values into the key value store in batch mode
+     *
      * @param values values
      */
     @Override
@@ -163,7 +169,8 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
         }
     }
 
-    /** Remove all of the keys passed.
+    /**
+     * Remove all of the keys passed.
      *
      * @param keys keys
      */
@@ -189,6 +196,7 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     /**
      * Remove items from list
+     *
      * @param key
      */
     @Override
@@ -199,6 +207,7 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     /**
      * Search to a certain location.
+     *
      * @param startKey startKey
      * @return
      */
@@ -206,7 +215,7 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
     public KeyValueIterable<byte[], byte[]> search(byte[] startKey) {
 
         final DBIterator iterator = database.iterator();
-        iterator.seek( startKey );
+        iterator.seek(startKey);
 
 
         return new KeyValueIterable<byte[], byte[]>() {
@@ -250,6 +259,7 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     /**
      * Load all of the key/values from the store.
+     *
      * @return
      */
     @Override
@@ -291,6 +301,7 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
 
     /**
      * Get the key from the store
+     *
      * @param key key
      * @return value from store at location key
      */
@@ -304,7 +315,7 @@ public class LmdbKeyValueStore implements KeyValueStore<byte[], byte[]>{
      * Close the database connection.
      */
     @Override
-    public void close()  {
+    public void close() {
         try {
             database.close();
         } catch (IOException e) {

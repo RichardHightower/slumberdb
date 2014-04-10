@@ -1,5 +1,5 @@
 // Example JSON config file
 
 {
-  "foo": "bar"
+    "foo": "bar"
 }

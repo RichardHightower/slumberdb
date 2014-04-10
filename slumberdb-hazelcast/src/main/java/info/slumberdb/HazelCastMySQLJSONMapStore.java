@@ -2,12 +2,15 @@ package info.slumberdb;
 
 import com.hazelcast.core.MapStore;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Richard on 4/7/14.
  */
-public class HazelCastMySQLJSONMapStore<V> implements MapStore<String, V>{
+public class HazelCastMySQLJSONMapStore<V> implements MapStore<String, V> {
 
 
     private SimpleJsonKeyValueStoreMySQL<V> store;

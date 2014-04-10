@@ -1,16 +1,16 @@
 {
 
-  "main":"info.slumberdb.vertx.RestVerticle",
+    "main": "info.slumberdb.vertx.RestVerticle",
 
-  "description":"Wire protocol for slumberdb",
-  "licenses": ["The Apache Software License Version 2.0"],
-  "author": "Richard Hightower",
+    "description": "Wire protocol for slumberdb",
+    "licenses": ["The Apache Software License Version 2.0"],
+    "author": "Richard Hightower",
 
-  // Optional fields
-  "developers": ["?", "?"],
-  "keywords": ["slumberdb", "vertx", "mysql", "leveldb", "rocksdb"],
-  "homepage": "https://github.com/RichardHightower/slumberdb",
+    // Optional fields
+    "developers": ["?", "?"],
+    "keywords": ["slumberdb", "vertx", "mysql", "leveldb", "rocksdb"],
+    "homepage": "https://github.com/RichardHightower/slumberdb",
 
-  "auto-redeploy": true
+    "auto-redeploy": true
 
 }

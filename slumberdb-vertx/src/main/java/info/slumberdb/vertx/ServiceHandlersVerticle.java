@@ -2,7 +2,6 @@ package info.slumberdb.vertx;
 
 import info.slumberdb.mailbox.MailBox;
 import info.slumberdb.mailbox.MailboxDispatch;
-import info.slumberdb.rest.BasicRestRequestHandler;
 import org.boon.Logger;
 import org.boon.core.reflection.BeanUtils;
 import org.boon.core.reflection.Reflection;
@@ -19,10 +18,10 @@ import static org.boon.Boon.readConfig;
 
 /**
  * <p>
- *
+ * <p/>
  * This receives messages posted to the queue async from the HTTP REST calls.
  * This can live on another box or process and will likely live there someday soon.
- *
+ * <p/>
  * This can live in a different module or in a different JVM.
  * </p>
  */
@@ -30,7 +29,7 @@ public class ServiceHandlersVerticle extends Verticle {
 
     public final static Class<ServiceHandlersVerticle> serviceMessagingVerticle = ServiceHandlersVerticle.class;
 
-    private Logger logger = configurableLogger( serviceMessagingVerticle );
+    private Logger logger = configurableLogger(serviceMessagingVerticle);
     @Inject
     private String namespace;
     @Inject
@@ -65,8 +64,7 @@ public class ServiceHandlersVerticle extends Verticle {
             Context context = bootstrap(mailBox);
 
 
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
 
             ex.printStackTrace(System.err);
             logger.fatal(ex, "Unable to load service verticle");
@@ -76,6 +74,7 @@ public class ServiceHandlersVerticle extends Verticle {
 
     /**
      * Bootstrap config.
+     *
      * @return
      */
     private Context bootstrap(MailBox mailBox) {
@@ -88,7 +87,6 @@ public class ServiceHandlersVerticle extends Verticle {
         Context context = readConfig(this.namespace, this.configPath);
 
 
-
         List<Map<String, Object>> endpoints = context.get(List.class, "endpoints");
 
         logger.info("endpoints", endpoints);
@@ -98,12 +96,10 @@ public class ServiceHandlersVerticle extends Verticle {
             logger.info("endpoint", endpoint);
 
 
-
-
             final MailboxDispatch mailboxDispatch = new MailboxDispatch(mailBox);
 
 
-            String type = (String)endpoint.get("type");
+            String type = (String) endpoint.get("type");
 
             Object object = Reflection.newInstance(type);
 
@@ -117,7 +113,6 @@ public class ServiceHandlersVerticle extends Verticle {
 
         return context;
     }
-
 
 
     /**

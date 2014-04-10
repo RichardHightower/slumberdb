@@ -14,20 +14,15 @@ public class Request {
     final String path;
 
 
-
-
-
-    public static Request request( String method, Map<String, Object> params, String body, String path ) {
-        return new Request(method, params, body, path);
-    }
-
-
-
-    private Request( String method, Map<String, Object> params, String body, String path ) {
+    private Request(String method, Map<String, Object> params, String body, String path) {
         this.method = method;
         this.params = params;
         this.body = body;
         this.path = path;
+    }
+
+    public static Request request(String method, Map<String, Object> params, String body, String path) {
+        return new Request(method, params, body, path);
     }
 
     public String method() {
@@ -45,10 +40,6 @@ public class Request {
     public String path() {
         return path;
     }
-
-
-
-
 
 
 }

@@ -13,10 +13,11 @@ import static org.boon.Str.equalsOrDie;
 public class RestRouterTest {
 
     @Test
-    public  void test() {
+    public void test() {
         RestRouter restRouter = new RestRouter("/foobarbar/",
                 set("user/points/", "user/categories/"
-                ));
+                )
+        );
 
         String dispatchId = restRouter.dispatchId("/foobarbar/user/points/");
         equalsOrDie("user/points/", dispatchId);
@@ -35,7 +36,6 @@ public class RestRouterTest {
         dispatchId = restRouter.dispatchId("/ass/monkey/user/points/");
         equalsOrDie("user/points/", dispatchId);
         Int.equalsOrDie(3, restRouter.routes());
-
 
 
     }

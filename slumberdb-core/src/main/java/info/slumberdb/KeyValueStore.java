@@ -1,10 +1,8 @@
 package info.slumberdb;
 
 import java.io.Closeable;
-import java.io.Flushable;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A map like interface that represents a key value store.
@@ -13,17 +11,16 @@ import java.util.Set;
  * When you <code>put(...)</code> a value,
  * it may return async so put does not return a value.
  * </p>
- *
  */
-public interface KeyValueStore <K, V> extends Closeable {
+public interface KeyValueStore<K, V> extends Closeable {
 
     /**
      * Put a key
-     * @param key  key
+     *
+     * @param key   key
      * @param value value
      */
     void put(K key, V value);
-
 
 
     /**
@@ -37,10 +34,10 @@ public interface KeyValueStore <K, V> extends Closeable {
     void removeAll(Iterable<K> keys);
 
 
-
-    /** Remove a single key. */
+    /**
+     * Remove a single key.
+     */
     void remove(K key);
-
 
 
     /**
@@ -77,7 +74,6 @@ public interface KeyValueStore <K, V> extends Closeable {
      * Close the connection to the database.
      */
     void close();
-
 
 
 }

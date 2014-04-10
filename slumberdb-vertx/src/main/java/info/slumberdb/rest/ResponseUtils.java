@@ -38,9 +38,9 @@ public class ResponseUtils {
     /**
      * Handles exceptions.
      *
-     * @param request the request that threw the exception
-     * @param ex the exception
-     * @param mapper JSON object mapper to turn the exception into JSON.
+     * @param request         the request that threw the exception
+     * @param ex              the exception
+     * @param mapper          JSON object mapper to turn the exception into JSON.
      * @param responseHandler
      */
     public static void handleException(final Request request, final Exception ex, final JsonSimpleSerializerImpl mapper, Handler<Response> responseHandler) {
@@ -53,55 +53,56 @@ public class ResponseUtils {
                 )
         ).toString();
 
-        responseHandler.handle( Response.response( toJSON( ex, json ), 500 ));
+        responseHandler.handle(Response.response(toJSON(ex, json), 500));
     }
 
 
     /**
      * Converts an exception into a JSON response.
-     * @param ex the exception
+     *
+     * @param ex          the exception
      * @param requestJson the JSON response.
      * @return JSON version of exception
      */
-    public static String toJSON( Exception ex, String requestJson ) {
-        ByteBuf buffer = ByteBuf.create( 255 );
-        buffer.addByte( '{' );
+    public static String toJSON(Exception ex, String requestJson) {
+        ByteBuf buffer = ByteBuf.create(255);
+        buffer.addByte('{');
 
 
-        buffer.add( "\n    " ).addJSONEncodedString( "request" ).add( " : " )
-                .add( requestJson ).add( ",\n" );
+        buffer.add("\n    ").addJSONEncodedString("request").add(" : ")
+                .add(requestJson).add(",\n");
 
-        buffer.add( "\n    " ).addJSONEncodedString( "message" ).add( " : " )
-                .addJSONEncodedString( ex.getMessage() ).add( ",\n" );
+        buffer.add("\n    ").addJSONEncodedString("message").add(" : ")
+                .addJSONEncodedString(ex.getMessage()).add(",\n");
 
-        buffer.add( "    " ).addJSONEncodedString( "localizedMessage" ).add( " : " )
-                .addJSONEncodedString( ex.getLocalizedMessage() ).add( ",\n" );
+        buffer.add("    ").addJSONEncodedString("localizedMessage").add(" : ")
+                .addJSONEncodedString(ex.getLocalizedMessage()).add(",\n");
 
-        buffer.add( "    " ).addJSONEncodedString( "stackTrace" ).add( " : " )
-                .addByte( '[' ).addByte( '\n' );
+        buffer.add("    ").addJSONEncodedString("stackTrace").add(" : ")
+                .addByte('[').addByte('\n');
 
         final StackTraceElement[] stackTrace = ex.getStackTrace();
 
-        for ( int index = 0; index < ( stackTrace.length > 10 ? 10 : stackTrace.length ); index++ ) {
+        for (int index = 0; index < (stackTrace.length > 10 ? 10 : stackTrace.length); index++) {
             StackTraceElement element = stackTrace[index];
-            if ( index != 0 ) {
-                buffer.addByte( ',' );
-                buffer.addByte( '\n' );
+            if (index != 0) {
+                buffer.addByte(',');
+                buffer.addByte('\n');
             }
             index++;
-            buffer.add( "           { " );
-            buffer.add( "             " ).addJSONEncodedString( "className" ).add( " : " )
-                    .addJSONEncodedString( element.getClassName() ).add( ",\n" );
+            buffer.add("           { ");
+            buffer.add("             ").addJSONEncodedString("className").add(" : ")
+                    .addJSONEncodedString(element.getClassName()).add(",\n");
 
-            buffer.add( "             " ).addJSONEncodedString( "methodName" ).add( " : " )
-                    .addJSONEncodedString( element.getMethodName() ).add( ",\n" );
+            buffer.add("             ").addJSONEncodedString("methodName").add(" : ")
+                    .addJSONEncodedString(element.getMethodName()).add(",\n");
 
-            buffer.add( "             " ).addJSONEncodedString( "lineNumber" ).add( " : " )
-                    .add( "" + element.getLineNumber() ).add( "}\n" );
+            buffer.add("             ").addJSONEncodedString("lineNumber").add(" : ")
+                    .add("" + element.getLineNumber()).add("}\n");
 
         }
 
-        buffer.add( "\n    ]\n}" );
+        buffer.add("\n    ]\n}");
         return buffer.toString();
 
     }
@@ -131,14 +132,14 @@ public class ResponseUtils {
         Set<Map.Entry<String, RequestBinding>> entries = postHandlers.entrySet();
         List<Map<String, Object>> list = new ArrayList<>();
 
-        for ( Map.Entry<String, RequestBinding> entry : entries ) {
+        for (Map.Entry<String, RequestBinding> entry : entries) {
 
             String name = entry.getKey();
             Class<?> bodyType = entry.getValue().bodyType();
             Class<?> returnType = entry.getValue().returnType();
 
-            puts ("name", name);
-            ResponseUtils.extractAPIJSONMetaDataForClientAPIs( list, name, bodyType, returnType );
+            puts("name", name);
+            ResponseUtils.extractAPIJSONMetaDataForClientAPIs(list, name, bodyType, returnType);
 
         }
 
@@ -154,36 +155,34 @@ public class ResponseUtils {
      * @param bodyType
      * @param returnType
      */
-    public static void extractAPIJSONMetaDataForClientAPIs( List<Map<String, Object>> list,
-                                                            Object name, Class<?> bodyType,
-                                                            Class<?> returnType) {
+    public static void extractAPIJSONMetaDataForClientAPIs(List<Map<String, Object>> list,
+                                                           Object name, Class<?> bodyType,
+                                                           Class<?> returnType) {
 
-        Object results =  null;
+        Object results = null;
         Object request = null;
 
-        if (returnType!=null) {
+        if (returnType != null) {
             if (returnType.isPrimitive()) {
 
-                results =   map(
+                results = map(
                         "name", name,
                         "typeName", returnType.getName(),
                         "type", Type.getType(returnType)
                 );
 
-            }
-            else if (returnType.isArray()) {
+            } else if (returnType.isArray()) {
 
-                results =   map(
+                results = map(
                         "name", name,
                         "typeName", returnType.getName(),
                         "type", Type.getType(returnType),
                         "componentType", Type.getType(returnType.getComponentType())
                 );
 
-            }
-            else {
+            } else {
 
-                results =   map(
+                results = map(
                         "name", name,
                         "typeName", returnType.getSimpleName(),
                         "type", Type.getType(returnType),
@@ -192,9 +191,9 @@ public class ResponseUtils {
             }
         }
 
-        if (bodyType!=null) {
+        if (bodyType != null) {
 
-            request =  map(
+            request = map(
                     "name", name,
                     "typeName", bodyType.getSimpleName(),
                     "type", Type.getType(bodyType),
@@ -212,7 +211,7 @@ public class ResponseUtils {
 
     /**
      * Helper method to extract meta-data
-     *
+     * <p/>
      * Used to display meta data for end points.
      * This is used for debugging and documentation only.
      * It is not a runtime feature.
@@ -220,26 +219,26 @@ public class ResponseUtils {
      * @param type
      * @return
      */
-    private static List<Map<String, Object>> getFields( Class<?> type ) {
+    private static List<Map<String, Object>> getFields(Class<?> type) {
 
-        Map<String,FieldAccess> fieldsFromObject = BeanUtils.getFieldsFromObject(type);
+        Map<String, FieldAccess> fieldsFromObject = BeanUtils.getFieldsFromObject(type);
 
         List<Map<String, Object>> fieldList = new ArrayList<>();
 
-        for ( FieldAccess field : fieldsFromObject.values() ) {
+        for (FieldAccess field : fieldsFromObject.values()) {
 
             if (field.isStatic()) continue;
 
-            if ( !(  field.typeEnum() == Type.INSTANCE ) ) {
+            if (!(field.typeEnum() == Type.INSTANCE)) {
 
-                if (field.typeEnum().isCollection(  ))  {
+                if (field.typeEnum().isCollection()) {
 
                     Type componentType = Type.getType(field.getComponentClass());
-                    if (componentType == Type.INSTANCE && field.getComponentClass()!=null) {
+                    if (componentType == Type.INSTANCE && field.getComponentClass() != null) {
 
-                        extractCollectionComponentTypeInfo( fieldList, field, componentType );
+                        extractCollectionComponentTypeInfo(fieldList, field, componentType);
                     } else {
-                        extractBasicComponentTypeInfo( fieldList, field, componentType );
+                        extractBasicComponentTypeInfo(fieldList, field, componentType);
 
                     }
                 } else if (field.typeEnum() == Type.ENUM) {
@@ -253,8 +252,7 @@ public class ResponseUtils {
                             )
                     );
 
-                }
-                else {
+                } else {
                     fieldList.add(
                             map(
                                     "name", (Object) field.name(),
@@ -263,15 +261,14 @@ public class ResponseUtils {
                     );
 
                 }
-            }  else {
-                extractAPIJSONMetaDataForClientAPIs( fieldList, field.name(), field.type(), null );
+            } else {
+                extractAPIJSONMetaDataForClientAPIs(fieldList, field.name(), field.type(), null);
             }
         }
         return fieldList;
     }
 
     /**
-     *
      * Used to display meta data for end points.
      * This is used for debugging and documentation only.
      * It is not a runtime feature.
@@ -280,7 +277,7 @@ public class ResponseUtils {
      * @param field
      * @param componentType
      */
-    private static void extractBasicComponentTypeInfo( List<Map<String, Object>> fieldList, FieldAccess field, Type componentType ) {
+    private static void extractBasicComponentTypeInfo(List<Map<String, Object>> fieldList, FieldAccess field, Type componentType) {
         if (componentType == Type.ENUM) {
             fieldList.add(
                     map(
@@ -304,7 +301,6 @@ public class ResponseUtils {
     }
 
     /**
-     *
      * Used to display meta data for end points.
      * This is used for debugging and documentation only.
      * It is not a runtime feature.
@@ -313,7 +309,7 @@ public class ResponseUtils {
      * @param field
      * @param componentType
      */
-    private static void extractCollectionComponentTypeInfo( List<Map<String, Object>> fieldList, FieldAccess field, Type componentType ) {
+    private static void extractCollectionComponentTypeInfo(List<Map<String, Object>> fieldList, FieldAccess field, Type componentType) {
 
 
         fieldList.add(
@@ -326,8 +322,6 @@ public class ResponseUtils {
                 )
         );
     }
-
-
 
 
 }

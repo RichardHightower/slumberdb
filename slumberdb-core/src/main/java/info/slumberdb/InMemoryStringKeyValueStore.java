@@ -30,7 +30,6 @@ public class InMemoryStringKeyValueStore implements StringKeyValueStore {
     }
 
 
-
     public void remove(String key) {
         map.remove(key);
     }

@@ -9,7 +9,9 @@ import java.util.Map;
 public interface Message {
 
     void reply(String response);
+
     String body();
+
     Map<String, Object> headers();
 
 }

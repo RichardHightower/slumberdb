@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Created by Richard on 4/6/14.
  * Mailbox to send messages.
- *
+ * <p/>
  * This is how the HTTP tier communicates with the service tier.
  */
 public interface MailBox {
@@ -27,17 +27,18 @@ public interface MailBox {
      * <p>
      * Publish a message, this means there can be multiple listeners.
      * </p>
+     *
      * @param address address to send the message, i.e., scoreService.updatePreferences
      * @param message message handler
      */
     void publish(String address, String message);
 
 
-
     /**
      * <p>
      * Publish a message, this means there can be multiple listeners.
      * </p>
+     *
      * @param address address to send the message, i.e., scoreService.updatePreferences
      * @param message message handler
      */
@@ -45,21 +46,22 @@ public interface MailBox {
 
     /**
      * <p>
-     *     Sends a message.
-     *     This means that just one listener is going to consume the message.
+     * Sends a message.
+     * This means that just one listener is going to consume the message.
      * </p>
+     *
      * @param address
      * @param message
      */
     void send(String address, String message);
 
 
-
     /**
      * <p>
-     *     Sends a message.
-     *     This means that just one listener is going to consume the message.
+     * Sends a message.
+     * This means that just one listener is going to consume the message.
      * </p>
+     *
      * @param address
      * @param map
      * @param message
@@ -69,11 +71,12 @@ public interface MailBox {
 
     /**
      * <p>
-     *     This is to make an RPC style call.
-     *     You send the message and you expect a reply to the message.
-     *
-     *     Request/reply.
+     * This is to make an RPC style call.
+     * You send the message and you expect a reply to the message.
+     * <p/>
+     * Request/reply.
      * </p>
+     *
      * @param address
      * @param message
      * @param replyHandler
@@ -82,15 +85,12 @@ public interface MailBox {
 
 
     /**
-     *
      * @param address
      * @param map
      * @param message
      * @param replyHandler
      */
     void requestReply(String address, Map<String, Object> map, String message, Handler<Message> replyHandler);
-
-
 
 
 }

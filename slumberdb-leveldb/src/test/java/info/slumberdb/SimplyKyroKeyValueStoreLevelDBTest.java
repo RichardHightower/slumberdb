@@ -19,9 +19,187 @@ import static org.boon.Exceptions.die;
  */
 public class SimplyKyroKeyValueStoreLevelDBTest {
 
-    private SimpleKyroKeyValueStoreLevelDB<Employee> store;
+    private SimpleKryoKeyValueStoreLevelDB<Employee> store;
     private boolean ok;
 
+    @Before
+    public void setup() {
+
+
+        File file = new File("target/test-data");
+        file = file.getAbsoluteFile();
+        file.mkdirs();
+        file = new File(file, "employee-leveldb-rocksdb.dat");
+        store = new SimpleKryoKeyValueStoreLevelDB(file.toString(), Employee.class);
+
+    }
+
+    @After
+    public void close() {
+
+
+        store.close();
+    }
+
+    @Test
+    public void test() {
+        store.put("123",
+                new Employee("Rick", "Hightower")
+        );
+
+        Employee employee = store.load("123");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+
+        Str.equalsOrDie("Hightower", employee.getLastName());
+    }
+
+    @Test
+    public void testBulkPut() {
+
+        Map<String, Employee> map = Maps.map(
+
+                "123", new Employee("Rick", "Hightower"),
+                "456", new Employee("Paul", "Tabor"),
+                "789", new Employee("Jason", "Daniel")
+
+        );
+
+
+        store.putAll(map);
+
+
+        Employee employee;
+
+
+        employee = store.load("789");
+        Str.equalsOrDie("Jason", employee.getFirstName());
+        Str.equalsOrDie("Daniel", employee.getLastName());
+
+
+        employee = store.load("456");
+        Str.equalsOrDie("Paul", employee.getFirstName());
+        Str.equalsOrDie("Tabor", employee.getLastName());
+
+        employee = store.load("123");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+        Str.equalsOrDie("Hightower", employee.getLastName());
+
+    }
+
+    @Test
+    public void testBulkRemove() {
+
+
+        Map<String, Employee> map = Maps.map(
+
+                "123", new Employee("Rick", "Hightower"),
+                "456", new Employee("Paul", "Tabor"),
+                "789", new Employee("Jason", "Daniel")
+
+        );
+
+
+        store.putAll(map);
+
+
+        Employee employee;
+
+
+        employee = store.load("789");
+        Str.equalsOrDie("Jason", employee.getFirstName());
+        Str.equalsOrDie("Daniel", employee.getLastName());
+
+
+        employee = store.load("456");
+        Str.equalsOrDie("Paul", employee.getFirstName());
+        Str.equalsOrDie("Tabor", employee.getLastName());
+
+        employee = store.load("123");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+        Str.equalsOrDie("Hightower", employee.getLastName());
+
+
+        store.removeAll(map.keySet());
+
+
+        employee = store.load("123");
+
+        ok = employee == null || die();
+
+        employee = store.load("456");
+
+
+        ok = employee == null || die();
+
+
+    }
+
+    @Test
+    public void testSearch() {
+        for (int index = 0; index < 100; index++) {
+
+            store.put("key." + index, new Employee("Rick" + index, "Hightower"));
+        }
+
+        KeyValueIterable<String, Employee> entries = store.search("key.50");
+
+        int count = 0;
+
+        for (Entry<String, Employee> entry : entries) {
+            puts(entry.key(), entry.value());
+            count++;
+        }
+
+
+        ok = (count > 20 && count < 60) || die(count);
+        entries.close();
+    }
+
+    @Test
+    public void testIteration() {
+
+        for (int index = 0; index < 100; index++) {
+
+            store.put("iter." + index, new Employee("Rick" + index, "Hightower"));
+        }
+
+
+        KeyValueIterable<String, Employee> entries = store.loadAll();
+
+        int count = 0;
+
+        for (Entry<String, Employee> entry : entries) {
+            puts(entry.key(), entry.value());
+            count++;
+        }
+
+        ok = (count >= 100) || die(count);
+
+        entries.close();
+
+    }
+
+    @Test
+    public void sillyTestForCodeCoverage() {
+
+        KeyValueIterable<String, Employee> entries = store.loadAll();
+
+        Iterator<Entry<String, Employee>> iterator = entries.iterator();
+
+
+        try {
+            while (iterator.hasNext()) {
+                iterator.remove();
+            }
+
+
+        } catch (Exception ex) {
+
+        }
+    }
+    {
+        new Entry<>();
+    }
 
     public static class Employee implements Serializable {
         String firstName;
@@ -82,201 +260,5 @@ public class SimplyKyroKeyValueStoreLevelDBTest {
                     ", id='" + id + '\'' +
                     '}';
         }
-    }
-
-
-    @Before
-    public void setup() {
-
-
-        File file = new File("target/test-data");
-        file = file.getAbsoluteFile();
-        file.mkdirs();
-        file = new File(file, "employee-leveldb-rocksdb.dat");
-        store = new SimpleKyroKeyValueStoreLevelDB(file.toString(), Employee.class);
-
-    }
-
-
-    @After
-    public void close() {
-
-
-        store.close();
-    }
-
-
-
-    @Test
-    public void test() {
-        store.put("123",
-                new Employee("Rick", "Hightower")
-        );
-
-        Employee employee = store.load("123");
-        Str.equalsOrDie("Rick", employee.getFirstName());
-
-        Str.equalsOrDie("Hightower", employee.getLastName());
-    }
-
-
-
-    @Test
-    public void testBulkPut() {
-
-        Map<String, Employee> map = Maps.map(
-
-                "123", new Employee("Rick", "Hightower"),
-                "456", new Employee("Paul", "Tabor"),
-                "789", new Employee("Jason", "Daniel")
-
-        );
-
-
-        store.putAll(map);
-
-
-        Employee employee;
-
-
-        employee = store.load("789");
-        Str.equalsOrDie("Jason", employee.getFirstName());
-        Str.equalsOrDie("Daniel", employee.getLastName());
-
-
-        employee = store.load("456");
-        Str.equalsOrDie("Paul", employee.getFirstName());
-        Str.equalsOrDie("Tabor", employee.getLastName());
-
-        employee = store.load("123");
-        Str.equalsOrDie("Rick", employee.getFirstName());
-        Str.equalsOrDie("Hightower", employee.getLastName());
-
-    }
-
-
-
-    @Test
-    public void testBulkRemove() {
-
-
-        Map<String, Employee> map = Maps.map(
-
-                "123", new Employee("Rick", "Hightower"),
-                "456", new Employee("Paul", "Tabor"),
-                "789", new Employee("Jason", "Daniel")
-
-        );
-
-
-        store.putAll(map);
-
-
-        Employee employee;
-
-
-        employee = store.load("789");
-        Str.equalsOrDie("Jason", employee.getFirstName());
-        Str.equalsOrDie("Daniel", employee.getLastName());
-
-
-        employee = store.load("456");
-        Str.equalsOrDie("Paul", employee.getFirstName());
-        Str.equalsOrDie("Tabor", employee.getLastName());
-
-        employee = store.load("123");
-        Str.equalsOrDie("Rick", employee.getFirstName());
-        Str.equalsOrDie("Hightower", employee.getLastName());
-
-
-        store.removeAll(map.keySet());
-
-
-
-        employee =        store.load("123");
-
-        ok = employee == null || die();
-
-        employee =        store.load("456");
-
-
-        ok = employee == null || die();
-
-
-
-
-
-
-    }
-
-
-
-    @Test
-    public void testSearch() {
-        for (int index=0; index< 100; index++) {
-
-            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-        KeyValueIterable<String, Employee> entries = store.search("key.50");
-
-        int count = 0;
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-            count++;
-        }
-
-
-        ok = ( count > 20 && count < 60  ) || die(count);
-        entries.close();
-    }
-
-
-    @Test
-    public void testIteration() {
-
-        for (int index=0; index< 100; index++) {
-
-            store.put("iter." + index, new Employee("Rick"+index, "Hightower"));
-        }
-
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        int count = 0;
-
-        for (Entry<String, Employee> entry : entries) {
-            puts (entry.key(), entry.value());
-            count++;
-        }
-
-        ok = ( count >= 100  ) || die(count);
-
-        entries.close();
-
-    }
-
-    @Test
-    public void sillyTestForCodeCoverage() {
-
-        KeyValueIterable<String, Employee> entries = store.loadAll();
-
-        Iterator<Entry<String, Employee>> iterator = entries.iterator();
-
-
-        try {
-            while (iterator.hasNext()) {
-                iterator.remove();
-            }
-
-
-        } catch (Exception ex) {
-
-        }
-    }
-
-    {
-        new Entry<>();
     }
 }

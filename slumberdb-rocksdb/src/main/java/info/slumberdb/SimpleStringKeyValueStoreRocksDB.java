@@ -8,15 +8,15 @@ import org.iq80.leveldb.Options;
 public class SimpleStringKeyValueStoreRocksDB extends SimpleStringKeyValueStore {
 
     public SimpleStringKeyValueStoreRocksDB(String fileName, Options options) {
-        store = new RocksDBKeyValueStore(fileName, options, false);
+        super(new RocksDBKeyValueStore(fileName, options, false));
     }
 
     public SimpleStringKeyValueStoreRocksDB(String fileName, Options options, boolean log) {
-        store = new RocksDBKeyValueStore(fileName, options, log);
+        super(new RocksDBKeyValueStore(fileName, options, log));
     }
 
     public SimpleStringKeyValueStoreRocksDB(String fileName) {
-        store = new RocksDBKeyValueStore(fileName);
+        super(new RocksDBKeyValueStore(fileName));
     }
 
 

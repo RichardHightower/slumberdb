@@ -41,87 +41,87 @@ targetCompatibility = '1.7'
 project.ext.moduleName = "$modowner~$modname~$version"
 
 configurations {
-  provided
-  compile.extendsFrom provided
-  testCompile.extendsFrom provided
+    provided
+    compile.extendsFrom provided
+    testCompile.extendsFrom provided
 }
 
 repositories {
-  if (System.getenv("VERTX_DISABLE_MAVENLOCAL") == null) {
-    // We don't want to use mavenLocal when running on CI - mavenLocal is only useful in Gradle for
-    // publishing artifacts locally for development purposes - maven local is also not threadsafe when there
-    // are concurrent builds
-    mavenLocal()
-  }
-  maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-  mavenCentral()
+    if (System.getenv("VERTX_DISABLE_MAVENLOCAL") == null) {
+        // We don't want to use mavenLocal when running on CI - mavenLocal is only useful in Gradle for
+        // publishing artifacts locally for development purposes - maven local is also not threadsafe when there
+        // are concurrent builds
+        mavenLocal()
+    }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    mavenCentral()
 }
 
 dependencies {
-  provided "io.vertx:vertx-core:$vertxVersion"
-  provided "io.vertx:vertx-platform:$vertxVersion"
-  testCompile "junit:junit:$junitVersion"
-  testCompile "io.vertx:testtools:$toolsVersion"
+    provided "io.vertx:vertx-core:$vertxVersion"
+    provided "io.vertx:vertx-platform:$vertxVersion"
+    testCompile "junit:junit:$junitVersion"
+    testCompile "io.vertx:testtools:$toolsVersion"
 }
 
 // This sets up the classpath for the script itself
 buildscript {
 
-  repositories {
-    if (System.getenv("VERTX_DISABLE_MAVENLOCAL") == null) {
-      // We don't want to use mavenLocal when running on CI - mavenLocal is only useful in Gradle for
-      // publishing artifacts locally for development purposes - maven local is also not threadsafe when there
-      // are concurrent builds
-      mavenLocal()
+    repositories {
+        if (System.getenv("VERTX_DISABLE_MAVENLOCAL") == null) {
+            // We don't want to use mavenLocal when running on CI - mavenLocal is only useful in Gradle for
+            // publishing artifacts locally for development purposes - maven local is also not threadsafe when there
+            // are concurrent builds
+            mavenLocal()
+        }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        mavenCentral()
     }
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    mavenCentral()
-  }
 
-  dependencies {
-    classpath "io.vertx:vertx-core:$vertxVersion"
-    classpath "io.vertx:vertx-platform:$vertxVersion"
-    classpath "io.vertx:vertx-hazelcast:$vertxVersion"
+    dependencies {
+        classpath "io.vertx:vertx-core:$vertxVersion"
+        classpath "io.vertx:vertx-platform:$vertxVersion"
+        classpath "io.vertx:vertx-hazelcast:$vertxVersion"
 
-    // Extra classpath for Vert.x
+        // Extra classpath for Vert.x
 
-    // Users can be Vert.x platform classpath files (e.g. langs.properties) in either src/main/platform_lib
-    // or src/main/resources/platform_lib (if they want it in the module for fatjars)
-    classpath files(['src/main/platform_lib'])
-    classpath fileTree(dir: 'src/main/platform_lib', includes: ['*.jar', '*.zip'])
-    classpath files(['src/main/resources/platform_lib'])
-    classpath fileTree(dir: 'src/main/resources/platform_lib', includes: ['*.jar', '*.zip'])
-  }
+        // Users can be Vert.x platform classpath files (e.g. langs.properties) in either src/main/platform_lib
+        // or src/main/resources/platform_lib (if they want it in the module for fatjars)
+        classpath files(['src/main/platform_lib'])
+        classpath fileTree(dir: 'src/main/platform_lib', includes: ['*.jar', '*.zip'])
+        classpath files(['src/main/resources/platform_lib'])
+        classpath fileTree(dir: 'src/main/resources/platform_lib', includes: ['*.jar', '*.zip'])
+    }
 }
 
 sourceSets {
-  main {
-    compileClasspath = compileClasspath + configurations.provided
-  }
+    main {
+        compileClasspath = compileClasspath + configurations.provided
+    }
 }
 
-task copyMod( type:Copy, dependsOn: 'classes', description: 'Assemble the module into the local mods directory' ) {
-  into "build/mods/$moduleName"
-  from compileJava
-  from 'src/main/resources'
-  into( 'lib' ) {
-    from configurations.compile
-  }
+task copyMod(type: Copy, dependsOn: 'classes', description: 'Assemble the module into the local mods directory') {
+    into "build/mods/$moduleName"
+    from compileJava
+    from 'src/main/resources'
+    into('lib') {
+        from configurations.compile
+    }
 }
 
-task modZip( type: Zip, dependsOn: 'pullInDeps', description: 'Package the module .zip file') {
-  group = 'vert.x'
-  classifier = "mod"
-  description = "Assembles a vert.x module"
-  destinationDir = project.file('build/libs')
-  archiveName = "${modname}-${version}" + ".zip"
-  from copyMod
+task modZip(type: Zip, dependsOn: 'pullInDeps', description: 'Package the module .zip file') {
+    group = 'vert.x'
+    classifier = "mod"
+    description = "Assembles a vert.x module"
+    destinationDir = project.file('build/libs')
+    archiveName = "${modname}-${version}" + ".zip"
+    from copyMod
 }
 
 task sourceJar(type: Jar) {
-  description = 'Builds a source jar artifact suitable for maven deployment.'
-  classifier = 'sources'
-  from sourceSets.main.java
+    description = 'Builds a source jar artifact suitable for maven deployment.'
+    classifier = 'sources'
+    from sourceSets.main.java
 }
 
 javadoc {
@@ -129,116 +129,116 @@ javadoc {
 }
 
 task javadocJar(type: Jar) {
-  description = 'Builds a javadoc jar artifact suitable for maven deployment.'
-  classifier = 'javadoc'
-  from javadoc.destinationDir
+    description = 'Builds a javadoc jar artifact suitable for maven deployment.'
+    classifier = 'javadoc'
+    from javadoc.destinationDir
 }
 javadocJar.dependsOn javadoc
 
 build.dependsOn sourceJar, javadocJar
 
 artifacts {
-  archives sourceJar, javadocJar, modZip
+    archives sourceJar, javadocJar, modZip
 }
 
 
 test {
-  dependsOn copyMod
+    dependsOn copyMod
 
-  // Make sure tests are always run!
-  outputs.upToDateWhen { false }
+    // Make sure tests are always run!
+    outputs.upToDateWhen { false }
 
-  // Show output
-  testLogging.showStandardStreams = true
+    // Show output
+    testLogging.showStandardStreams = true
 
-  testLogging { exceptionFormat "full" }
+    testLogging { exceptionFormat "full" }
 
-  systemProperty 'vertx.mods', "build/mods"
+    systemProperty 'vertx.mods', "build/mods"
 }
 
 task init(description: 'Create module link and CP file') << {
-  setSysProps()
-  doInit()
+    setSysProps()
+    doInit()
 }
 
 task collectDeps(type: Copy) {
-  destinationDir = file("build")
-  into("deps") {
-    from configurations.compile
-  }
+    destinationDir = file("build")
+    into("deps") {
+        from configurations.compile
+    }
 }
 
 task runMod(description: 'Run the module', dependsOn: collectDeps) << {
-  setSysProps()
-  // We also init here - this means for single module builds the user doesn't have to explicitly init -
-  // they can just do runMod
-  doInit()
-  args = ['runmod', moduleName]
-  def args2 = runModArgs.split("\\s+")
-  args.addAll(args2)
-  Starter.main(args as String[])
+    setSysProps()
+    // We also init here - this means for single module builds the user doesn't have to explicitly init -
+    // they can just do runMod
+    doInit()
+    args = ['runmod', moduleName]
+    def args2 = runModArgs.split("\\s+")
+    args.addAll(args2)
+    Starter.main(args as String[])
 }
 
 def doInit() {
-  File cpFile = new File("vertx_classpath.txt")
-  if (!cpFile.exists()) {
-    cpFile.createNewFile();
-    String defaultCp =
-      "src/main/resources\r\n" +
-      "bin\r\n" +
-      "out/production/${project.name}\r\n" +
-      "out/test/${project.name}\r\n" +
-      "build/deps\r\n";
-    cpFile << defaultCp;
-  }
-  def args = ['create-module-link', moduleName]
-  Starter.main(args as String[])
+    File cpFile = new File("vertx_classpath.txt")
+    if (!cpFile.exists()) {
+        cpFile.createNewFile();
+        String defaultCp =
+                "src/main/resources\r\n" +
+                        "bin\r\n" +
+                        "out/production/${project.name}\r\n" +
+                        "out/test/${project.name}\r\n" +
+                        "build/deps\r\n";
+        cpFile << defaultCp;
+    }
+    def args = ['create-module-link', moduleName]
+    Starter.main(args as String[])
 }
 
 task pullInDeps(dependsOn: copyMod, description: 'Pull in all the module dependencies for the module into the nested mods directory') << {
-  if (pullInDeps == 'true') {
-    setSysProps()
-    def args = ['pulldeps', moduleName]
-    Starter.main(args as String[])
-  }
+    if (pullInDeps == 'true') {
+        setSysProps()
+        def args = ['pulldeps', moduleName]
+        Starter.main(args as String[])
+    }
 }
 
 task fatJar(dependsOn: modZip, description: 'Creates a fat executable jar which contains everything needed to run the module') << {
-  if (createFatJar == 'true') {
-    setSysProps()
-    def args = ['fatjar', moduleName, '-d', 'build/libs']
-    Starter.main(args as String[])
-  }
+    if (createFatJar == 'true') {
+        setSysProps()
+        def args = ['fatjar', moduleName, '-d', 'build/libs']
+        Starter.main(args as String[])
+    }
 }
 
 def setSysProps() {
-  System.setProperty("vertx.clusterManagerFactory", "org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory")
-  String modsDir = System.getenv("VERTX_MODS")
-  if (modsDir == null) {
-    modsDir = "build/mods";
-  }
-  System.setProperty("vertx.mods", modsDir)
+    System.setProperty("vertx.clusterManagerFactory", "org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory")
+    String modsDir = System.getenv("VERTX_MODS")
+    if (modsDir == null) {
+        modsDir = "build/mods";
+    }
+    System.setProperty("vertx.mods", modsDir)
 }
 
 def loadProperties(String sourceFileName) {
-  def config = new Properties()
-  def propFile = new File(sourceFileName)
-  if (propFile.canRead()) {
-    config.load(new FileInputStream(propFile))
-    for (Map.Entry property in config) {
-      project.ext[property.key] = property.value;
+    def config = new Properties()
+    def propFile = new File(sourceFileName)
+    if (propFile.canRead()) {
+        config.load(new FileInputStream(propFile))
+        for (Map.Entry property in config) {
+            project.ext[property.key] = property.value;
+        }
     }
-  }
 }
 
 // Map the 'provided' dependency configuration to the appropriate IDEA visibility scopes.
 plugins.withType(IdeaPlugin) {
-  idea {
-    module {
-      scopes.PROVIDED.plus += configurations.provided
-      scopes.COMPILE.minus += configurations.provided
-      scopes.TEST.minus += configurations.provided
-      scopes.RUNTIME.minus += configurations.provided
+    idea {
+        module {
+            scopes.PROVIDED.plus += configurations.provided
+            scopes.COMPILE.minus += configurations.provided
+            scopes.TEST.minus += configurations.provided
+            scopes.RUNTIME.minus += configurations.provided
+        }
     }
-  }
 }

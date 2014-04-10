@@ -1,12 +1,13 @@
 package info.slumberdb;
 
+import info.slumberdb.base.BaseSimpleSerializationKeyValueStore;
+import info.slumberdb.serialization.ByteArrayToStringConverter;
+import info.slumberdb.serialization.StringToByteArrayConverter;
 import org.boon.cache.SimpleCache;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static org.boon.Str.str;
-import static org.boon.Str.toString;
 import static org.boon.primitive.Byt.bytes;
 
 /**
@@ -14,162 +15,26 @@ import static org.boon.primitive.Byt.bytes;
  * You can combine this with any key value binary store (KeyValueStore<byte[], byte[]>).
  * It will encode the strings using UTF-8 encoding.
  */
-public class SimpleStringKeyValueStore implements StringKeyValueStore {
+public class SimpleStringKeyValueStore extends BaseSimpleSerializationKeyValueStore<String, String> implements StringKeyValueStore {
 
-    protected KeyValueStore<byte[], byte[]> store;
     protected SimpleCache<String, byte[]> keyCache = new SimpleCache<>(1_000);
 
+    public SimpleStringKeyValueStore(KeyValueStore<byte[], byte[]> store) {
 
+        super(store);
+        this.valueObjectConverter = new ByteArrayToStringConverter();
+        this.valueToByteArrayConverter = new StringToByteArrayConverter();
 
+        this.keyObjectConverter = new ByteArrayToStringConverter();
+        this.keyToByteArrayConverter = new StringToByteArrayConverter();
 
-    @Override
-    public void put(String key, String value) {
-        store.put(key.getBytes(StandardCharsets.UTF_8), value.getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override
-    public void putAll(Map<String, String> values) {
-        Map<byte[], byte[]>  map = new HashMap<>();
-
-        for (Map.Entry<String, String> entry : values.entrySet()) {
-            byte[] key = bytes(entry.getKey());
-            byte[] value = bytes(entry.getValue());
-            map.put(key, value);
-        }
-
-        store.putAll(map);
-    }
-
-    @Override
-    public void removeAll(Iterable<String> keys) {
-        List<byte[]> keyBytes = new ArrayList<>();
-
-        for (String key : keys) {
-            keyBytes.add(bytes(key));
-        }
-
-        store.removeAll(keyBytes);
-    }
-
-
-    @Override
-    public void remove(String key) {
-        store.remove(bytes(key));
-    }
-
-
-
-    @Override
-    public KeyValueIterable<String, String> search(final String startKey
-                                                   ) {
-
-        final KeyValueIterable<byte[], byte[]> iterable = store.search(bytes(startKey));
-
-
-
-        return new KeyValueIterable<String, String>(){
-            @Override
-            public void close() {
-                iterable.close();
-            }
-
-            @Override
-            public Iterator<Entry<String, String>> iterator() {
-                final Iterator<Entry<byte[], byte[]>> iterator = iterable.iterator();
-
-
-                return new Iterator<Entry<String, String>>() {
-                    @Override
-                    public boolean hasNext() {
-                        return iterator.hasNext();
-                    }
-
-                    @Override
-                    public Entry<String, String> next() {
-                        Entry<byte[], byte[]> current;
-
-                        current = iterator.next();
-                        String key = str(current.key());
-                        String value = str(current.value());
-                        Entry<String, String> entry = new Entry<>(key, value);
-
-                        return entry;
-                    }
-
-                    @Override
-                    public void remove() {
-                        iterator.remove();
-                    }
-                };
-            }
-        } ;
-    }
-
-    @Override
-    public KeyValueIterable<String, String> loadAll() {
-
-        final KeyValueIterable<byte[], byte[]> iterable = store.loadAll();
-
-
-
-        return new KeyValueIterable<String, String>(){
-            @Override
-            public void close() {
-                iterable.close();
-            }
-
-            @Override
-            public Iterator<Entry<String, String>> iterator() {
-                final Iterator<Entry<byte[], byte[]>> iterator = iterable.iterator();
-
-
-                return new Iterator<Entry<String, String>>() {
-                    Entry<String, String> current;
-                    @Override
-                    public boolean hasNext() {
-
-                        return iterator.hasNext();
-                    }
-
-                    @Override
-                    public Entry<String, String> next() {
-                        Entry<byte[], byte[]> current;
-
-                        current = iterator.next();
-                        String key = str(current.key());
-                        String value = str(current.value());
-                        Entry<String, String> entry = new Entry<>(key, value);
-
-                        this.current = entry;
-                        return entry;
-                    }
-
-                    @Override
-                    public void remove() {
-                        iterator.remove();
-                    }
-                };
-            }
-        } ;
-    }
-
-    @Override
-    public Collection<String> loadAllKeys() {
-        final Collection<byte[]> keys = store.loadAllKeys();
-
-        final Set<String> set = new HashSet<>();
-
-        for (byte[] key : keys) {
-            set.add(SimpleJavaSerializationStore.toString(key));
-        }
-
-        return set;
-    }
 
     @Override
     public String load(String key) {
         byte[] bytes = store.load(keyToBytes(key));
-        if (bytes==null) {
+        if (bytes == null) {
             return null;
         }
         return toString(bytes);
@@ -191,7 +56,7 @@ public class SimpleStringKeyValueStore implements StringKeyValueStore {
             byteKeys.add(bKey);
         }
         final Map<byte[], byte[]> map = store.loadAllByKeys(byteKeys);
-        final Map<String, String> results= new LinkedHashMap<>();
+        final Map<String, String> results = new LinkedHashMap<>();
         for (Map.Entry<byte[], byte[]> entry : map.entrySet()) {
             results.put(toString(entry.getKey()), toString(entry.getValue()));
         }
@@ -210,7 +75,7 @@ public class SimpleStringKeyValueStore implements StringKeyValueStore {
 
 
     @Override
-    public void close()  {
+    public void close() {
         store.close();
     }
 

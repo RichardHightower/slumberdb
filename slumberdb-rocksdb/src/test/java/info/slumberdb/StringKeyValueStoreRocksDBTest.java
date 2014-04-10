@@ -22,16 +22,13 @@ public class StringKeyValueStoreRocksDBTest {
     static {
 
         String libPath = System.getProperty("library.rocksdbjni.path");
-        if (libPath==null) {
+        if (libPath == null) {
             System.setProperty("library.rocksdbjni.path",
                     "/Users/Richard/github/rocksdbjni/rocksdbjni-osx/target/native-build/target/lib/");
         }
     }
-
-    private SimpleStringKeyValueStoreRocksDB store;
-
-
     boolean ok;
+    private SimpleStringKeyValueStoreRocksDB store;
 
     @Before
     public void setup() {
@@ -65,7 +62,6 @@ public class StringKeyValueStoreRocksDBTest {
     }
 
 
-
     @Test
     public void testBulkPut() {
 
@@ -76,21 +72,20 @@ public class StringKeyValueStoreRocksDBTest {
         store.putAll(map);
 
 
-        String value ;
+        String value;
 
-        value =        store.load("hello1");
+        value = store.load("hello1");
         Str.equalsOrDie("hello1", value);
 
 
-        value =        store.load("hello2");
+        value = store.load("hello2");
         Str.equalsOrDie("hello2", value);
 
 
         store.remove("hello2");
-        value =        store.load("hello2");
+        value = store.load("hello2");
         okOrDie(value == null);
     }
-
 
 
     @Test
@@ -104,25 +99,24 @@ public class StringKeyValueStoreRocksDBTest {
         store.put("somethingElse", "1");
 
 
-        String value ;
+        String value;
 
-        value =        store.load("hello1");
+        value = store.load("hello1");
         Str.equalsOrDie("hello1", value);
 
 
-        value =        store.load("hello2");
+        value = store.load("hello2");
         Str.equalsOrDie("hello2", value);
 
 
         store.removeAll(map.keySet());
 
 
-
-        value =        store.load("hello1");
+        value = store.load("hello1");
 
         ok = value == null || die();
 
-        value =        store.load("hello2");
+        value = store.load("hello2");
 
 
         ok = value == null || die();
@@ -131,21 +125,18 @@ public class StringKeyValueStoreRocksDBTest {
         Str.equalsOrDie("1", store.load("somethingElse"));
 
 
-
-
     }
-
 
 
     @Test
     public void testSearch() {
-        for (int index=0; index< 100; index++) {
+        for (int index = 0; index < 100; index++) {
             store.put("key" + index, "value" + index);
         }
 
         KeyValueIterable<String, String> entries = store.search("key50");
         for (Entry<String, String> entry : entries) {
-            puts (entry.key(), entry.value());
+            puts(entry.key(), entry.value());
         }
 
         entries.close();
@@ -154,26 +145,25 @@ public class StringKeyValueStoreRocksDBTest {
 
     @Test
     public void testSearch2() {
-        for (int index=0; index< 100; index++) {
+        for (int index = 0; index < 100; index++) {
             store.put("key" + index, "value" + index);
         }
 
         KeyValueIterable<String, String> entries = store.search("key50");
         for (Entry<String, String> entry : entries) {
-            puts (entry.key(), entry.value());
+            puts(entry.key(), entry.value());
         }
 
         entries.close();
     }
 
 
-    @Test (expected = org.iq80.leveldb.DBException.class)
+    @Test(expected = org.iq80.leveldb.DBException.class)
     public void forceException() {
 
         store.close();
         store.put("key", "value");
     }
-
 
 
 }

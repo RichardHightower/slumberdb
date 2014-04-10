@@ -10,7 +10,6 @@ import java.util.Map;
 import static org.boon.Exceptions.die;
 
 /**
- *
  * Vertx message used to emulate Message.
  * This allows a simple string message or a message that allows a Map and a String body.
  *
@@ -19,23 +18,21 @@ import static org.boon.Exceptions.die;
 public class VertxMessage implements Message {
 
     /**
+     * The body of the message.
+     */
+    final String body;
+    /**
+     * Headers for the message.
+     */
+    final Map<String, Object> headers;
+    /**
      * Holds the internal Vertx message.
      */
     private transient org.vertx.java.core.eventbus.Message<?> internalMessage;
 
     /**
-     * The body of the message.
-     */
-    final String body;
-
-    /**
-     * Headers for the message.
-     */
-    final Map<String, Object> headers;
-
-    /**
      * Vertx message.
-     *
+     * <p/>
      * If the body is a string, assume a string message if a buffer assume a Map message.
      *
      * @param internalMessage message we are wrapping
@@ -48,7 +45,7 @@ public class VertxMessage implements Message {
         if (objBody instanceof String) {
             body = (String) objBody;
             headers = Collections.EMPTY_MAP;
-        } else if (objBody instanceof Buffer){
+        } else if (objBody instanceof Buffer) {
             CommunicationBuffer communicationBuffer = new CommunicationBuffer((Buffer) objBody);
             Map<String, Object> map = communicationBuffer.readMap();
             this.body = (String) map.get("body");
@@ -63,8 +60,7 @@ public class VertxMessage implements Message {
 
 
     /**
-     *
-     * @param headers headers
+     * @param headers         headers
      * @param internalMessage internal message
      */
     public VertxMessage(Map<String, Object> headers, org.vertx.java.core.eventbus.Message<?> internalMessage) {
@@ -77,6 +73,7 @@ public class VertxMessage implements Message {
 
     /**
      * Reply to a message.
+     *
      * @param response response
      */
     @Override
@@ -87,15 +84,15 @@ public class VertxMessage implements Message {
 
     /**
      * Reply to a message.
-     * @param headers headers
-     * @param response response
      *
+     * @param headers  headers
+     * @param response response
      */
     public void reply(Map<String, Object> headers, String response) {
 
         Buffer buffer = new Buffer();
         CommunicationBuffer wrapper = new CommunicationBuffer(buffer);
-        if (!headers.containsKey("body")){
+        if (!headers.containsKey("body")) {
             headers.put("body", response);
         }
         wrapper.addMap(headers);
@@ -104,6 +101,7 @@ public class VertxMessage implements Message {
 
     /**
      * Returns the body.
+     *
      * @return
      */
     @Override
@@ -113,6 +111,7 @@ public class VertxMessage implements Message {
 
     /**
      * Returns message headers.
+     *
      * @return
      */
     @Override
@@ -122,6 +121,7 @@ public class VertxMessage implements Message {
 
     /**
      * See if two messages are the same.
+     *
      * @param o object
      * @return same?
      */
@@ -141,6 +141,7 @@ public class VertxMessage implements Message {
 
     /**
      * Hashcode
+     *
      * @return
      */
     @Override
@@ -152,6 +153,7 @@ public class VertxMessage implements Message {
 
     /**
      * toString
+     *
      * @return string version
      */
     @Override

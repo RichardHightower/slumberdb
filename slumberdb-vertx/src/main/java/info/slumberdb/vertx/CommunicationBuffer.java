@@ -30,6 +30,7 @@ public class CommunicationBuffer {
 
     /**
      * Wrapping a vertx buffer.
+     *
      * @param buffer
      */
     public CommunicationBuffer(Buffer buffer) {
@@ -37,14 +38,17 @@ public class CommunicationBuffer {
     }
 
 
-    /** Set the position. */
+    /**
+     * Set the position.
+     */
     public void setPos(int pos) {
         this.pos = pos;
     }
 
 
-    /** Add a string to the buffer.
-     *
+    /**
+     * Add a string to the buffer.
+     * <p/>
      * We add the length as an int and then append a string.
      *
      * @param string string to add
@@ -60,6 +64,7 @@ public class CommunicationBuffer {
      * Read a string from the buffer.
      * Read the length and then use getBytes to read the string, then convert it to a UTF-8 string.
      * This increments the position.
+     *
      * @return
      */
     public String readString() {
@@ -72,8 +77,9 @@ public class CommunicationBuffer {
 
     /**
      * Read a boolean.
-     * @return boolean
      *
+     * @return boolean
+     * <p/>
      * Updates position by 1.
      */
     public boolean readBoolean() {
@@ -85,8 +91,9 @@ public class CommunicationBuffer {
 
     /**
      * Read a single byte.
-     * @return single byte.
      *
+     * @return single byte.
+     * <p/>
      * Updates position.
      */
     public byte readByte() {
@@ -98,8 +105,9 @@ public class CommunicationBuffer {
 
     /**
      * Read a short.
-     * @return short.
      *
+     * @return short.
+     * <p/>
      * Updates position.
      */
     public short readShort() {
@@ -112,8 +120,9 @@ public class CommunicationBuffer {
     /**
      * Read an int.
      * Int.
-     *
+     * <p/>
      * Updates position.
+     *
      * @return
      */
     public int readInt() {
@@ -126,6 +135,7 @@ public class CommunicationBuffer {
     /**
      * Reads a float.
      * Updates position.
+     *
      * @return
      */
     public float readFloat() {
@@ -138,6 +148,7 @@ public class CommunicationBuffer {
     /**
      * Read a double.
      * Updates position.
+     *
      * @return double value
      */
     public double readDouble() {
@@ -161,12 +172,13 @@ public class CommunicationBuffer {
 
     /**
      * Reads in a MAP of values.
+     *
      * @return map of basic types.
      */
     public Map<String, Object> readMap() {
         int i = readInt();
 
-        if (i!= Type.MAP.ordinal()) {
+        if (i != Type.MAP.ordinal()) {
             die("Current location is not a map location = ", pos);
         }
 
@@ -178,7 +190,7 @@ public class CommunicationBuffer {
 
         Map<String, Object> map = new HashMap<>();
 
-        for  (int index = 0; index < size; index++) {
+        for (int index = 0; index < size; index++) {
             key = readString();
             iType = readInt();
             type = toEnum(Type.class, iType);
@@ -233,6 +245,7 @@ public class CommunicationBuffer {
 
     /**
      * Add a map of name value pairs of basic types to the buffer.
+     *
      * @param map map
      */
     public void addMap(Map<String, Object> map) {
@@ -252,7 +265,7 @@ public class CommunicationBuffer {
 
                 case BOOLEAN_WRAPPER:
                     boolean value = (Boolean) entry.getValue();
-                    buffer.appendByte(value ? (byte)1 : (byte)0);
+                    buffer.appendByte(value ? (byte) 1 : (byte) 0);
                     break;
 
                 case BYTE_WRAPPER:

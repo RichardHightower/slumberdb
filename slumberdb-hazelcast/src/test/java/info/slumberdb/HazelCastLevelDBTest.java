@@ -12,28 +12,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Map;
 
 import static org.boon.Exceptions.die;
+
 /**
  * Created by Richard on 4/7/14.
  */
 public class HazelCastLevelDBTest {
 
 
-    static private Map<String, Employee> store;
-
-
-
     static Config cfg = new Config();
-
-
     static HazelcastInstance instance = Hazelcast.newHazelcastInstance(cfg);
-
-
-
-
     static {
 
         MapConfig mapCfg = new MapConfig();
@@ -48,7 +38,151 @@ public class HazelCastLevelDBTest {
 
         store = instance.getMap("employees");
     }
+    static private Map<String, Employee> store;
+    boolean ok;
 
+    @Before
+    public void setup() {
+
+
+    }
+
+    @After
+    public void close() {
+
+
+    }
+
+    @Test
+    public void testBulkPut() {
+
+        Map<String, Employee> map = Maps.map(
+
+                "123", new Employee("Rick", "Hightower"),
+                "456", new Employee("Paul", "Tabor"),
+                "789", new Employee("Jason", "Daniel")
+
+        );
+
+
+        store.putAll(map);
+
+
+        Employee employee;
+
+
+        employee = store.get("789");
+        Str.equalsOrDie("Jason", employee.getFirstName());
+        Str.equalsOrDie("Daniel", employee.getLastName());
+
+
+        employee = store.get("456");
+        Str.equalsOrDie("Paul", employee.getFirstName());
+        Str.equalsOrDie("Tabor", employee.getLastName());
+
+        employee = store.get("123");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+        Str.equalsOrDie("Hightower", employee.getLastName());
+
+    }
+
+    @Test
+    public void testBulkRemove() {
+
+
+        Map<String, Employee> map = Maps.map(
+
+                "123", new Employee("Rick", "Hightower"),
+                "456", new Employee("Paul", "Tabor"),
+                "789", new Employee("Jason", "Daniel")
+
+        );
+
+
+        store.putAll(map);
+
+
+        Employee employee;
+
+
+        employee = store.get("789");
+        Str.equalsOrDie("Jason", employee.getFirstName());
+        Str.equalsOrDie("Daniel", employee.getLastName());
+
+
+        employee = store.get("456");
+        Str.equalsOrDie("Paul", employee.getFirstName());
+        Str.equalsOrDie("Tabor", employee.getLastName());
+
+        employee = store.get("123");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+        Str.equalsOrDie("Hightower", employee.getLastName());
+
+
+        for (String key : map.keySet()) {
+            store.remove(key);
+        }
+
+
+        employee = store.get("123");
+
+        ok = employee == null || die();
+
+        employee = store.get("456");
+
+
+        ok = employee == null || die();
+
+
+    }
+
+
+//
+//
+//    @Test
+//    public void testSearch() {
+//        for (int index=0; index< 100; index++) {
+//
+//            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
+//        }
+//
+//        KeyValueIterable<String, Employee> entries = store.search("key.50");
+//
+//        int count = 0;
+//
+//        for (Entry<String, Employee> entry : entries) {
+//            puts (entry.key(), entry.value());
+//            count++;
+//        }
+//
+//
+//        ok = ( count > 20 && count < 60  ) || die(count);
+//        entries.close();
+//    }
+//
+//
+//    @Test
+//    public void testIteration() {
+//
+//        for (int index=0; index< 100; index++) {
+//
+//            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
+//        }
+//
+//        KeyValueIterable<String, Employee> entries = store.loadAllByKeys();
+//
+//        int count = 0;
+//
+//        for (Entry<String, Employee> entry : entries) {
+//            puts (entry.key(), entry.value());
+//            count++;
+//        }
+//
+//        ok = ( count == 100  ) || die(count);
+//
+//        entries.close();
+//
+//    }
 
     public static class Employee implements Serializable {
         String firstName;
@@ -107,163 +241,6 @@ public class HazelCastLevelDBTest {
                     '}';
         }
     }
-
-    boolean ok;
-
-    @Before
-    public void setup() {
-
-
-
-    }
-
-    @After
-    public void close() {
-
-
-    }
-
-
-    @Test
-    public void testBulkPut() {
-
-        Map<String, Employee> map = Maps.map(
-
-                "123", new Employee("Rick", "Hightower"),
-                "456", new Employee("Paul", "Tabor"),
-                "789", new Employee("Jason", "Daniel")
-
-        );
-
-
-        store.putAll(map);
-
-
-        Employee employee;
-
-
-        employee = store.get("789");
-        Str.equalsOrDie("Jason", employee.getFirstName());
-        Str.equalsOrDie("Daniel", employee.getLastName());
-
-
-        employee = store.get("456");
-        Str.equalsOrDie("Paul", employee.getFirstName());
-        Str.equalsOrDie("Tabor", employee.getLastName());
-
-        employee = store.get("123");
-        Str.equalsOrDie("Rick", employee.getFirstName());
-        Str.equalsOrDie("Hightower", employee.getLastName());
-
-    }
-
-
-
-//
-//
-//    @Test
-//    public void testSearch() {
-//        for (int index=0; index< 100; index++) {
-//
-//            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-//        }
-//
-//        KeyValueIterable<String, Employee> entries = store.search("key.50");
-//
-//        int count = 0;
-//
-//        for (Entry<String, Employee> entry : entries) {
-//            puts (entry.key(), entry.value());
-//            count++;
-//        }
-//
-//
-//        ok = ( count > 20 && count < 60  ) || die(count);
-//        entries.close();
-//    }
-//
-//
-//    @Test
-//    public void testIteration() {
-//
-//        for (int index=0; index< 100; index++) {
-//
-//            store.put("key." + index, new Employee("Rick"+index, "Hightower"));
-//        }
-//
-//        KeyValueIterable<String, Employee> entries = store.loadAllByKeys();
-//
-//        int count = 0;
-//
-//        for (Entry<String, Employee> entry : entries) {
-//            puts (entry.key(), entry.value());
-//            count++;
-//        }
-//
-//        ok = ( count == 100  ) || die(count);
-//
-//        entries.close();
-//
-//    }
-
-
-
-    @Test
-    public void testBulkRemove() {
-
-
-        Map<String, Employee> map = Maps.map(
-
-                "123", new Employee("Rick", "Hightower"),
-                "456", new Employee("Paul", "Tabor"),
-                "789", new Employee("Jason", "Daniel")
-
-        );
-
-
-        store.putAll(map);
-
-
-        Employee employee;
-
-
-        employee = store.get("789");
-        Str.equalsOrDie("Jason", employee.getFirstName());
-        Str.equalsOrDie("Daniel", employee.getLastName());
-
-
-        employee = store.get("456");
-        Str.equalsOrDie("Paul", employee.getFirstName());
-        Str.equalsOrDie("Tabor", employee.getLastName());
-
-        employee = store.get("123");
-        Str.equalsOrDie("Rick", employee.getFirstName());
-        Str.equalsOrDie("Hightower", employee.getLastName());
-
-
-        for (String key : map.keySet()) {
-            store.remove(key);
-        }
-
-
-        employee =        store.get("123");
-
-        ok = employee == null || die();
-
-        employee =        store.get("456");
-
-
-        ok = employee == null || die();
-
-
-
-
-
-
-    }
-
-
-
 
 
 }

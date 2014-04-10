@@ -16,14 +16,12 @@ import static org.boon.Ok.okOrDie;
 
 
 public class SimpleStringKeyValueStoreMySQLTest {
-    private SimpleStringKeyValueStoreMySQL store;
     String url = "jdbc:mysql://localhost:3306/slumberdb";
     String userName = "slumber";
     String password = "slumber1234";
     String table = "string-test";
-
-
     boolean ok;
+    private SimpleStringKeyValueStoreMySQL store;
 
     @Before
     public void setup() {
@@ -38,7 +36,6 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
         store.close();
     }
-
 
 
     @Test
@@ -63,21 +60,20 @@ public class SimpleStringKeyValueStoreMySQLTest {
         store.putAll(map);
 
 
-        String value ;
+        String value;
 
-        value =        store.load("hello1");
+        value = store.load("hello1");
         Str.equalsOrDie("hello1", value);
 
 
-        value =        store.load("hello2");
+        value = store.load("hello2");
         Str.equalsOrDie("hello2", value);
 
 
         store.remove("hello2");
-        value =        store.load("hello2");
+        value = store.load("hello2");
         okOrDie(value == null);
     }
-
 
 
     @Test
@@ -91,25 +87,24 @@ public class SimpleStringKeyValueStoreMySQLTest {
         store.put("somethingElse", "1");
 
 
-        String value ;
+        String value;
 
-        value =        store.load("hello1");
+        value = store.load("hello1");
         Str.equalsOrDie("hello1", value);
 
 
-        value =        store.load("hello2");
+        value = store.load("hello2");
         Str.equalsOrDie("hello2", value);
 
 
         store.removeAll(map.keySet());
 
 
-
-        value =        store.load("hello1");
+        value = store.load("hello1");
 
         ok = value == null || die();
 
-        value =        store.load("hello2");
+        value = store.load("hello2");
 
 
         ok = value == null || die();
@@ -118,21 +113,18 @@ public class SimpleStringKeyValueStoreMySQLTest {
         Str.equalsOrDie("1", store.load("somethingElse"));
 
 
-
-
     }
-
 
 
     @Test
     public void testSearch() {
-        for (int index=0; index< 100; index++) {
+        for (int index = 0; index < 100; index++) {
             store.put("key" + index, "value" + index);
         }
 
         KeyValueIterable<String, String> entries = store.search("key50");
         for (Entry<String, String> entry : entries) {
-            puts (entry.key(), entry.value());
+            puts(entry.key(), entry.value());
         }
 
         entries.close();
@@ -141,20 +133,18 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
     @Test
     public void testSearch2() {
-        for (int index=0; index< 100; index++) {
+        for (int index = 0; index < 100; index++) {
             store.put("key" + index, "value" + index);
         }
 
         KeyValueIterable<String, String> entries = store.search("key50");
         for (Entry<String, String> entry : entries) {
-            puts (entry.key(), entry.value());
+            puts(entry.key(), entry.value());
         }
 
         entries.close();
         store.close();
     }
-
-
 
 
     @Test
@@ -165,23 +155,23 @@ public class SimpleStringKeyValueStoreMySQLTest {
         List<String> keys77 = new ArrayList<>();
         List<String> keys83 = new ArrayList<>();
 
-        for (int index=0; index< 100; index++) {
+        for (int index = 0; index < 100; index++) {
 
             String key = "key.load.all" + index;
-            if (keys38.size() < 38+1) {
+            if (keys38.size() < 38 + 1) {
                 keys38.add(key);
             }
 
-            if (keys41.size() < 41+1) {
+            if (keys41.size() < 41 + 1) {
                 keys41.add(key);
             }
 
-            if (keys77.size() < 77+1) {
+            if (keys77.size() < 77 + 1) {
                 keys77.add(key);
             }
 
 
-            if (keys83.size() < 83+1) {
+            if (keys83.size() < 83 + 1) {
                 keys83.add(key);
             }
 
@@ -190,7 +180,7 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
         Map<String, String> results = store.loadAllByKeys(keys38);
 
-        puts (results);
+        puts(results);
 
         ok = results.containsKey("key.load.all38") || die();
 
@@ -199,7 +189,7 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
         results = store.loadAllByKeys(keys41);
 
-        puts (results);
+        puts(results);
 
         ok = results.containsKey("key.load.all39") || die();
         ok = results.containsKey("key.load.all40") || die();
@@ -207,10 +197,9 @@ public class SimpleStringKeyValueStoreMySQLTest {
         ok = !results.containsKey("key.load.all42") || die();
 
 
-
         results = store.loadAllByKeys(keys77);
 
-        puts (results);
+        puts(results);
 
         ok = results.containsKey("key.load.all70") || die();
         ok = results.containsKey("key.load.all75") || die();
@@ -220,14 +209,13 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
         results = store.loadAllByKeys(keys83);
 
-        puts (results);
+        puts(results);
 
         ok = results.containsKey("key.load.all80") || die();
         ok = results.containsKey("key.load.all81") || die();
         ok = results.containsKey("key.load.all83") || die();
         ok = !results.containsKey("key.load.all84") || die();
     }
-
 
 
 }

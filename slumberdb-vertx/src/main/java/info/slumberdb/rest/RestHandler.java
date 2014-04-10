@@ -9,7 +9,7 @@ import org.boon.core.Handler;
 public interface RestHandler {
 
 
-    void handle( final Request request, Handler<Response> responseHandler) ;
+    void handle(final Request request, Handler<Response> responseHandler);
 
 }
 

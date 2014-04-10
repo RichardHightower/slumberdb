@@ -23,6 +23,7 @@ public class EventBusMailBox implements MailBox {
 
     /**
      * Event bus wrapper.
+     *
      * @param eventBus event bus
      */
     public EventBusMailBox(EventBus eventBus) {
@@ -31,6 +32,7 @@ public class EventBusMailBox implements MailBox {
 
     /**
      * Register a message handler.
+     *
      * @param address address to send the message, i.e., scoreService.updatePreferences
      * @param handler message handler
      */
@@ -42,7 +44,7 @@ public class EventBusMailBox implements MailBox {
 
                 /** If the body is a Buffer then wrap it in a CommunicationBuffer so we can read the message map. */
                 Object body = event.body();
-                if (body instanceof  Buffer) {
+                if (body instanceof Buffer) {
                     Buffer buffer = (Buffer) body;
                     CommunicationBuffer wrapper = new CommunicationBuffer(buffer);
                     Map<String, Object> map = wrapper.readMap();
@@ -56,6 +58,7 @@ public class EventBusMailBox implements MailBox {
 
     /**
      * Publish a String message.
+     *
      * @param address address to send the message, i.e., someService.someMethod
      * @param message message handler
      */
@@ -66,6 +69,7 @@ public class EventBusMailBox implements MailBox {
 
     /**
      * Send a string message.
+     *
      * @param address address to send the message, i.e., someService.someMethod
      * @param message
      */
@@ -79,8 +83,9 @@ public class EventBusMailBox implements MailBox {
     /**
      * Publish a string message to a mailbox address.
      * Creates a simple map message.
-     * @param address address to send the message, i.e., scoreService.updatePreferences
-     * @param headers headers
+     *
+     * @param address     address to send the message, i.e., scoreService.updatePreferences
+     * @param headers     headers
      * @param messageBody message body
      */
     public void publish(String address, Map<String, Object> headers, String messageBody) {
@@ -91,8 +96,9 @@ public class EventBusMailBox implements MailBox {
 
     /**
      * Creates a map message using the headers and the message body.
-     * @param address address to send the message, i.e., someService.someMethod
-     * @param headers headers
+     *
+     * @param address     address to send the message, i.e., someService.someMethod
+     * @param headers     headers
      * @param messageBody message body
      */
     public void send(String address, Map<String, Object> headers, String messageBody) {
@@ -103,9 +109,10 @@ public class EventBusMailBox implements MailBox {
     }
 
 
-    /** Used to send simple key / values pairs in vertx.
+    /**
+     * Used to send simple key / values pairs in vertx.
      *
-     * @param map map to send (usually a header)
+     * @param map  map to send (usually a header)
      * @param body body of message
      * @return return type.
      */
@@ -124,8 +131,9 @@ public class EventBusMailBox implements MailBox {
 
     /**
      * Send a request that expects a reply message.
-     * @param address address to send the message, i.e., someService.someMethod
-     * @param message message
+     *
+     * @param address      address to send the message, i.e., someService.someMethod
+     * @param message      message
      * @param replyHandler reply handler
      */
     @Override
@@ -140,9 +148,10 @@ public class EventBusMailBox implements MailBox {
 
     /**
      * Create a message using map and body and expect a similar message in response.
-     * @param address address to send the message, i.e., someService.someMethod
-     * @param headers headers
-     * @param messageBody message body
+     *
+     * @param address      address to send the message, i.e., someService.someMethod
+     * @param headers      headers
+     * @param messageBody  message body
      * @param replyHandler reply handler
      */
     @Override

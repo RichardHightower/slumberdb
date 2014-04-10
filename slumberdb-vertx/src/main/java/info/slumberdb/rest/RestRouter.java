@@ -30,7 +30,7 @@ public class RestRouter {
          * Find the dispatch id if possible.
          */
         for (String id : handlerPaths) {
-            if ( uri.endsWith(id) ) {
+            if (uri.endsWith(id)) {
                 dispatchId = id;
                 break;
             }
@@ -40,8 +40,8 @@ public class RestRouter {
         /** If we found, load happy and store the results in
          * the cache so we don't have to do this again.
          */
-        if (dispatchId!=null) {
-            cachedDispatchIds.put( uri, dispatchId );
+        if (dispatchId != null) {
+            cachedDispatchIds.put(uri, dispatchId);
         } else {
             die("We were unable to find a handler for URI", uri,
                     "This is for baseURI", this.uriBase,

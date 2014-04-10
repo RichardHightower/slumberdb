@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Created by Richard on 4/8/14.
  */
-public class SimpleKryoKeyValueStoreRocksDB  <T extends Serializable> extends SimpleKyroKeyValueStore <T> {
+public class SimpleKryoKeyValueStoreRocksDB<T extends Serializable> extends SimpleKryoKeyValueStore<T> {
 
 
     public SimpleKryoKeyValueStoreRocksDB(String fileName, Options options, boolean log, Class<T> type) {

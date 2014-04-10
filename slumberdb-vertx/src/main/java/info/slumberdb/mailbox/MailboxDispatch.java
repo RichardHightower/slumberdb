@@ -9,7 +9,6 @@ import org.boon.core.Conversions;
 import org.boon.core.Handler;
 import org.boon.core.reflection.ClassMeta;
 import org.boon.core.reflection.MethodAccess;
-import org.boon.di.Inject;
 import org.boon.di.PostConstruct;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
@@ -17,14 +16,9 @@ import org.boon.json.serializers.impl.JsonSimpleSerializerImpl;
 import org.boon.primitive.CharBuf;
 
 import static org.boon.Boon.configurableLogger;
-import static org.boon.Exceptions.die;
-import static org.boon.Exceptions.dieIfAnyParametersAreNull;
-import static org.boon.Exceptions.requireNonNulls;
+import static org.boon.Exceptions.*;
 import static org.boon.Maps.map;
-import static org.boon.Ok.okOrDie;
-import static org.boon.Str.camelCaseLower;
-import static org.boon.Str.join;
-import static org.boon.Str.underBarCase;
+import static org.boon.Str.*;
 import static org.boon.core.reflection.ClassMeta.classMeta;
 import static org.boon.core.reflection.Invoker.invokeMethodFromObjectArg;
 import static org.boon.core.reflection.Reflection.respondsTo;
@@ -33,30 +27,22 @@ import static org.boon.primitive.Chr.multiply;
 
 /**
  * This reads messages from mail box and marshals calls to services.
+ *
  * @author Rick Hightower
  */
 public class MailboxDispatch {
 
 
-    private Logger logger = configurableLogger(MailboxDispatch.class);
     private final JsonSimpleSerializerImpl jsonSerializer = new JsonSimpleSerializerImpl();
-    private final JsonParserAndMapper jsonParser = new JsonParserFactory().create ();
-
-    private Object service;
-
-    @PostConstruct
-    private void init() {
-        registerServiceCalls(service.getClass(), service);
-    }
-
+    private final JsonParserAndMapper jsonParser = new JsonParserFactory().create();
     /**
      * Used for performance critical debugging to avoid debug lookup for the logger.
      * It is final so that the JIT can optimize if blocks that use it out at runtime.
      */
     private final boolean debug;
-
+    private Logger logger = configurableLogger(MailboxDispatch.class);
+    private Object service;
     private MailBox mailBox;
-
 
     public MailboxDispatch(MailBox mailBox) {
 
@@ -65,22 +51,30 @@ public class MailboxDispatch {
 
     }
 
-    /** Allows subclasses to register service calls. */
+    @PostConstruct
+    private void init() {
+        registerServiceCalls(service.getClass(), service);
+    }
+
+    /**
+     * Allows subclasses to register service calls.
+     */
     public void registerServiceCalls(final String serviceName, final Object service, final String... methods) {
         doRegisterServiceCall(false, serviceName, service, methods);
 
     }
 
-    /** Allows subclasses to register service calls.
+    /**
+     * Allows subclasses to register service calls.
      *
      * @param serviceInterface serviceInterface to make calls to
-     * @param service service we are calling.
+     * @param service          service we are calling.
      */
-    public void registerServiceCalls(final Class<?> serviceInterface, final Object service ) {
+    public void registerServiceCalls(final Class<?> serviceInterface, final Object service) {
         requireNonNulls("Service interface and service cannot be null", serviceInterface, service);
 
 
-        final String serviceName =  camelCaseLower(underBarCase(serviceInterface.getSimpleName()));
+        final String serviceName = camelCaseLower(underBarCase(serviceInterface.getSimpleName()));
 
 
         doRegisterServiceCall(false, serviceName, service, Conversions.array(String.class,
@@ -88,11 +82,12 @@ public class MailboxDispatch {
 
     }
 
-    /** Allows subclasses to register one way service calls.
+    /**
+     * Allows subclasses to register one way service calls.
      *
      * @param serviceName name of service used to lookup mail box
-     * @param service actual service object
-     * @param methods methods names we are exposing for invocation. Used for mail box lookup and mail box registry.
+     * @param service     actual service object
+     * @param methods     methods names we are exposing for invocation. Used for mail box lookup and mail box registry.
      */
     public void registerOneWayServiceCalls(String serviceName, Object service, String... methods) {
 
@@ -101,13 +96,13 @@ public class MailboxDispatch {
     }
 
 
-
-    /** Helper method to create a request / reply handler from a service.
+    /**
+     * Helper method to create a request / reply handler from a service.
      *
-     * @param serviceName name of service used to lookup mail box
-     * @param service service we are calling.
+     * @param serviceName  name of service used to lookup mail box
+     * @param service      service we are calling.
      * @param messageQueue the full name of the message queue
-     * @param method the method we are invoking.
+     * @param method       the method we are invoking.
      */
     private void registerServiceInvoker(final String serviceName, final Object service, final String messageQueue,
                                         final MethodAccess method) {
@@ -129,11 +124,12 @@ public class MailboxDispatch {
 
     /**
      * Handles a request reply call.
-     * @param event message from bus
-     * @param serviceName name of service used to lookup mail box
-     * @param service service we are calling.
+     *
+     * @param event        message from bus
+     * @param serviceName  name of service used to lookup mail box
+     * @param service      service we are calling.
      * @param messageQueue the full name of the message queue
-     * @param method reflection method used to invoke method
+     * @param method       reflection method used to invoke method
      */
     private void handleRequestReply(Message event, String serviceName,
                                     Object service, String messageQueue,
@@ -142,7 +138,7 @@ public class MailboxDispatch {
 
         beforeHandleRequestReply(event, serviceName, messageQueue);
 
-        if ( debug ) {
+        if (debug) {
             dieIfAnyParametersAreNull("MailBoxServiceDispatch::handleRequestReply",
                     event, serviceName, service, messageQueue, method);
         }
@@ -162,7 +158,7 @@ public class MailboxDispatch {
         } catch (Exception ex) {
             if (debug) {
                 ex.printStackTrace();
-                logger.debug(ex, "PROBLEM RUNNING handleRequestReply",  serviceName,
+                logger.debug(ex, "PROBLEM RUNNING handleRequestReply", serviceName,
                         messageQueue,
                         method);
             }
@@ -174,8 +170,8 @@ public class MailboxDispatch {
                     "serviceName", serviceName,
                     "service", Str.toString(service),
                     "messageQueue", messageQueue,
-                    "methodName", method==null ? "method was null" : method.name(),
-                    "methodDeclaringClass", method==null ? "method was null" : method.declaringType()
+                    "methodName", method == null ? "method was null" : method.name(),
+                    "methodDeclaringClass", method == null ? "method was null" : method.declaringType()
             ))).add(',');
             buf.add(Exceptions.asJson(ex));
             buf.add(",\n\n\"ERROR\"]");
@@ -191,7 +187,7 @@ public class MailboxDispatch {
 
     }
 
-    protected  void afterHandleRequestReply(Message event, String serviceName, String messageQueue) {
+    protected void afterHandleRequestReply(Message event, String serviceName, String messageQueue) {
     }
 
     protected void beforeHandleRequestReply(Message event, String serviceName, String messageQueue) {
@@ -201,11 +197,12 @@ public class MailboxDispatch {
     /**
      * Handles one way calls. Calls that do not expect returns to be sent.
      * I put some extra care in error handling as there is no other way to know if the one way message failed except the log.
-     * @param event message from bus
-     * @param serviceName name of service used to lookup mail box
-     * @param service service we are calling.
+     *
+     * @param event        message from bus
+     * @param serviceName  name of service used to lookup mail box
+     * @param service      service we are calling.
      * @param messageQueue the full name of the message queue
-     * @param method reflection method used to invoke method
+     * @param method       reflection method used to invoke method
      */
     private void handleOneWay(Message event, String serviceName, Object service, String messageQueue, MethodAccess method) {
 
@@ -226,12 +223,13 @@ public class MailboxDispatch {
 
     /**
      * Extra error handling.
-     * @param parsedOk were we able to parse
-     * @param event message from bus
-     * @param serviceName name of service used to lookup mail box
+     *
+     * @param parsedOk     were we able to parse
+     * @param event        message from bus
+     * @param serviceName  name of service used to lookup mail box
      * @param messageQueue the full name of the message queue
-     * @param method reflection method used to invoke method
-     * @param ex Exception that we recieved while trying to invoke.
+     * @param method       reflection method used to invoke method
+     * @param ex           Exception that we recieved while trying to invoke.
      */
     private void handleErrorFromMethodInvoke(boolean parsedOk, Message event, String serviceName, String messageQueue, MethodAccess method, Exception ex) {
         logger.fatal(ex, "ERROR HANDLE_ONE_WAY", multiply('_', 50), multiply('\n', 5));
@@ -253,18 +251,19 @@ public class MailboxDispatch {
     }
 
 
-    /** Helper method to create a one way handler to a service.
+    /**
+     * Helper method to create a one way handler to a service.
      *
-     * @param serviceName name of service used to lookup mail box
-     * @param service service we are calling.
+     * @param serviceName  name of service used to lookup mail box
+     * @param service      service we are calling.
      * @param messageQueue the full name of the message queue
-     * @param method reflection method used to invoke method
+     * @param method       reflection method used to invoke method
      */
     private void registerOneWayServiceInvoker(final String serviceName, final Object service,
                                               final String messageQueue, final MethodAccess method) {
 
-        if ( logger.debugOn() ) {
-            logger.debug ("one way : message queue listener registered", messageQueue);
+        if (logger.debugOn()) {
+            logger.debug("one way : message queue listener registered", messageQueue);
         }
 
         mailBox.registerHandler(messageQueue, new Handler<Message>() {
@@ -282,8 +281,8 @@ public class MailboxDispatch {
      * This checks to see if the service object responds to these messages.
      *
      * @param serviceName name of service used to lookup mail box
-     * @param service service we are calling.
-     * @param methods name of methods to validate
+     * @param service     service we are calling.
+     * @param methods     name of methods to validate
      */
     private void validateMethods(String serviceName, Object service, String[] methods) {
         for (String method : methods) {
@@ -295,17 +294,16 @@ public class MailboxDispatch {
     }
 
 
-
-
-    /** Handles the actual service call registration.
+    /**
+     * Handles the actual service call registration.
      *
-     * @param oneWay is this a one way call or not
+     * @param oneWay      is this a one way call or not
      * @param serviceName name of service used to lookup mail box
-     * @param service service we are calling.
-     * @param methods methods names we are exposing for invocation. Used for mail box lookup and mail box registry.
+     * @param service     service we are calling.
+     * @param methods     methods names we are exposing for invocation. Used for mail box lookup and mail box registry.
      */
-    public void doRegisterServiceCall (final boolean oneWay,  final String serviceName,
-                                       final Object service, final String... methods) {
+    public void doRegisterServiceCall(final boolean oneWay, final String serviceName,
+                                      final Object service, final String... methods) {
 
 
         logger.info("ServiceName", serviceName, methods);
@@ -316,7 +314,7 @@ public class MailboxDispatch {
         requireNonNulls("No null as arguments", serviceName, service, methods);
 
         //Some methods needed
-        if ( methods.length == 0 ) {
+        if (methods.length == 0) {
             die("Methods cannot be empty", serviceName, service, methods);
         }
 
@@ -341,9 +339,9 @@ public class MailboxDispatch {
 
             /** Register the method call. */
             if (!oneWay) {
-                registerServiceInvoker( serviceName, service, messageQueue, method );
+                registerServiceInvoker(serviceName, service, messageQueue, method);
             } else {
-                registerOneWayServiceInvoker( serviceName, service, messageQueue, method );
+                registerOneWayServiceInvoker(serviceName, service, messageQueue, method);
             }
 
         }
@@ -351,14 +349,13 @@ public class MailboxDispatch {
     }
 
 
-
-    protected String toJson( Object object ) {
+    protected String toJson(Object object) {
         return jsonSerializer.serialize(object).toString();
     }
 
 
-    protected Object fromJson( String json ) {
-        return jsonParser.parse( json);
+    protected Object fromJson(String json) {
+        return jsonParser.parse(json);
     }
 
 }

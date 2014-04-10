@@ -4,7 +4,7 @@ import org.iq80.leveldb.Options;
 
 import java.io.Serializable;
 
-public class SimpleJavaSerializationKeyValueStoreLevelDB <T extends Serializable> extends SimpleJavaSerializationStore <T> {
+public class SimpleJavaSerializationKeyValueStoreLevelDB<T extends Serializable> extends SimpleJavaSerializationStore<T> {
 
     public SimpleJavaSerializationKeyValueStoreLevelDB(String fileName, Options options, boolean log) {
         super(new LevelDBKeyValueStore(fileName, options, log));
