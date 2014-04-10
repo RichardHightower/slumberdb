@@ -36,15 +36,15 @@ public class HazelKeyValueStoreTest {
     static {
 
         MapConfig mapCfg = new MapConfig();
-        mapCfg.setName("employees");
+        mapCfg.setName("employees-hazel-store-test");
         mapCfg.setAsyncBackupCount(0);
         MapStoreConfig mapStoreCfg = new MapStoreConfig();
         mapStoreCfg.setImplementation(new HazelCastMySQLJSONMapStore(url, userName,
                 password, table, Employee.class));
         mapStoreCfg.setEnabled(true);
 
-        mapCfg.addMapIndexConfig(new MapIndexConfig("id", true));
-        mapCfg.setMapStoreConfig(mapStoreCfg);
+        //mapCfg.addMapIndexConfig(new MapIndexConfig("id", true));
+        //mapCfg.setMapStoreConfig(mapStoreCfg);
 
 
         cfg.addMapConfig(mapCfg);
@@ -60,7 +60,7 @@ public class HazelKeyValueStoreTest {
     public void setup() {
 
 
-        store = new HazelKeyValueStore("employee-db", cfg, false, "id");
+        store = new HazelKeyValueStore("employees-hazel-store-test", cfg, false, "id");
 
     }
 

@@ -12,54 +12,121 @@ import java.util.Set;
  */
 public class HazelCastLevelDBJSONMapStore<V> implements MapStore<String, V> {
 
-    SimpleJsonKeyValueStoreLevelDB<V> store;
+    final String fileName;
+    final Class<V> cls;
+
 
     public HazelCastLevelDBJSONMapStore(String fileName, Class<V> cls) {
-        store = new SimpleJsonKeyValueStoreLevelDB(fileName, cls);
+        this.fileName = fileName;
+        this.cls = cls;
+    }
+
+
+    SimpleJsonKeyValueStoreLevelDB<V> store() {
+        return new SimpleJsonKeyValueStoreLevelDB(this.fileName, this.cls);
     }
 
     @Override
     public void store(String key, V value) {
-        store.put(key, value);
+        final SimpleJsonKeyValueStoreLevelDB<V> store = store();
+
+        try {
+            store.put(key, value);
+        } finally {
+            store.close();
+
+        }
     }
 
     @Override
     public void storeAll(Map<String, V> map) {
-        store.putAll(map);
+
+        final SimpleJsonKeyValueStoreLevelDB<V> store = store();
+
+        try {
+            store.putAll(map);
+        } finally {
+            store.close();
+
+        }
 
     }
 
     @Override
     public void delete(String key) {
-        store.remove(key);
+
+        final SimpleJsonKeyValueStoreLevelDB<V> store = store();
+
+        try {
+            store.remove(key);
+        } finally {
+            store.close();
+
+        }
+
 
     }
 
     @Override
     public void deleteAll(Collection<String> keys) {
-        store.removeAll(keys);
+
+
+        final SimpleJsonKeyValueStoreLevelDB<V> store = store();
+
+        try {
+            store.removeAll(keys);
+        } finally {
+            store.close();
+
+        }
+
     }
 
     @Override
     public V load(String key) {
-        return store.load(key);
+        final SimpleJsonKeyValueStoreLevelDB<V> store = store();
+
+        try {
+            return store.load(key);
+        } finally {
+            store.close();
+
+        }
+
     }
 
     @Override
     public Map<String, V> loadAll(Collection<String> keys) {
 
+        final SimpleJsonKeyValueStoreLevelDB<V> store = store();
 
-        return store.loadAllByKeys(keys);
+        try {
+            return store.loadAllByKeys(keys);
+        } finally {
+            store.close();
+
+        }
+
     }
 
 
     @Override
     public Set<String> loadAllKeys() {
-        final Collection<String> keys = store.loadAllKeys();
-        if (keys instanceof Set) {
-            return (Set) keys;
-        } else {
-            return new LinkedHashSet<>(keys);
+
+        final SimpleJsonKeyValueStoreLevelDB<V> store = store();
+
+        try {
+            final Collection<String> keys = store.loadAllKeys();
+            if (keys instanceof Set) {
+                return (Set) keys;
+            } else {
+                return new LinkedHashSet<>(keys);
+            }
+        } finally {
+            store.close();
+
         }
+
+
     }
 }
