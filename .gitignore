@@ -56,3 +56,5 @@ slumberdb-rocksdb/slumberdb-rocksdb.iml
 slumberdb-rocksdb/build/
 
 *.log
+
+pom.xml~

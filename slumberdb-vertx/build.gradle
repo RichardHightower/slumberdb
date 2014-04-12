@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'idea'
 apply from: "gradle/vertx.gradle"
+apply plugin: 'maven'
 
 group = "info.slumberdb"
 version = "1.0-SNAPSHOT"
