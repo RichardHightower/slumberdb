@@ -8,7 +8,7 @@ import static org.boon.Boon.puts;
 /**
  * Created by Richard on 4/8/14.
  */
-public class RestClient {
+public class RestClientMain {
 
     public static void main(String... args) throws Exception {
 
