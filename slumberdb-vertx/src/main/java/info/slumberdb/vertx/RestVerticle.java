@@ -56,7 +56,6 @@ public class RestVerticle extends Verticle {
         init(mailBox);
 
 
-        initServiceMessaging();
     }
 
 
@@ -82,26 +81,6 @@ public class RestVerticle extends Verticle {
     }
 
 
-    /**
-     * Initializes the service message bus.
-     * For now this lives in the same process, but it can be in another process in the near future.
-     */
-    private void initServiceMessaging() {
-        logger.trace("initServiceMessaging", "entering");
-        container.deployVerticle("info.slumberdb.vertx.ServiceHandlersVerticle",
-                new Handler<AsyncResult<String>>() {
-                    @Override
-                    public void handle(AsyncResult<String> event) {
-                        if (event.failed()) {
-                            logger.fatal(event.cause(), "Unable to initialize service messaging");
-                            event.cause().printStackTrace();
-                        }
-                    }
-                }
-        );
-        logger.trace("initServiceMessaging", "leaving");
-
-    }
 
     /**
      * Initializes a rest stack.

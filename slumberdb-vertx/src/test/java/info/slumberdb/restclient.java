@@ -13,11 +13,11 @@ public class RestClient {
     public static void main(String... args) throws Exception {
 
         HTTP.postJSON("http://localhost:8082/slumberdb/client/put", "{\n" +
-                "    \"key\": \"bob\": ,\n" +
+                "    \"key\": \"bob\",\n" +
                 "    \"value\": \"foo\"\n" +
                 "}");
 
-        puts(HTTP.postJSON("http://localhost:8082/slumberdb/client/put", "\"bob\""));
+        puts(HTTP.postJSON("http://localhost:8082/slumberdb/client/load", "\"bob\""));
 
     }
 }

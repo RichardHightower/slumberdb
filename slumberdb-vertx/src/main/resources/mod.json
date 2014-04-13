@@ -1,6 +1,6 @@
 {
 
-    "main": "info.slumberdb.vertx.RestVerticle",
+    "main": "info.slumberdb.vertx.MainVerticle",
 
     "description": "Wire protocol for slumberdb",
     "licenses": ["The Apache Software License Version 2.0"],
