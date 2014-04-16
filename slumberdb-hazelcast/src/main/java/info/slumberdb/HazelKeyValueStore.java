@@ -5,6 +5,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.SqlPredicate;
+import org.boon.Sets;
 import org.boon.Str;
 
 import java.io.Serializable;
@@ -169,13 +170,7 @@ public class HazelKeyValueStore <K extends Serializable, V extends Serializable>
     @Override
     public Map<K, V> loadAllByKeys(Collection<K> keys) {
 
-        Map<K, V> map = new LinkedHashMap<>(keys.size());
-
-        final Set<Map.Entry<K, V>> entries = map.entrySet();
-        for (Map.Entry<K, V> entry : entries) {
-            map.put(entry.getKey(), entry.getValue());
-        }
-        return map;
+        return map.getAll(Sets.set(keys));
     }
 
     @Override
