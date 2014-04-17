@@ -1,0 +1,9 @@
+{
+
+    "url":"jdbc:mysql://localhost:3306/slumberdb",
+    "password":"slumber1234",
+    "userName":"slumber",
+    "tableName": "json-employee-hazel-store-test",
+    "componentClass" : "info.slumberdb.HazelKeyValueStoreTest$Employee"
+
+}

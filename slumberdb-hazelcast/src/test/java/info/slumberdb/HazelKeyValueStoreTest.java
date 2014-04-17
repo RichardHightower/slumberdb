@@ -27,10 +27,6 @@ public class HazelKeyValueStoreTest {
 
 
 
-    static String url = "jdbc:mysql://localhost:3306/slumberdb";
-    static String userName = "slumber";
-    static String password = "slumber1234";
-    static String table = "json-employee-hazel-store-test";
     static Config cfg = new Config();
     static HazelcastInstance instance;
     static {
@@ -39,8 +35,7 @@ public class HazelKeyValueStoreTest {
         mapCfg.setName("employees-hazel-store-test");
         mapCfg.setAsyncBackupCount(0);
         MapStoreConfig mapStoreCfg = new MapStoreConfig();
-        mapStoreCfg.setImplementation(new HazelCastMySQLJSONMapStore(url, userName,
-                password, table, Employee.class));
+        mapStoreCfg.setImplementation(new HazelCastMySQLJSONMapStore());
         mapStoreCfg.setEnabled(true);
 
         //mapCfg.addMapIndexConfig(new MapIndexConfig("id", true));

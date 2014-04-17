@@ -1,6 +1,8 @@
 package info.slumberdb;
 
 import com.hazelcast.core.MapStore;
+import info.slumberdb.config.ConfigUtils;
+import info.slumberdb.config.DatabaseConfig;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -12,11 +14,31 @@ import java.util.Set;
  */
 public class HazelCastMySQLJSONMapStore<V> implements MapStore<String, V> {
 
-    final String url;
-    final String userName;
-    final String password;
-    final String table;
-    final Class<V> type;
+    private final String url;
+    private final String userName;
+    private final String password;
+    private final String table;
+    private final Class<V> type;
+
+    private static final String SLUMBERDB_HAZELCAST_CONFIG_PATH =
+            System.getProperty("SLUMBERDB_HAZEL_CAST_CONFIG_PATH",
+                    "/conf/slumberdb/hazelcast/mapstore.json");
+
+    public HazelCastMySQLJSONMapStore() {
+        this(SLUMBERDB_HAZELCAST_CONFIG_PATH);
+    }
+
+    public HazelCastMySQLJSONMapStore(String path) {
+        this (ConfigUtils.readConfig(path, DatabaseConfig.class));
+    }
+
+    public HazelCastMySQLJSONMapStore(DatabaseConfig databaseConfig) {
+        this.url = databaseConfig.getUrl();
+        this.userName = databaseConfig.getUserName();
+        this.password = databaseConfig.getPassword();
+        this.table = databaseConfig.getTableName();
+        this.type = (Class)  databaseConfig.getComponentClass();
+    }
 
     public HazelCastMySQLJSONMapStore(String url, String userName, String password, String table, Class<V> type) {
         this.url = url;
