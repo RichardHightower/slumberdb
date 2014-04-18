@@ -39,6 +39,21 @@ public class SimpleStringKeyValueStoreMySQLTest {
 
 
     @Test
+    public void testCrud() {
+        store.put("hello1",
+                "world"
+        );
+
+        String world = store.load("hello1");
+        Str.equalsOrDie("world", world);
+
+        store.remove("hello1");
+
+        world = store.load("hello1");
+        ok = world == null || die(world);
+    }
+
+    @Test
     public void test() {
         store.put("hello",
                 "world"

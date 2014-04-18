@@ -39,6 +39,24 @@ public class SimpleJsonKeyValueStoreMySQLTest {
         store.close();
     }
 
+
+    @Test
+    public void testCrud() {
+        store.put("123Crud",
+                new Employee("Rick", "Hightower")
+        );
+
+        Employee employee = store.load("123Crud");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+        Str.equalsOrDie("Hightower", employee.getLastName());
+
+        store.remove("123Crud");
+
+        employee = store.load("123Crud");
+
+        ok = employee == null || die();
+    }
+
     @Test
     public void testBulkPut() {
 

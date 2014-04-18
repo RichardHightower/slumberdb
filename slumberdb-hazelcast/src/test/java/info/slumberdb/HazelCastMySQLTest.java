@@ -62,6 +62,24 @@ public class HazelCastMySQLTest {
     }
 
     @Test
+    public void testCrud() {
+        store.put("123Crud",
+                new Employee("Rick", "Hightower")
+        );
+
+        Employee employee = store.get("123Crud");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+        Str.equalsOrDie("Hightower", employee.getLastName());
+
+        store.remove("123Crud");
+
+        employee = store.get("123Crud");
+
+        ok = employee == null || die();
+    }
+
+
+    @Test
     public void testBulkPut() {
 
         Map<String, Employee> map = Maps.map(

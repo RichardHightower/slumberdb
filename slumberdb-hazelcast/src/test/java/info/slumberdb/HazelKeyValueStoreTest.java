@@ -63,6 +63,26 @@ public class HazelKeyValueStoreTest {
     public void close() {
     }
 
+
+
+    @Test
+    public void testCrud() {
+        store.put("123Crud",
+                new Employee("123", "Rick", "Hightower")
+        );
+
+        Employee employee = store.load("123Crud");
+        Str.equalsOrDie("Rick", employee.getFirstName());
+        Str.equalsOrDie("Hightower", employee.getLastName());
+
+        store.remove("123Crud");
+
+        employee = store.load("123Crud");
+
+        ok = employee == null || die();
+    }
+
+
     @Test
     public void test() {
         store.put("123",
