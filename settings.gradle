@@ -7,6 +7,7 @@ include 'slumberdb-core'
 include 'slumberdb-leveldb'
 include 'slumberdb-mysql'
 //include 'slumberdb-vertx'
+include 'slumberdb-mongodb'
 include 'slumberdb-hazelcast'
 //include 'slumberdb-rocksdb'
 

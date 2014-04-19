@@ -58,3 +58,11 @@ slumberdb-rocksdb/build/
 *.log
 
 pom.xml~
+
+slumberdb-mongodb/build/classes/main/info/slumberdb/MongoDBKeyValueStore$1$1.class
+
+slumberdb-mongodb/build/classes/main/info/slumberdb/MongoDBKeyValueStore$1.class
+
+slumberdb-mongodb/build/classes/main/info/slumberdb/MongoDBKeyValueStore.class
+
+slumberdb-mongodb/slumberdb-mongodb.iml
