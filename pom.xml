@@ -12,7 +12,7 @@
     <!-- boon.io, json.io was taken. -->
     <groupId>io.fastjson</groupId>
     <artifactId>slumberdb</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 
