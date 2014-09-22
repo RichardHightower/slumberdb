@@ -81,6 +81,8 @@ ________      _____________________      ____________________________ __________
     private DataStoreServerConfig config;
     private DataStoreServer storeServer = null;
     private Map<String, ClassMeta<?>> servicesDefinition;
+
+
     private Map<String, Object> services;
     private long messageIdGenerator = System.currentTimeMillis();
     private Set<String> dontEncodeMethods = Sets.safeSet("jmxStats");
@@ -160,9 +162,10 @@ ________      _____________________      ____________________________ __________
             case METHOD_CALL:
                 handleMethodCall((MethodCall) dataStoreRequest);
                 break;
+
             case SEARCH:
                 handleSearchVerb(dataStoreRequest);
-
+                break;
 
             default:
                 puts(dataStoreRequest);
@@ -751,13 +754,13 @@ ________      _____________________      ____________________________ __________
         }
     }
 
-    public void handleCallFromClient(final Map<String, String> message, final Object commChannel) {
+    public void handleCallFromClient(final Map<String, String> message, final String uri, final Object commChannel) {
 
         mapBodyCall++;
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                doHandleCallFromClient(message, commChannel);
+                doHandleCallFromClient(message, uri, commChannel);
             }
         });
 
@@ -863,7 +866,7 @@ ________      _____________________      ____________________________ __________
 
     }
 
-    private void doHandleCallFromClient(final Map<String, String> message, final Object commChannel) {
+    private void doHandleCallFromClient(final Map<String, String> message, String uri, final Object commChannel) {
 
         try {
 
@@ -872,6 +875,8 @@ ________      _____________________      ____________________________ __________
 
 
             final DataStoreRequest dataStoreRequest = createRequest(message);
+
+
 
 
             if (debug) logger.info("RequestHandler::doHandleCallFromClient", dataStoreRequest);
@@ -926,11 +931,11 @@ ________      _____________________      ____________________________ __________
         }
     }
 
-    public void handleCallWithMap(String ipAddress, Map<String, String> message, Object commChannel) {
+    public void handleCallWithMap(String ipAddress, Map<String, String> message, String uri,  Object commChannel ) {
 
 
         if (debug) {
-            logger.info("RequestHandler::handleCallWithMap()", ipAddress, message, commChannel);
+            logger.info("RequestHandler::handleCallWithMap()", ipAddress, message, uri, commChannel);
 
         }
 
@@ -943,7 +948,7 @@ ________      _____________________      ____________________________ __________
             message.put(ProtocolConstants.CLIENT_ID_MAP_KEY, "generatedClientId" + ipAddress);
         }
 
-        handleCallFromClient(message, commChannel);
+        handleCallFromClient(message, uri, commChannel);
 
     }
 
@@ -1141,5 +1146,10 @@ ________      _____________________      ____________________________ __________
         }
 
     }
+
+    public Map<String, ClassMeta<?>> getServicesDefinition() {
+        return servicesDefinition;
+    }
+
 
 }

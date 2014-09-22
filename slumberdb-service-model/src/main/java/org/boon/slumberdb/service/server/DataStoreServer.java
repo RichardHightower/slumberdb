@@ -1,5 +1,6 @@
 package org.boon.slumberdb.service.server;
 
+import org.boon.core.reflection.ClassMeta;
 import org.boon.slumberdb.GlobalConfig;
 import org.boon.slumberdb.service.config.DataStoreServerConfig;
 import org.boon.slumberdb.stores.MasterDataStore;
@@ -15,9 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.boon.Boon.configurableLogger;
 
-/**
- * Created by Richard on 9/2/14.
- */
 public abstract class DataStoreServer {
 
     private static final int LOAD_DELAY_SECONDS = 2; //Wait for cache warm up and native thread warm-up
@@ -184,8 +182,13 @@ public abstract class DataStoreServer {
     }
 
 
-    public void handleCallWithMap(String ipAddress, Map<String, String> message, Object commChannel) {
-        requestHandler.handleCallWithMap(ipAddress, message, commChannel);
+    public void handleCallWithMap(String ipAddress, Map<String, String> message, String uri, Object commChannel) {
+        requestHandler.handleCallWithMap(ipAddress, message, uri, commChannel);
+    }
+
+
+    public Map<String, ClassMeta<?>> getServicesDefinition() {
+        return requestHandler.getServicesDefinition();
     }
 
 

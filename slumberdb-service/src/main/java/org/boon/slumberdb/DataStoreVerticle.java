@@ -1,7 +1,12 @@
 package org.boon.slumberdb;
 
+import org.boon.Str;
+import org.boon.StringScanner;
+import org.boon.core.reflection.ClassMeta;
+import org.boon.core.reflection.MethodAccess;
 import org.boon.slumberdb.service.config.DataStoreConfig;
 import org.boon.slumberdb.service.config.DataStoreServerConfig;
+import org.boon.slumberdb.service.protocol.Action;
 import org.boon.slumberdb.service.protocol.ProtocolConstants;
 import org.boon.slumberdb.service.protocol.requests.PingRequest;
 import org.boon.slumberdb.service.server.DataStoreServer;
@@ -187,8 +192,7 @@ public class DataStoreVerticle extends Verticle {
             puts("SERVER CONFIG", config.port());
 
 
-            //configureAndStartAdminHttpServer();
-            configureAndStartHttpServer();
+            configureAndStartHttpServer(dataStoreServer.getServicesDefinition());
 
 
         } catch (Throwable ex) {
@@ -200,7 +204,7 @@ public class DataStoreVerticle extends Verticle {
 
     }
 
-    private void configureAndStartHttpServer() {
+    private void configureAndStartHttpServer(Map<String, ClassMeta<?>> servicesDefinition) {
         HttpServer server = vertx.createHttpServer();
         server.setTCPKeepAlive(true);
         server.setTCPNoDelay(true);
@@ -230,7 +234,7 @@ public class DataStoreVerticle extends Verticle {
         admin.setTCPNoDelay(true);
         admin.setSoLinger(0);
         admin.setCompressionSupported(config.httpCompression());
-        admin.requestHandler(adminRouteMatchers());
+        admin.requestHandler(adminRouteMatchers(servicesDefinition));
         admin.listen(config.adminPort());
 
         puts("Admin port on", config.adminPort());
@@ -297,11 +301,8 @@ public class DataStoreVerticle extends Verticle {
         };
     }
 
-    private void configureAndStartAdminHttpServer() {
 
-    }
-
-    private RouteMatcher adminRouteMatchers() {
+    private RouteMatcher adminRouteMatchers(Map<String, ClassMeta<?>> servicesDefinition) {
         RouteMatcher routeMatcher = new RouteMatcher();
 
         routeMatcher.get("/admin/heartbeat/", new Handler<HttpServerRequest>() {
@@ -310,8 +311,8 @@ public class DataStoreVerticle extends Verticle {
                 request.response().setChunked(true);
                 request.response().write(toJson(
                         map("ok", true,
-                                "sequence", 4,
-                                "description", "DS Admin",
+                                "sequence", 99,
+                                "description", "Slumber DB",
                                 "cpus", Runtime.getRuntime().availableProcessors(),
                                 "free memory", Runtime.getRuntime().freeMemory(),
                                 "total memory", Runtime.getRuntime().totalMemory(),
@@ -333,10 +334,69 @@ public class DataStoreVerticle extends Verticle {
                 map.put(ProtocolConstants.Search.HANDLER_KEY, "org.boon.slumberdb.search.BaseSearchHandler");
                 map.put(ProtocolConstants.Search.LIMIT_KEY, Integer.toString(ProtocolConstants.Search.LIMIT_VALUE));
 
-                dataStoreServer.handleCallWithMap(ipAddress, toMap(request.params()), request.response());
+                dataStoreServer.handleCallWithMap(ipAddress, map, request.uri(), request.response());
             }
         });
 
+
+        final Set<Map.Entry<String, ClassMeta<?>>> entries = servicesDefinition.entrySet();
+
+        for (final Map.Entry<String, ClassMeta<?>> entry : entries) {
+
+            String longName = entry.getValue().longName();
+            longName = StringScanner.substringAfter(longName, "org.boon.slumberdb");
+            longName = longName.replace('.', '/');
+
+            for (MethodAccess methodAccess : entry.getValue().methods()) {
+
+
+                if (methodAccess.hasAnnotation("serviceMethod")) {
+
+                    puts("SERVICE REGISTERED UNDER", longName, "\n");
+
+                    final String methodName = methodAccess.name();
+
+                    String uri = Str.add(longName, "/", methodName);
+
+                    final Handler<HttpServerRequest> handler = new Handler<HttpServerRequest>() {
+                        public void handle(HttpServerRequest request) {
+
+                            String ipAddress = request.remoteAddress().toString();
+
+                            Map<String, String> map = toMap(request.params());
+
+
+                            map.put("method", methodName);
+
+                            map.put("object", entry.getKey());
+
+                            map.put("action", Action.METHOD_CALL.verb());
+
+
+                            dataStoreServer.handleCallWithMap(ipAddress, map, request.uri(), request.response());
+
+
+                        }
+                    };
+
+
+                    puts("    SERVICE METHOD REGISTERED UNDER", uri, uri.toLowerCase());
+                    routeMatcher.get(uri, handler);
+                    routeMatcher.get(uri.toLowerCase(), handler);
+
+
+                    uri = Str.add("/slumberdb/", entry.getKey(), "/", methodName);
+                    puts("    SERVICE METHOD ALSO REGISTERED UNDER", uri, uri.toLowerCase());
+                    routeMatcher.get(uri, handler);
+                    routeMatcher.get(uri.toLowerCase(), handler);
+
+                    puts("\n\n");
+
+                }
+            }
+
+
+        }
 
         return routeMatcher;
     }
@@ -437,7 +497,7 @@ public class DataStoreVerticle extends Verticle {
 
         String ipAddress = request.remoteAddress().toString();
 
-        dataStoreServer.handleCallWithMap(ipAddress, toMap(request.params()), request.response());
+        dataStoreServer.handleCallWithMap(ipAddress, toMap(request.params()), request.uri(), request.response());
 
         if (request.params().get(ProtocolConstants.ACTION_MAP_KEY).startsWith(ProtocolConstants.SET_VERB)) {
 

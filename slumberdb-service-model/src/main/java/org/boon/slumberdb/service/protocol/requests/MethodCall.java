@@ -82,10 +82,12 @@ public class MethodCall extends DataStoreRequest {
 
         final String args = message.get("arguments");
 
+        final String clientId = message.get(ProtocolConstants.CLIENT_ID_MAP_KEY);
+
 
         final String[] split = StringScanner.split(args, ProtocolConstants.HUMAN_RECORD_DELIM.charAt(0));
 
-        return new MethodCall(preamble.clientId(), preamble.messageId(), objectName, methodName, true, split);
+        return new MethodCall(clientId, preamble.messageId(), objectName, methodName, true, split);
     }
 
     @Override

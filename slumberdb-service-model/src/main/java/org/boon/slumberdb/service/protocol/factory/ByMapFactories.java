@@ -84,7 +84,7 @@ public class ByMapFactories {
                 ),
                 entry(
                         Action.METHOD_CALL,
-                        (RequestFactory) new GetStatsFromMapFactory(Action.METHOD_CALL)
+                        (RequestFactory) new MethodCallFromMapFactory(Action.METHOD_CALL)
 
                 )
         );

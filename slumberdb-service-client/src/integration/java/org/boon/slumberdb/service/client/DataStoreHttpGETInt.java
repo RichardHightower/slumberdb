@@ -40,6 +40,16 @@ public class DataStoreHttpGETInt {
 
 
     @Test
+    public void callRESTJmxDump() {
+
+        String url = "http://localhost:11110/slumberdb/admin/jmxstatspretty";
+        final String jmxDUMP = HTTP.get(url);
+
+        puts(jmxDUMP);
+
+
+    }
+    @Test
     public void basicTest() {
 
         request = Str.add(url, "?action=", "set", "&key=", "knownkey", "&value=", "mom");
