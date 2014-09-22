@@ -20,7 +20,7 @@ slumberdb-mysql/build/classes/*
 
 slumberdb-mysql/build/reports/*
 
-slumberdb-mysql/build/test-results/TEST-info.slumberdb.SimpleSerializationMySQLStoreTest.xml
+slumberdb-mysql/build/test-results/TEST-org.boon.slumberdb.mysql.SimpleSerializationMySQLStoreTest.xml
 
 slumberdb-mysql/build/tmp/*
 
@@ -28,7 +28,7 @@ slumberdb-mysql/build/test-results/*
 
 settings.gradle~
 
-info.iml
+org.boon.iml
 
 slumberdb-lmdb/slumberdb-lmdb.iml
 
@@ -37,11 +37,11 @@ slumberdb-mysql/build/libs/slumberdb-mysql-1.0-SNAPSHOT.jar
 slumberdb-vertx/build/*
 
 
-info.iml
+org.boon.iml
 
 slumberdb-vertx/slumberdb-vertx.iml
 
-info.iml
+org.boon.iml
 
 slumberdb-hazelcast/build/*
 slumberdb-mysql/build/*
@@ -59,10 +59,10 @@ slumberdb-rocksdb/build/
 
 pom.xml~
 
-slumberdb-mongodb/build/classes/main/info/slumberdb/MongoDBKeyValueStore$1$1.class
+slumberdb-mongodb/build/classes/main/org.boon/slumberdb/MongoDBKeyValueStore$1$1.class
 
-slumberdb-mongodb/build/classes/main/info/slumberdb/MongoDBKeyValueStore$1.class
+slumberdb-mongodb/build/classes/main/org.boon/slumberdb/MongoDBKeyValueStore$1.class
 
-slumberdb-mongodb/build/classes/main/info/slumberdb/MongoDBKeyValueStore.class
+slumberdb-mongodb/build/classes/main/org.boon/slumberdb/MongoDBKeyValueStore.class
 
 slumberdb-mongodb/slumberdb-mongodb.iml

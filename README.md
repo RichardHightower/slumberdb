@@ -238,7 +238,7 @@ LevelDB gets used by Chrome.
 
 See Kryo at: https://github.com/EsotericSoftware/kryo
 
-See _**Boon**_ at: https://github.com/RichardHightower/boon
+See _**Boon**_ at: https://github.com/RichardHightower/org.boon
 
 See LevelDBJNI at: https://github.com/fusesource/leveldbjni
 

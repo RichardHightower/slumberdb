@@ -9,18 +9,23 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- boon.io, json.io was taken. -->
+    <!-- org.boon.io, json.io was taken. -->
     <groupId>io.fastjson</groupId>
     <artifactId>slumberdb</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 
 
-    <name>slumberdb</name>
+    <name>Slumber DB</name>
 
     <description>Key/Value Store for JSON for Boon</description>
     <url>http://richardhightower.github.io/site/Boon</url>
+
+
+    <properties>
+        <boon.version>0.27</boon.version>
+    </properties>
 
 
     <licenses>
@@ -52,6 +57,9 @@
         <module>slumberdb-core</module>
         <module>slumberdb-leveldb</module>
         <module>slumberdb-mysql</module>
+        <module>slumberdb-service-model</module>
+        <module>slumberdb-service-client</module>
+        <module>slumberdb-service</module>
     </modules>
 
     <build>
