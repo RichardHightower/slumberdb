@@ -3,7 +3,7 @@ package org.boon.slumberdb.leveldb;
 
 import org.boon.Exceptions;
 import org.boon.Logger;
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
 import org.boon.slumberdb.KeyValueStore;
 import org.fusesource.leveldbjni.JniDBFactory;

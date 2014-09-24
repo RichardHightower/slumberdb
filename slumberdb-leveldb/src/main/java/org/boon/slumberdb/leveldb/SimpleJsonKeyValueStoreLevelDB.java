@@ -1,7 +1,7 @@
 package org.boon.slumberdb.leveldb;
 
 
-import org.boon.slumberdb.SimpleJsonKeyValueStore;
+import org.boon.slumberdb.impl.SimpleJsonKeyValueStore;
 
 public class SimpleJsonKeyValueStoreLevelDB<V> extends SimpleJsonKeyValueStore<V> {
 

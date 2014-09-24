@@ -1,8 +1,11 @@
-package org.boon.slumberdb;
+package org.boon.slumberdb.impl;
 
 
 import org.boon.Maps;
 import org.boon.Str;
+import org.boon.slumberdb.KeyValueIterable;
+import org.boon.slumberdb.entries.Entry;
+import org.boon.slumberdb.impl.InMemoryStringKeyValueStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

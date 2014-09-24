@@ -1,7 +1,7 @@
 package org.boon.slumberdb.service.server;
 
 import org.boon.core.reflection.ClassMeta;
-import org.boon.slumberdb.GlobalConfig;
+import org.boon.slumberdb.config.GlobalConfig;
 import org.boon.slumberdb.service.config.DataStoreServerConfig;
 import org.boon.slumberdb.stores.MasterDataStore;
 import org.boon.slumberdb.stores.queue.DataOutputQueueTransferQueue;

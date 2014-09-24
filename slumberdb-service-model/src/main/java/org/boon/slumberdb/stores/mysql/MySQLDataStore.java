@@ -1,7 +1,7 @@
 package org.boon.slumberdb.stores.mysql;
 
 
-import org.boon.slumberdb.GlobalConfig;
+import org.boon.slumberdb.config.GlobalConfig;
 import org.boon.slumberdb.service.config.DataStoreConfig;
 import org.boon.slumberdb.service.protocol.Action;
 import org.boon.slumberdb.service.protocol.requests.*;

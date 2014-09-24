@@ -12,7 +12,7 @@ import org.boon.slumberdb.stores.DataStoreSource;
 import org.boon.Exceptions;
 import org.boon.Logger;
 import org.boon.core.Sys;
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;

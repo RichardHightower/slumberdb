@@ -1,6 +1,6 @@
 package org.boon.slumberdb.noop;
 
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
 
 import java.util.Collections;

@@ -1,7 +1,7 @@
 package org.boon.slumberdb.leveldb;
 
 
-import org.boon.slumberdb.SimpleStringKeyValueStore;
+import org.boon.slumberdb.impl.SimpleStringKeyValueStore;
 import org.iq80.leveldb.Options;
 
 

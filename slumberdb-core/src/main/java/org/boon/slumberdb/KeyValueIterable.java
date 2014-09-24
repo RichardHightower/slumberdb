@@ -1,6 +1,8 @@
 package org.boon.slumberdb;
 
 
+import org.boon.slumberdb.entries.Entry;
+
 import java.io.Closeable;
 
 /**

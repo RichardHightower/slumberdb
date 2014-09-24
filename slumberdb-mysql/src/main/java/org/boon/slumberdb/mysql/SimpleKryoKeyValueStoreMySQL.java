@@ -1,7 +1,7 @@
 package org.boon.slumberdb.mysql;
 
 import com.esotericsoftware.kryo.Kryo;
-import org.boon.slumberdb.SerializedJavaKeyValueStore;
+import org.boon.slumberdb.impl.SerializedJavaKeyValueStore;
 import org.boon.slumberdb.base.BaseStringBinaryKeyValueStore;
 import org.boon.slumberdb.serialization.KryoByteArrayToObjectConverter;
 import org.boon.slumberdb.serialization.KryoObjectToByteArrayConverter;

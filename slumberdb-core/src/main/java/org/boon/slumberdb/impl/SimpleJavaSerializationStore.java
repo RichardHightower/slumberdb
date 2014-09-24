@@ -1,5 +1,6 @@
-package org.boon.slumberdb;
+package org.boon.slumberdb.impl;
 
+import org.boon.slumberdb.KeyValueStore;
 import org.boon.slumberdb.base.BaseSimpleSerializationKeyValueStore;
 import org.boon.slumberdb.serialization.ByteArrayToStringConverter;
 import org.boon.slumberdb.serialization.JavaDeserializerBytes;

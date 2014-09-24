@@ -1,6 +1,6 @@
 package org.boon.slumberdb.leveldb;
 
-import org.boon.slumberdb.SimpleKryoKeyValueStore;
+import org.boon.slumberdb.impl.SimpleKryoKeyValueStore;
 import org.iq80.leveldb.Options;
 
 import java.io.Serializable;

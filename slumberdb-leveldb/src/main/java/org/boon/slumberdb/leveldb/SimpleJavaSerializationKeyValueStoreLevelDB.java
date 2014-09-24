@@ -1,6 +1,6 @@
 package org.boon.slumberdb.leveldb;
 
-import org.boon.slumberdb.SimpleJavaSerializationStore;
+import org.boon.slumberdb.impl.SimpleJavaSerializationStore;
 import org.iq80.leveldb.Options;
 
 import java.io.Serializable;

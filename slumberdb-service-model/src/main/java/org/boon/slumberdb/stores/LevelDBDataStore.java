@@ -1,6 +1,7 @@
 package org.boon.slumberdb.stores;
 
 
+import org.boon.slumberdb.config.GlobalConfig;
 import org.boon.slumberdb.service.config.DataStoreConfig;
 import org.boon.slumberdb.service.protocol.requests.*;
 import org.boon.slumberdb.service.results.BatchResult;
@@ -11,7 +12,7 @@ import org.boon.Logger;
 import org.boon.Pair;
 import org.boon.concurrent.SimpleExecutors;
 import org.boon.core.Sys;
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
 import org.boon.slumberdb.StringKeyValueStore;
 import org.boon.slumberdb.leveldb.SimpleStringKeyValueStoreLevelDB;
@@ -30,7 +31,7 @@ import static org.boon.Boon.configurableLogger;
  */
 public class LevelDBDataStore extends BaseDataStore implements DataStore {
 
-    private final boolean debug = org.boon.slumberdb.GlobalConfig.DEBUG;
+    private final boolean debug = GlobalConfig.DEBUG;
     StringKeyValueStore store;
     Thread loaderThread;
     private Logger logger = configurableLogger(this.getClass().getSimpleName());

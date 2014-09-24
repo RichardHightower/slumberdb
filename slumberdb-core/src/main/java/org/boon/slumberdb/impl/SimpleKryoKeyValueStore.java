@@ -1,6 +1,7 @@
-package org.boon.slumberdb;
+package org.boon.slumberdb.impl;
 
 import com.esotericsoftware.kryo.Kryo;
+import org.boon.slumberdb.KeyValueStore;
 import org.boon.slumberdb.base.BaseSimpleSerializationKeyValueStore;
 import org.boon.slumberdb.serialization.ByteArrayToStringConverter;
 import org.boon.slumberdb.serialization.KryoByteArrayToObjectConverter;
@@ -24,7 +25,7 @@ import java.io.Serializable;
  * It expects the key to be a simple string and the value to be an object that will be serialized using Kryo.
  *
  * @param <V> type of value we are storing.
- * @see KeyValueStore
+ * @see org.boon.slumberdb.KeyValueStore
  */
 public class SimpleKryoKeyValueStore<V extends Serializable> extends BaseSimpleSerializationKeyValueStore<String, V> implements SerializedJavaKeyValueStore<String, V> {
 

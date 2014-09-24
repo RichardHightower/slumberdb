@@ -5,6 +5,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import org.boon.Str;
+import org.boon.slumberdb.entries.Entry;
 
 import java.util.Collection;
 import java.util.Iterator;

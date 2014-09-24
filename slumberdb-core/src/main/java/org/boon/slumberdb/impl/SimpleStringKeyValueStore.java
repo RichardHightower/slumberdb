@@ -1,6 +1,8 @@
-package org.boon.slumberdb;
+package org.boon.slumberdb.impl;
 
 import org.boon.cache.SimpleCache;
+import org.boon.slumberdb.KeyValueStore;
+import org.boon.slumberdb.StringKeyValueStore;
 import org.boon.slumberdb.base.BaseSimpleSerializationKeyValueStore;
 import org.boon.slumberdb.serialization.ByteArrayToStringConverter;
 import org.boon.slumberdb.serialization.StringToByteArrayConverter;

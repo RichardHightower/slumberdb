@@ -31,7 +31,7 @@ import static org.boon.Maps.map;
 public class DataStoreVerticle extends Verticle {
 
     private final static int MAX_MESSAGE_SIZE = Sys.sysProp("org.boon.slumberdb.config.MaxDataSize", 20_000_000);
-    private final boolean debug = GlobalConfig.DEBUG;
+    private final boolean debug = org.boon.slumberdb.config.GlobalConfig.DEBUG;
     DataStoreServer dataStoreServer = new DataStoreServer() {
         @Override
         protected void sendToAllClients(String reply) {

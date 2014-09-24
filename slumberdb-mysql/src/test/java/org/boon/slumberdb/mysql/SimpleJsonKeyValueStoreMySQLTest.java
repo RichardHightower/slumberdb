@@ -2,9 +2,8 @@ package org.boon.slumberdb.mysql;
 
 import org.boon.Maps;
 import org.boon.Str;
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
-import org.boon.slumberdb.mysql.SimpleJsonKeyValueStoreMySQL;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

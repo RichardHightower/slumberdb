@@ -1,7 +1,7 @@
 package org.boon.slumberdb.service.search;
 
 import org.boon.slumberdb.service.protocol.requests.SearchRequest;
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
 import org.boon.slumberdb.KeyValueStore;
 

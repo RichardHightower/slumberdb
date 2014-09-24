@@ -3,7 +3,7 @@ package org.boon.slumberdb.base;
 
 import org.boon.cache.SimpleCache;
 import org.boon.core.Function;
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
 import org.boon.slumberdb.KeyValueStore;
 

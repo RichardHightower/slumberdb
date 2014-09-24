@@ -1,6 +1,6 @@
 package org.boon.slumberdb.mysql;
 
-import org.boon.slumberdb.SerializedJavaKeyValueStore;
+import org.boon.slumberdb.impl.SerializedJavaKeyValueStore;
 import org.boon.slumberdb.base.BaseStringBinaryKeyValueStore;
 import org.boon.slumberdb.serialization.JavaDeserializerBytes;
 import org.boon.slumberdb.serialization.JavaSerializerBytes;

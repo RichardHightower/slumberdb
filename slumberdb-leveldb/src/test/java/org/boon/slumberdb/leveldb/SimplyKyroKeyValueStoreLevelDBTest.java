@@ -2,9 +2,8 @@ package org.boon.slumberdb.leveldb;
 
 import org.boon.Maps;
 import org.boon.Str;
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
-import org.boon.slumberdb.leveldb.SimpleKryoKeyValueStoreLevelDB;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

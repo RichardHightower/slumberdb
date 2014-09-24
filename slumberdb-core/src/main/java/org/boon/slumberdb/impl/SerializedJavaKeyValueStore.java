@@ -1,4 +1,6 @@
-package org.boon.slumberdb;
+package org.boon.slumberdb.impl;
+
+import org.boon.slumberdb.KeyValueStore;
 
 /**
  * This is a marker interface of sorts for serialized java object stores.

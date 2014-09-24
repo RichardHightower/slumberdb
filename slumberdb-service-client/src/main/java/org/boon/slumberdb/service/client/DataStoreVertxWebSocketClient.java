@@ -1,6 +1,6 @@
 package org.boon.slumberdb.service.client;
 
-import org.boon.slumberdb.GlobalConfig;
+import org.boon.slumberdb.config.GlobalConfig;
 import org.boon.slumberdb.service.config.Bucket;
 import org.boon.slumberdb.service.config.DataStoreClientConfig;
 import org.boon.slumberdb.stores.DataOutputQueue;
@@ -10,7 +10,7 @@ import org.boon.Str;
 import org.boon.core.Sys;
 import org.boon.json.JsonSerializer;
 import org.boon.json.JsonSerializerFactory;
-import org.boon.slumberdb.Entry;
+import org.boon.slumberdb.entries.Entry;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 
