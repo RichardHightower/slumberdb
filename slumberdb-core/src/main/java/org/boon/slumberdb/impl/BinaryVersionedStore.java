@@ -129,6 +129,31 @@ public class BinaryVersionedStore  implements KeyValueStoreWithVersion<String, b
     }
 
     @Override
+    public void set(String key, byte[] value) {
+
+        VersionedEntry<String, byte[]> load = baseVersionedStorage.load(key);
+
+        long now = Timer.timer().now();
+
+        if (load!=null) {
+            load.setUpdateTimestamp(now);
+            load.setVersion(load.version()+1);
+        } else {
+
+            load = new VersionedEntry<>(key, value);
+            load.setCreateTimestamp(now);
+            load.setUpdateTimestamp(now);
+            load.setVersion(0);
+        }
+    }
+
+    @Override
+    public byte[] get(String key) {
+        final VersionedEntry<String, byte[]> load = baseVersionedStorage.load(key);
+        return load == null ? null : load.getValue();
+    }
+
+    @Override
     public UpdateStatus put(String key, long version, long updatedTime, byte[] value) {
 
         final VersionKey versionKey = loadVersion(key);

@@ -16,6 +16,9 @@ public interface KeyValueStoreWithVersion <K, O, V extends VersionedEntry<K, O>>
 
     UpdateStatus put(String key, long version, O value);
 
+    void set(K key, O value);
+
+    O get(K key);
 
     UpdateStatus put(String key, long version, long updatedTime, O value);
 
