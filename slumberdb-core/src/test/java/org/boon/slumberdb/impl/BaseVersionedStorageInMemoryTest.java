@@ -93,20 +93,20 @@ public class BaseVersionedStorageInMemoryTest {
 
 
 
-        UpdateStatus updateStatus = store.put("Rick", 2, versionedEntry.setVersion(2).value());
+        UpdateStatus updateStatus = store.put("Rick", 4, versionedEntry.setVersion(3).value());
 
         ok = updateStatus == UpdateStatus.SUCCESS || die(updateStatus);
 
 
-        updateStatus = store.put("Rick", 3,
-                versionedEntry.setVersion(3).setUpdateTimestamp(System.currentTimeMillis()).value());
+        updateStatus = store.put("Rick", 5,
+                versionedEntry.setVersion(5).setUpdateTimestamp(System.currentTimeMillis()).value());
 
         ok = updateStatus == UpdateStatus.SUCCESS || die(updateStatus);
 
 
         long time = System.currentTimeMillis();
 
-        updateStatus = store.put("Rick", 3,
+        updateStatus = store.put("Rick", -1,
                 versionedEntry.value());
 
         long now = Timer.timer().now();
@@ -117,7 +117,7 @@ public class BaseVersionedStorageInMemoryTest {
         ok = updateStatus.versionKey()!=null  || die(updateStatus);
 
 
-        ok = updateStatus.versionKey().version() == 3  || die(updateStatus);
+        ok = updateStatus.versionKey().version() == 5  || die(updateStatus);
 
 
         ok = updateStatus.versionKey().updatedOn() == now  || die(updateStatus);
@@ -137,17 +137,17 @@ public class BaseVersionedStorageInMemoryTest {
 
         Boon.equalsOrDie(now, rick.updatedOn());
 
-        Boon.equalsOrDie(3L, rick.version());
+        Boon.equalsOrDie(5L, rick.version());
 
 
-        updateStatus = store.put("Rick", 4, time+2000,
-                versionedEntry.setVersion(4)
+        updateStatus = store.put("Rick", 6, time+2000,
+                versionedEntry.setVersion(6)
                         .setUpdateTimestamp(time + 2000)
                         .value("I love Diana"
                                 .getBytes(StandardCharsets.UTF_8))
                         .value());
 
-        ok = updateStatus == UpdateStatus.SUCCESS || die();
+        ok = updateStatus == UpdateStatus.SUCCESS || die(updateStatus);
 
 
         rick = store.load("Rick");
@@ -156,7 +156,7 @@ public class BaseVersionedStorageInMemoryTest {
 
         Boon.equalsOrDie(time+2000, rick.updatedOn());
 
-        Boon.equalsOrDie(4L, rick.version());
+        Boon.equalsOrDie(6L, rick.version());
 
         Str.equalsOrDie("I love Diana", new String(rick.getValue(), StandardCharsets.UTF_8));
 

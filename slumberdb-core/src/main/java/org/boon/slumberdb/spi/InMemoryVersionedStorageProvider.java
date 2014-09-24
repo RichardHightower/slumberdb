@@ -1,5 +1,6 @@
 package org.boon.slumberdb.spi;
 
+import org.boon.collections.ConcurrentWeakHashMap;
 import org.boon.collections.LazyMap;
 import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
@@ -11,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import org.boon.concurrent.Timer;
 
 /**
  * Created by Richard on 9/23/14.
@@ -21,6 +23,9 @@ public class InMemoryVersionedStorageProvider implements VersionedStorageProvide
 
     private final ConcurrentNavigableMap<String, ByteBuffer> searchMap = new ConcurrentSkipListMap<>();
     private final ConcurrentHashMap<String, ByteBuffer> map = new ConcurrentHashMap<>(10_000);
+    private final ConcurrentWeakHashMap<String, VersionedEntry<String, byte[]>> weakHashMap = new ConcurrentWeakHashMap<>(10_000);
+
+
 
     @Override
     public long totalConnectionOpen() {
@@ -43,6 +48,7 @@ public class InMemoryVersionedStorageProvider implements VersionedStorageProvide
         for (String key : keys) {
             map.remove(key);
             searchMap.remove(key);
+            weakHashMap.remove(key);
         }
     }
 
@@ -51,6 +57,7 @@ public class InMemoryVersionedStorageProvider implements VersionedStorageProvide
 
         map.remove(key);
         searchMap.remove(key);
+        weakHashMap.remove(key);
 
     }
 
@@ -136,12 +143,31 @@ public class InMemoryVersionedStorageProvider implements VersionedStorageProvide
 
     @Override
     public VersionedEntry<String, byte[]> load(String key) {
-        ByteBuffer byteBuffer = map.get(key);
-        return readEntry(key, byteBuffer);
+
+        VersionedEntry<String, byte[]> entry = weakHashMap.get(key);
+
+        if (entry == null) {
+
+            ByteBuffer byteBuffer = map.get(key);
+            entry =  readEntry(key, byteBuffer);
+            weakHashMap.put(key, entry);
+        }
+
+
+        return entry;
+
     }
+
+
 
     @Override
     public void put(String key, VersionedEntry<String, byte[]> entry) {
+
+        weakHashMap.put(key, entry);
+
+        checkFlush();
+
+
 
         ByteBuffer byteBuffer = map.get(key);
         if (byteBuffer==null) {
@@ -158,6 +184,25 @@ public class InMemoryVersionedStorageProvider implements VersionedStorageProvide
         map.put(key, byteBuffer);
         searchMap.put(key, byteBuffer);
 
+    }
+
+
+    private static final int CHECK_EVERY_X_PUTS = 10_000;
+    private long lastFlushTime = Timer.timer().now();
+    int numberOfPuts;
+    private void checkFlush() {
+        numberOfPuts++;
+        if(numberOfPuts > CHECK_EVERY_X_PUTS) {
+            long now = Timer.timer().now();
+            long duration = now - lastFlushTime;
+            numberOfPuts=0;
+            if (duration > (60 * 1_000 * 60)) {
+                if (this.weakHashMap.size()>10_000_000) {
+                    this.weakHashMap.clear();
+                    lastFlushTime = now;
+                }
+            }
+        }
     }
 
     @Override
@@ -229,8 +274,7 @@ public class InMemoryVersionedStorageProvider implements VersionedStorageProvide
 
         for (String key : keys) {
 
-            final ByteBuffer byteBuffer = map.get(key);
-            VersionKey versionKey = readVersion(key, byteBuffer);
+            VersionKey versionKey = readVersion(key);
             versionKeys.add(versionKey);
 
         }
@@ -250,25 +294,35 @@ public class InMemoryVersionedStorageProvider implements VersionedStorageProvide
     @Override
     public VersionKey loadVersion(String key) {
 
-        final ByteBuffer byteBuffer = map.get(key);
-        VersionKey versionKey = readVersion(key, byteBuffer);
+        VersionKey versionKey = readVersion(key);
         return versionKey;
     }
 
 
-    private VersionKey readVersion(final String key, ByteBuffer byteBuffer) {
+    private VersionKey readVersion(final String key) {
 
-        if (byteBuffer==null) {
-            return VersionKey.notFound(key);
+        final VersionedEntry<String, byte[]> entry = weakHashMap.get(key);
+
+
+        if (entry!=null) {
+
+            return new VersionKey(key, entry.version(), entry.updatedOn(), entry.createdOn(), entry.getValue().length);
+        } else {
+
+            final ByteBuffer byteBuffer = map.get(key);
+
+            if (byteBuffer == null) {
+                return VersionKey.notFound(key);
+            }
+
+            byteBuffer.rewind();
+            long version = byteBuffer.getLong();
+            long createTime = byteBuffer.getLong();
+            long updateTimestamp = byteBuffer.getLong();
+            final int size = byteBuffer.getInt();
+
+            return new VersionKey(key, version, updateTimestamp, createTime, size);
         }
-
-        byteBuffer.rewind();
-        long version = byteBuffer.getLong();
-        long createTime = byteBuffer.getLong();
-        long updateTimestamp = byteBuffer.getLong();
-        final int size = byteBuffer.getInt();
-
-        return new VersionKey(key, version, updateTimestamp,createTime, size);
 
     }
 }
