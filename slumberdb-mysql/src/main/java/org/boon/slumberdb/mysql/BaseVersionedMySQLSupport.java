@@ -2,15 +2,17 @@ package org.boon.slumberdb.mysql;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.boon.Exceptions;
+import org.boon.Lists;
 import org.boon.Logger;
 import org.boon.collections.LazyMap;
+import org.boon.core.Conversions;
 import org.boon.primitive.CharBuf;
 import org.boon.slumberdb.*;
 import org.boon.slumberdb.config.GlobalConfig;
 import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.entries.VersionKey;
 import org.boon.slumberdb.entries.VersionedEntry;
-import org.boon.slumberdb.spi.BaseVersionedStorage;
+import org.boon.slumberdb.spi.VersionedStorageProvider;
 
 import java.sql.*;
 import java.util.*;
@@ -22,7 +24,7 @@ import static org.boon.Exceptions.die;
 /**
  * Created by Richard on 9/23/14.
  */
-public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
+public  class BaseVersionedMySQLSupport implements VersionedStorageProvider {
 
 
     protected final String sqlColumnType = "LONGBLOB";
@@ -44,13 +46,18 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
     protected PreparedStatement search;
     protected PreparedStatement loadAll;
     protected PreparedStatement allKeys;
+    protected PreparedStatement loadAllVersionDataByKeys;
+
     protected Logger logger = configurableLogger(BaseVersionedMySQLSupport.class);
     protected String loadAllSQL;
     protected int batchSize = 100;
     protected String selectKeysSQL;
     protected int loadKeyCount = 100;
-    protected PreparedStatement loadAllKeys;
-    protected String loadAllKeysSQL;
+    protected PreparedStatement loadAllByKeysPreparedStatement;
+
+    protected String loadAllByKeysSQL;
+    protected String loadAllVersionDataByKeysSQL;
+
     private long totalConnectionOpen;
     private long totalClosedConnections;
     private long totalErrors;
@@ -61,9 +68,6 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
     private int VERSION_POS = 3;
     private int UPDATE_POS = 4;
     private int CREATE_POS = 5;
-
-    //this.insertStatementSQL =  "replace into `" + table + "`
-    // (kv_key, kv_value, version, update_timestamp, create_timestamp) values (?,?);";
 
 
     public BaseVersionedMySQLSupport(String password, String userName, String url, String table,
@@ -80,34 +84,12 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
         initDB();
     }
 
-    @Override
-    public long totalConnectionOpen() {
-        return totalConnectionOpen;
-    }
-
-    @Override
-    public long totalClosedConnections() {
-        return totalClosedConnections;
-    }
-
-    @Override
-    public long totalErrors() {
-        return totalErrors;
-    }
 
     protected void initDB() {
 
         connect();
         createTableIfNeeded();
         createPreparedStatements();
-    }
-
-    protected byte[] getValueColumn(int index, ResultSet resultSet) throws SQLException {
-        return resultSet.getBytes(index);
-    }
-
-    protected void setValueColumnQueryParam(int index, PreparedStatement p, byte[] value) throws SQLException {
-        p.setBytes(index, value);
     }
 
 
@@ -130,179 +112,6 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
     }
 
 
-    /**
-     * Create SQL statements
-     * @param table
-     */
-    protected void createSQL(String table) {
-        this.insertStatementSQL =  "replace into `" + table + "` (kv_key, kv_value, version, update_timestamp, create_timestamp) values (?,?);";
-        this.selectStatementSQL = "select kv_key, kv_value, version, update_timestamp, create_timestamp from `" + table + "` where kv_key = ?;";
-        this.searchStatementSQL = "select kv_key, kv_value, version, update_timestamp, create_timestamp from `" + table + "` where kv_key >= ?;";
-        this.loadAllSQL = "select kv_key, kv_value, version, update_timestamp, create_timestamp  from `" + table + "`;";
-        this.selectKeysSQL = "select kv_key from `" + table + "`;";
-
-
-        createLoadAllKeysSQL(table);
-
-
-        this.deleteStatementSQL = "delete  from `" + table + "` where kv_key = ?;";
-
-        this.tableExistsSQL = "select * from `" + table + "` where 1!=1;";
-
-        createTableSQL(table);
-
-        if (debug)
-            logger.info("The following SQL statements will be used", "insert", this.insertStatementSQL, "select", this.selectStatementSQL,
-                    "search", this.searchStatementSQL, "LOAD", this.loadAllSQL, "SELECT_KEYS", this.selectKeysSQL,
-                    "DELETE", this.deleteStatementSQL, "TABLE EXISTS", this.tableExistsSQL, "CREATE_TABLE", this.createStatementSQL);
-
-    }
-
-
-    /**
-     * Create load all keys SQL.
-     * @param table
-     */
-    protected void createLoadAllKeysSQL(String table) {
-        CharBuf buf = CharBuf.create(100);
-        buf.add("select kv_key, kv_value from `");
-        buf.add(table);
-        buf.add("` where kv_key in (");
-        buf.multiply("?,", this.loadKeyCount);
-        buf.removeLastChar();
-        buf.add(");");
-
-        this.loadAllKeysSQL = buf.toString();
-    }
-
-
-    /**
-     * Connects to the DB and tracks if successful so upstream stuff can try to reconnect.
-     */
-    protected void connect() {
-
-        try {
-            MysqlDataSource dataSource = new MysqlDataSource();
-            dataSource.setURL(url);
-            dataSource.setPassword(password);
-            dataSource.setUser(userName);
-            connection = dataSource.getConnection();
-            connection.setAutoCommit(true);
-            closed = false;
-            totalConnectionOpen++;
-        } catch (SQLException sqlException) {
-            this.closed = true;
-            connection = null;
-
-            handle("Unable to connect", sqlException);
-
-        }
-
-
-    }
-
-
-    /**
-     * Creates a table if needed.
-     */
-    protected void createTableIfNeeded() {
-        if (closed) {
-            return;
-        }
-
-        try {
-
-
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(tableExistsSQL);
-            resultSet.next();
-
-
-        } catch (SQLException e) {
-            closed = true;
-            this.close();
-            this.connect();
-
-            try {
-
-                Statement statement = connection.createStatement();
-                statement.execute(createStatementSQL);
-
-            } catch (SQLException e1) {
-                handle("Unable to create prepare table " + createStatementSQL, e);
-            }
-        }
-    }
-
-
-    /**
-     * Handles an exception
-     * @param message status message
-     * @param sqlException sql exception
-     */
-    protected void handle(String message, SQLException sqlException) {
-
-        totalErrors++;
-
-
-        if (debug) handleSQLException(sqlException);
-
-        try {
-            close();
-        } catch (Exception ex) {
-            logger.warn(ex, "Problem closing connection after sql exception\n", sqlException);
-        }
-
-
-        Exceptions.handle(message, sqlException);
-
-
-    }
-
-
-    /**
-     * Handles an Exception.
-     * @param ex
-     */
-    public void handleSQLException(SQLException ex) {
-
-        SQLException next = ex.getNextException();
-
-        while (next != null) {
-            logger.warn(next, "BasyMySQLSupport Nested SQL Exception", next.getMessage());
-            next = ex.getNextException();
-
-        }
-
-
-    }
-
-
-    protected void createPreparedStatements() {
-        if (closed) {
-            return;
-        }
-
-        try {
-
-            insert = connection.prepareStatement(insertStatementSQL);
-
-            delete = connection.prepareStatement(deleteStatementSQL);
-
-            select = connection.prepareStatement(selectStatementSQL);
-
-            search = connection.prepareStatement(searchStatementSQL);
-
-            loadAll = connection.prepareStatement(loadAllSQL);
-
-            allKeys = connection.prepareStatement(selectKeysSQL);
-
-            loadAllKeys = connection.prepareStatement(this.loadAllKeysSQL);
-
-        } catch (SQLException e) {
-            handle("Unable to create prepared statements", e);
-        }
-    }
 
 
     @Override
@@ -426,31 +235,6 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
     }
 
 
-    @Override
-    public void close() {
-        try {
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            logger.warn("Problem closing", e);
-        } finally {
-            closed = true;
-            connection = null;
-            totalClosedConnections++;
-        }
-    }
-
-
-    protected void closeResultSet(ResultSet resultSet) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                logger.error("Unable to close result set", e);
-            }
-        }
-    }
 
     @Override
     public Collection<String> loadAllKeys() {
@@ -472,7 +256,7 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
                 set.add(key);
             }
         } catch (SQLException e) {
-            handle("Unable to call next() for result set for loadAllKeys query", e);
+            handle("Unable to call next() for result set for loadAllByKeysPreparedStatement query", e);
         } finally {
             closeResultSet(resultSet);
         }
@@ -520,7 +304,7 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
     }
 
 
-    protected void keyBatch(LazyMap results, List<String> keyLoadList) {
+    protected void keyBatch(LazyMap results, List<String> keyLoadList, boolean getValue) {
 
         while (keyLoadList.size() < this.loadKeyCount) {
             keyLoadList.add(null);
@@ -528,27 +312,36 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
         try {
             int indexToLoad = 1;
             for (String keyToLoad : keyLoadList) {
-                loadAllKeys.setString(indexToLoad, keyToLoad);
+                loadAllByKeysPreparedStatement.setString(indexToLoad, keyToLoad);
                 indexToLoad++;
             }
 
-            final ResultSet resultSet = loadAllKeys.executeQuery();
+            final ResultSet resultSet = loadAllByKeysPreparedStatement.executeQuery();
 
             while (resultSet.next()) {
 
                 String key = resultSet.getString(KEY_POS);
-                byte[] value = getValueColumn(VALUE_POS, resultSet);
+                byte[] value = getValue ? getValueColumn(VALUE_POS, resultSet) : null;
+
+
+
                 long version = resultSet.getLong(VERSION_POS);
                 long update = resultSet.getLong(UPDATE_POS);
                 long create = resultSet.getLong(CREATE_POS);
 
-                VersionedEntry<String, byte[]> returnValue = new VersionedEntry<>(key, value);
-                returnValue.setCreateTimestamp(create);
-                returnValue.setUpdateTimestamp(update);
-                returnValue.setVersion(version);
+                if (getValue) {
+                    VersionedEntry<String, byte[]> returnValue = new VersionedEntry<>(key, value);
+                    returnValue.setCreateTimestamp(create);
+                    returnValue.setUpdateTimestamp(update);
+                    returnValue.setVersion(version);
 
 
-                results.put(key, returnValue);
+                    results.put(key, returnValue);
+                } else {
+                    VersionKey versionKey = new VersionKey(key, version, update, create);
+
+                    results.put(key, versionKey);
+                }
             }
             resultSet.close();
 
@@ -672,14 +465,43 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
             keyLoadList.add(key);
 
             if (keyLoadList.size() == loadKeyCount) {
-                keyBatch(results, keyLoadList);
+                keyBatch(results, keyLoadList, true);
                 keyLoadList.clear();
             }
 
         }
 
-        keyBatch(results, keyLoadList);
+        keyBatch(results, keyLoadList, true);
         return (Map<String, VersionedEntry<String, byte[]>>) (Object) results;
+    }
+
+    @Override
+    public List<VersionKey> loadAllVersionInfoByKeys(Collection<String> keys) {
+
+
+        if (debug) logger.info("LOAD ALL BY KEYS ", keys);
+
+        initIfNeeded();
+
+
+        LazyMap results = new LazyMap(keys.size());
+        List<String> keyLoadList = new ArrayList<>(this.loadKeyCount);
+
+
+        for (String key : keys) {
+            keyLoadList.add(key);
+
+            if (keyLoadList.size() == loadKeyCount) {
+                keyBatch(results, keyLoadList, true);
+                keyLoadList.clear();
+            }
+
+        }
+
+        keyBatch(results, keyLoadList, true);
+
+        return Conversions.toList(results.values());
+
     }
 
     /*
@@ -755,6 +577,7 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
         }
     }
 
+
     @Override
     public boolean isOpen() {
         return !closed;
@@ -766,9 +589,278 @@ public  class BaseVersionedMySQLSupport implements BaseVersionedStorage {
     }
 
     @Override
-    public VersionKey loadVersion() {
+    public VersionKey loadVersion(String key) {
+        final List<VersionKey> versionKeys = loadAllVersionInfoByKeys(Lists.list(key));
 
-        return die(VersionKey.class, "VersionKey loadVersion not supported");
+        if (versionKeys.size()==1) {
+            return versionKeys.get(0);
+        } else {
+            return VersionKey.notFound(key);
+        }
     }
+
+
+
+
+
+    /**
+     * Creates a table if needed.
+     */
+    protected void createTableIfNeeded() {
+        if (closed) {
+            return;
+        }
+
+        try {
+
+
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(tableExistsSQL);
+            resultSet.next();
+
+
+        } catch (SQLException e) {
+            closed = true;
+            this.close();
+            this.connect();
+
+            try {
+
+                Statement statement = connection.createStatement();
+                statement.execute(createStatementSQL);
+
+            } catch (SQLException e1) {
+                handle("Unable to create prepare table " + createStatementSQL, e);
+            }
+        }
+    }
+
+
+    /**
+     * Handles an exception
+     * @param message status message
+     * @param sqlException sql exception
+     */
+    protected void handle(String message, SQLException sqlException) {
+
+        totalErrors++;
+
+
+        if (debug) handleSQLException(sqlException);
+
+        try {
+            close();
+        } catch (Exception ex) {
+            logger.warn(ex, "Problem closing connection after sql exception\n", sqlException);
+        }
+
+
+        Exceptions.handle(message, sqlException);
+
+
+    }
+
+
+
+
+    /**
+     * Connects to the DB and tracks if successful so upstream stuff can try to reconnect.
+     */
+    protected void connect() {
+
+        try {
+            MysqlDataSource dataSource = new MysqlDataSource();
+            dataSource.setURL(url);
+            dataSource.setPassword(password);
+            dataSource.setUser(userName);
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(true);
+            closed = false;
+            totalConnectionOpen++;
+        } catch (SQLException sqlException) {
+            this.closed = true;
+            connection = null;
+
+            handle("Unable to connect", sqlException);
+
+        }
+
+
+    }
+
+
+
+    /**
+     * Handles an Exception.
+     * @param ex
+     */
+    public void handleSQLException(SQLException ex) {
+
+        SQLException next = ex.getNextException();
+
+        while (next != null) {
+            logger.warn(next, "BasyMySQLSupport Nested SQL Exception", next.getMessage());
+            next = ex.getNextException();
+
+        }
+
+
+    }
+
+
+    protected void createPreparedStatements() {
+        if (closed) {
+            return;
+        }
+
+        try {
+
+            insert = connection.prepareStatement(insertStatementSQL);
+
+            delete = connection.prepareStatement(deleteStatementSQL);
+
+            select = connection.prepareStatement(selectStatementSQL);
+
+            search = connection.prepareStatement(searchStatementSQL);
+
+            loadAll = connection.prepareStatement(loadAllSQL);
+
+            allKeys = connection.prepareStatement(selectKeysSQL);
+
+            loadAllByKeysPreparedStatement = connection.prepareStatement(this.loadAllByKeysSQL);
+
+        } catch (SQLException e) {
+            handle("Unable to create prepared statements", e);
+        }
+    }
+
+
+    @Override
+    public long totalConnectionOpen() {
+        return totalConnectionOpen;
+    }
+
+    @Override
+    public long totalClosedConnections() {
+        return totalClosedConnections;
+    }
+
+    @Override
+    public long totalErrors() {
+        return totalErrors;
+    }
+
+
+    protected byte[] getValueColumn(int index, ResultSet resultSet) throws SQLException {
+        return resultSet.getBytes(index);
+    }
+
+    protected void setValueColumnQueryParam(int index, PreparedStatement p, byte[] value) throws SQLException {
+        p.setBytes(index, value);
+    }
+
+
+
+    /**
+     * Create SQL statements
+     * @param table
+     */
+    protected void createSQL(String table) {
+        this.insertStatementSQL =  "replace into `" + table + "` (kv_key, kv_value, version, update_timestamp, create_timestamp)" +
+                " values (?,?);";
+        this.selectStatementSQL = "select kv_key, kv_value, version, update_timestamp, create_timestamp from `" + table +
+                "` where kv_key = ?;";
+        this.searchStatementSQL = "select kv_key, kv_value, version, update_timestamp, create_timestamp from `" + table
+                + "` where kv_key >= ?;";
+        this.loadAllSQL = "select kv_key, kv_value, version, update_timestamp, create_timestamp  from `" + table + "`;";
+        this.selectKeysSQL = "select kv_key from `" + table + "`;";
+
+
+
+        createLoadAllKeysSQL(table);
+
+
+        this.deleteStatementSQL = "delete  from `" + table + "` where kv_key = ?;";
+
+        this.tableExistsSQL = "select * from `" + table + "` where 1!=1;";
+
+        createTableSQL(table);
+        createLoadAllVersionDataSQL(table);
+
+        if (debug)
+            logger.info("The following SQL statements will be used", "insert", this.insertStatementSQL, "select", this.selectStatementSQL,
+                    "search", this.searchStatementSQL, "LOAD", this.loadAllSQL, "SELECT_KEYS", this.selectKeysSQL,
+                    "DELETE", this.deleteStatementSQL, "TABLE EXISTS", this.tableExistsSQL, "CREATE_TABLE", this.createStatementSQL);
+
+    }
+
+
+    /**
+     * Create load all keys SQL.
+     * @param table
+     */
+    protected void createLoadAllKeysSQL(String table) {
+
+
+        CharBuf buf = CharBuf.create(100);
+        buf.add("select kv_key, kv_value, version, update_timestamp, create_timestamp from `");
+        buf.add(table);
+        buf.add("` where kv_key in (");
+        buf.multiply("?,", this.loadKeyCount);
+        buf.removeLastChar();
+        buf.add(");");
+
+        this.loadAllByKeysSQL = buf.toString();
+    }
+
+
+    /**
+     * Create load all keys SQL.
+     * @param table table
+     */
+    protected void createLoadAllVersionDataSQL(String table) {
+
+
+        CharBuf buf = CharBuf.create(100);
+        buf.add("select kv_key, 1, version, update_timestamp, create_timestamp from `");
+        buf.add(table);
+        buf.add("` where kv_key in (");
+        buf.multiply("?,", this.loadKeyCount);
+        buf.removeLastChar();
+        buf.add(");");
+
+        this.loadAllVersionDataByKeysSQL = buf.toString();
+    }
+
+
+
+    @Override
+    public void close() {
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            logger.warn("Problem closing", e);
+        } finally {
+            closed = true;
+            connection = null;
+            totalClosedConnections++;
+        }
+    }
+
+
+    protected void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                logger.error("Unable to close result set", e);
+            }
+        }
+    }
+
+
+
 }
 

@@ -1,8 +1,9 @@
 package org.boon.slumberdb;
 
-import org.boon.slumberdb.entries.UpdateStatus;
-import org.boon.slumberdb.entries.VersionKey;
-import org.boon.slumberdb.entries.VersionedEntry;
+import org.boon.slumberdb.entries.*;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by Richard on 9/23/14.
@@ -10,14 +11,17 @@ import org.boon.slumberdb.entries.VersionedEntry;
 public interface KeyValueStoreWithVersion <K, O, V extends VersionedEntry<K, O>> extends KeyValueStore<K, V>{
 
 
-    VersionKey loadVersion(String key);
 
-    UpdateStatus put(String key, long version, V value);
+    LoadedEntry<K, O> load(String key, long version);
+
+    UpdateStatus put(String key, long version, O value);
 
 
-    UpdateStatus put(String key, long version, long updatedTime, V value);
+    UpdateStatus put(String key, long version, long updatedTime, O value);
 
-    UpdateStatus put(VersionKey key, VersionedEntry entry);
+    UpdateStatus put(VersionKey key, O value);
+
+    Collection<UpdateStatus> putAll(List<VersionedKeyValuePut<byte[]>> list);
 
 
 }

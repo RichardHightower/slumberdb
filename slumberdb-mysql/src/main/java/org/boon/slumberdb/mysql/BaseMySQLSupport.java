@@ -407,7 +407,7 @@ public abstract class BaseMySQLSupport<T> {
                 set.add(key);
             }
         } catch (SQLException e) {
-            handle("Unable to call next() for result set for loadAllKeys query", e);
+            handle("Unable to call next() for result set for loadAllByKeysPreparedStatement query", e);
         } finally {
             closeResultSet(resultSet);
         }

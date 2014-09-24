@@ -1,16 +1,13 @@
-package org.boon.slumberdb.impl;
+package org.boon.slumberdb.spi;
 
 import org.boon.collections.LazyMap;
 import org.boon.slumberdb.entries.Entry;
 import org.boon.slumberdb.KeyValueIterable;
 import org.boon.slumberdb.entries.VersionKey;
 import org.boon.slumberdb.entries.VersionedEntry;
-import org.boon.slumberdb.spi.BaseVersionedStorage;
 
 import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -18,10 +15,9 @@ import java.util.concurrent.ConcurrentSkipListMap;
 /**
  * Created by Richard on 9/23/14.
  */
-public class BaseVersionedStorageInMemory implements BaseVersionedStorage {
+public class InMemoryVersionedStorageProvider implements VersionedStorageProvider {
 
     private static final int PADDING = 1024;
-    private long errors;
 
     private final ConcurrentNavigableMap<String, ByteBuffer> searchMap = new ConcurrentSkipListMap<>();
     private final ConcurrentHashMap<String, ByteBuffer> map = new ConcurrentHashMap<>(10_000);
@@ -227,6 +223,21 @@ public class BaseVersionedStorageInMemory implements BaseVersionedStorage {
     }
 
     @Override
+    public List<VersionKey> loadAllVersionInfoByKeys(Collection<String> keys) {
+
+        List<VersionKey> versionKeys = new ArrayList<>(keys.size());
+
+        for (String key : keys) {
+
+            final ByteBuffer byteBuffer = map.get(key);
+            VersionKey versionKey = readVersion(key, byteBuffer);
+            versionKeys.add(versionKey);
+
+        }
+        return versionKeys;
+    }
+
+    @Override
     public boolean isOpen() {
         return true;
     }
@@ -237,20 +248,27 @@ public class BaseVersionedStorageInMemory implements BaseVersionedStorage {
     }
 
     @Override
-    public VersionKey loadVersion() {
-        return null;
+    public VersionKey loadVersion(String key) {
+
+        final ByteBuffer byteBuffer = map.get(key);
+        VersionKey versionKey = readVersion(key, byteBuffer);
+        return versionKey;
     }
 
 
     private VersionKey readVersion(final String key, ByteBuffer byteBuffer) {
 
+        if (byteBuffer==null) {
+            return VersionKey.notFound(key);
+        }
+
         byteBuffer.rewind();
         long version = byteBuffer.getLong();
-        byteBuffer.getLong();
+        long createTime = byteBuffer.getLong();
         long updateTimestamp = byteBuffer.getLong();
         final int size = byteBuffer.getInt();
 
-        return new VersionKey(key, version, updateTimestamp, size);
+        return new VersionKey(key, version, updateTimestamp,createTime, size);
 
     }
 }

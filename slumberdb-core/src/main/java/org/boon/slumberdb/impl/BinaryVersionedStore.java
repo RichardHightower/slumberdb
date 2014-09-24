@@ -1,12 +1,13 @@
 package org.boon.slumberdb.impl;
 
+import org.boon.concurrent.Timer;
 import org.boon.slumberdb.*;
-import org.boon.slumberdb.entries.UpdateStatus;
-import org.boon.slumberdb.entries.VersionKey;
-import org.boon.slumberdb.entries.VersionedEntry;
-import org.boon.slumberdb.spi.BaseVersionedStorage;
+import org.boon.slumberdb.entries.*;
+import org.boon.slumberdb.spi.VersionedStorageProvider;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,9 +15,9 @@ import java.util.Map;
  */
 public class BinaryVersionedStore  implements KeyValueStoreWithVersion<String, byte[], VersionedEntry<String, byte[]>> {
 
-    private final BaseVersionedStorage baseVersionedStorage;
+    private final VersionedStorageProvider baseVersionedStorage;
 
-    public BinaryVersionedStore(BaseVersionedStorage baseVersionedStorage) {
+    public BinaryVersionedStore(VersionedStorageProvider baseVersionedStorage) {
         this.baseVersionedStorage = baseVersionedStorage;
     }
 
@@ -83,25 +84,43 @@ public class BinaryVersionedStore  implements KeyValueStoreWithVersion<String, b
         return baseVersionedStorage.isClosed();
     }
 
-    @Override
-    public VersionKey loadVersion(String key) {
+    private VersionKey loadVersion(String key) {
 
-        return baseVersionedStorage.loadVersion();
+        return baseVersionedStorage.loadVersion(key);
     }
 
-    public final static UpdateStatus SUCCESS = new UpdateStatus(true, null);
 
     @Override
-    public UpdateStatus put(String key, long version, VersionedEntry<String, byte[]> value) {
+    public LoadedEntry<String, byte[]> load(String key, long version) {
+        final VersionKey versionKey = this.loadVersion(key);
+
+        if (version != versionKey.version()) {
+            final VersionedEntry<String, byte[]> load = this.load(key);
+            return new LoadedEntry<>(versionKey, load == null ? null : load.getValue());
+        } else {
+            return new LoadedEntry<>(versionKey, null);
+        }
+
+    }
+
+    @Override
+    public UpdateStatus put(String key, long version,  byte[] value) {
 
         final VersionKey versionKey = loadVersion(key);
 
         if (version > versionKey.version()) {
 
-            VersionedEntry entry = new VersionedEntry<String, byte[]>();
+            VersionedEntry<String, byte[]> entry = new VersionedEntry<>(key, value);
+
+            entry.setVersionMeta(versionKey);
+
+            entry.setVersion(version);
+
+            entry.setUpdateTimestamp(Timer.timer().now());
+
             this.put(key, entry);
 
-            return SUCCESS;
+            return UpdateStatus.SUCCESS;
         } else {
             return new UpdateStatus(versionKey);
         }
@@ -110,16 +129,23 @@ public class BinaryVersionedStore  implements KeyValueStoreWithVersion<String, b
     }
 
     @Override
-    public UpdateStatus put(String key, long version, long updatedTime, VersionedEntry<String, byte[]> value) {
+    public UpdateStatus put(String key, long version, long updatedTime, byte[] value) {
 
         final VersionKey versionKey = loadVersion(key);
 
         if (version > versionKey.version() && updatedTime > versionKey.updatedOn()) {
 
-            VersionedEntry entry = new VersionedEntry<String, byte[]>();
+            VersionedEntry<String, byte[]> entry = new VersionedEntry<>(key, value);
+
+            entry.setVersionMeta(versionKey);
+
+            entry.setVersion(version);
+            entry.setUpdateTimestamp(updatedTime);
+
             this.put(key, entry);
 
-            return SUCCESS;
+
+            return UpdateStatus.SUCCESS;
         } else {
             return new UpdateStatus(versionKey);
         }
@@ -128,16 +154,62 @@ public class BinaryVersionedStore  implements KeyValueStoreWithVersion<String, b
     }
 
     @Override
-    public UpdateStatus put(VersionKey key, VersionedEntry entry) {
+    public UpdateStatus put(VersionKey key,  byte[] value) {
 
         final VersionKey versionKey = loadVersion(key.key());
 
-        if (key.equals(versionKey)) {
+        if (key.compareTo(versionKey) > 0) {
+
+            VersionedEntry<String, byte[]> entry = new VersionedEntry<>(key.key(), value);
+
+            entry.setVersionMeta(versionKey);
+
             this.put(key.key(), entry);
-            return SUCCESS;
+
+            return UpdateStatus.SUCCESS;
         } else {
             return new UpdateStatus(versionKey);
         }
+    }
+
+    @Override
+    public Collection<UpdateStatus> putAll(List<VersionedKeyValuePut<byte[]>> list) {
+
+        List<String> keys = new ArrayList<>(list.size());
+        List<UpdateStatus> status = new ArrayList<>(list.size());
+
+        for (VersionedKeyValuePut put : list) {
+            keys.add(put.getKey());
+        }
+
+        final List<VersionKey> versionKeys =
+                baseVersionedStorage.loadAllVersionInfoByKeys(keys);
+
+
+        for (int index = 0; index < list.size(); index++) {
+
+            VersionKey keyInMemoryNow = versionKeys.get(index);
+            VersionedKeyValuePut<byte[]> keyValuePut = list.get(index);
+
+            if (keyValuePut.getVersionKey().compareTo(keyInMemoryNow) > 0) {
+
+                VersionKey versionKey = keyValuePut.getVersionKey();
+                byte[] value = keyValuePut.getValue();
+
+                VersionedEntry<String, byte[]> versionedEntry =
+                        new VersionedEntry<>(versionKey.key(), value);
+                versionedEntry.setVersionMeta(versionKey);
+                versionedEntry.setValue(value);
+
+                this.put(versionKey.key(), versionedEntry);
+            } else {
+                status.add(new UpdateStatus(keyInMemoryNow));
+            }
+
+        }
+
+        return status;
+
     }
 
 }

@@ -1,5 +1,7 @@
 package org.boon.slumberdb.entries;
 
+import org.boon.concurrent.Timer;
+
 import java.util.Map;
 
 /**
@@ -35,18 +37,57 @@ public class VersionedEntry<K, V> extends Entry<K, V> {
     }
 
 
-    public VersionedEntry setVersion(long version) {
+    public VersionedEntry<K, V> setVersion(long version) {
         this.version = version;
         return this;
     }
 
-    public VersionedEntry setCreateTimestamp(long createTimestamp) {
+    public VersionedEntry<K, V> setCreateTimestamp(long createTimestamp) {
         this.createTimestamp = createTimestamp;
         return this;
     }
 
-    public VersionedEntry setUpdateTimestamp(long updateTimestamp) {
+    public VersionedEntry<K, V> setUpdateTimestamp(long updateTimestamp) {
         this.updateTimestamp = updateTimestamp;
+        return this;
+    }
+
+    public VersionedEntry<K, V> setVersionMeta(VersionKey versionMeta) {
+
+        if (versionMeta.version()==-1L) {
+            this.setVersion(0L);
+        } else {
+            this.setVersion(versionMeta.version());
+        }
+
+        if (versionMeta.createdOn()==-1) {
+            this.setCreateTimestamp(Timer.timer().now());
+        } else {
+            this.setCreateTimestamp(versionMeta.createdOn());
+        }
+
+
+        if (versionMeta.updatedOn()==-1) {
+            this.setUpdateTimestamp(Timer.timer().now());
+        } else {
+            this.setUpdateTimestamp(versionMeta.updatedOn());
+        }
+
+        return this;
+    }
+
+
+    @Override
+    public String toString() {
+        return "VersionedEntry{" +
+                "createTimestamp=" + createTimestamp +
+                ", updateTimestamp=" + updateTimestamp +
+                ", version=" + version +
+                "} " + super.toString();
+    }
+
+    public VersionedEntry<K, V> value(V v) {
+        this.setValue(v);
         return this;
     }
 }
