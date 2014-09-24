@@ -1,3 +1,5 @@
+Got a question? Ask here: https://groups.google.com/forum/#!forum/boonjava SlumberDB is part of Boon.
+
 Slumber DB - Key Value Store for JSON / REST
 =========
 
