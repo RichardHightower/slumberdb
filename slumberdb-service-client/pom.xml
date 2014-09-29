@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.fastjson</groupId>
         <artifactId>slumberdb</artifactId>
-        <version>0.5</version>
+        <version>0.6-SNAPSHOT</version>
     </parent>
 
 
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>slumberdb-service-model</artifactId>
-            <version>0.5</version>
+            <version>0.6-SNAPSHOT</version>
         </dependency>
 
         <dependency>
